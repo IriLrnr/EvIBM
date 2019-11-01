@@ -2,7 +2,6 @@
 
 int main()
 {
-  /* Values here are just for tests */
   int number_individuals, reproductive_distance, genome_size, number_generations, i, j, number_species;
   float lattice_lenght, lattice_width, radius;
   int* first_genome;
@@ -11,16 +10,16 @@ int main()
   Population individualsk, individualsk1;
   Graph G; /*  Individuals' relations graph  */
 
-  number_individuals    = 100;
+  number_individuals    = 1000;
   reproductive_distance = 7;
   genome_size           = 150;
-  number_generations    = 1000;
-  lattice_lenght        = 50;
-  lattice_width         = 50;
+  number_generations    = 2000;
+  lattice_lenght        = 100;
+  lattice_width         = 100;
   radius                = 5;
 
   /*Seeding rand() avoids repetition of values*/
-  srand(time(NULL));
+  srand(1);
 
   /* the entry is the number of individuals, the genome size, the radius of reproduction
      and the size of the space. */
@@ -30,32 +29,32 @@ int main()
      &lattice_lenght); */
 
   /* The populations k and k+1 are allocated */
-  individualsk  = (Population) malloc (number_individuals * sizeof (individual));
-  individualsk1 = (Population) malloc (number_individuals * sizeof (individual));
+  individualsk  = (Population) malloc (number_individuals * sizeof (Individual));
+  individualsk1 = (Population) malloc (number_individuals * sizeof (Individual));
 
   /* A random first genome is created */
   first_genome = (int*) malloc (genome_size * sizeof(int));
   Generate_Genome(first_genome, genome_size);
 
-  /* The genomes os each individual is allocated and the first genome is copied to each of
-  /* them */
+  /* The genome of each individual is allocated and the first genome is copied to each of
+   them */
   for (i = 0; i < number_individuals; i++) {
-    individualsk[i].genome = (int*) malloc(genome_size * sizeof (int));
-    individualsk1[i].genome = (int*) malloc(genome_size * sizeof (int));
+    individualsk[i] = (Individual) malloc (sizeof (individual));
+    individualsk1[i] = (Individual) malloc (sizeof (individual));
+    individualsk[i]->genome = (int*) malloc(genome_size * sizeof (int));
+    individualsk1[i]->genome = (int*) malloc(genome_size * sizeof (int));
     for (j = 0; j < genome_size; j++) {
-      individualsk[i].genome[j] = first_genome[j];
+      individualsk[i]->genome[j] = first_genome[j];
     }
   }
 
   /* The first graph is complete (because all the individuals are identical) */
   G = CreateGraph (number_individuals);
 
-  /* The individuals are in the space, but they can never be in the exact same spot  */
+  /* The individuals are in the space  */
   for (i = 0; i < number_individuals; i++) {
-    do {
-      individualsk[i].x = random_number()*lattice_width;
-      individualsk[i].y = random_number()*lattice_lenght;
-    } while (colliding (individualsk, i, number_individuals));
+    individualsk[i]->x = random_number()*lattice_width;
+    individualsk[i]->y = random_number()*lattice_lenght;
   }
 
   /* After all these first definitions, the actual program is here. In each generation,
@@ -73,8 +72,8 @@ int main()
   free (first_genome);
 
   for (i = 0; i < number_individuals; i++) {
-    free (individualsk[i].genome);
-    free (individualsk1[i].genome);
+    free (individualsk[i]->genome);
+    free (individualsk1[i]->genome);
   }
 
   free (individualsk);

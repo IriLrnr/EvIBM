@@ -34,7 +34,7 @@ Graph CreateGraph (int V)
   return G;
 }
 
-void InsertArch (Graph G, Vertix u, Vertix v, int k) /*Tempo constante*/
+void InsertArch (Graph G, Vertix u, Vertix v, int k)
 {
   if (u != v && u < G->V && v < G->V && G->adj[u][v] == 0 && G->adj[v][u] == 0) {
     G->adj[u][v] = k;
@@ -43,7 +43,7 @@ void InsertArch (Graph G, Vertix u, Vertix v, int k) /*Tempo constante*/
   }
 }
 
-void RemoveArch (Graph G, Vertix u, Vertix v) /*Tempo constante*/
+void RemoveArch (Graph G, Vertix u, Vertix v)
 {
   if (u != v && u < G->V && v < G->V && G->adj[u][v] != 0 && G->adj[v][u] != 0) {
     G->adj[u][v] = 0;
@@ -75,8 +75,6 @@ void DestroiGraph (Graph G)
 
   free(G);
 }
-
-/*Other functions*/
 
 Graph CreateCompleteGraph (int V, int k)
 {
