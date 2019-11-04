@@ -111,18 +111,20 @@ void mutation (Population individualsk1, int i, int mutation)
 The new offspring will have the position of the focal individual (i).*/
 void Create_Offspring (Population individualsk, Population individualsk1, int i, int j, int genome_size, float radius)
 {
-  int l, count1, count2, count3;
-	float rn;
+  int l;
 
 	Offspring_Position(individualsk, individualsk1, i, j, radius);
 
   for (l = 0; l < genome_size; l++) {
-		if (rand()%2 == 1) {
-			count1++;
-			individualsk1[i]->genome[l] = individualsk[j]->genome[l];
+		if (individualsk1[i]->genome[l] != individualsk[j]->genome[l]) {
+			if (rand()%2 == 1) {
+				individualsk1[i]->genome[l] = individualsk[j]->genome[l];
+			}
+			else {
+				individualsk1[i]->genome[l] = individualsk[i]->genome[l];
+			}
 		}
 		else {
-			count2++;
 			individualsk1[i]->genome[l] = individualsk[i]->genome[l];
 		}
   }
