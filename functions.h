@@ -116,7 +116,7 @@ void Create_Offspring (Population individualsk, Population individualsk1, int i,
 	Offspring_Position(individualsk, individualsk1, i, j, radius);
 
   for (l = 0; l < genome_size; l++) {
-		if (individualsk1[i]->genome[l] != individualsk[j]->genome[l]) {
+		if (individualsk[i]->genome[l] != individualsk[j]->genome[l]) {
 			if (rand()%2 == 1) {
 				individualsk1[i]->genome[l] = individualsk[j]->genome[l];
 			}
@@ -131,7 +131,6 @@ void Create_Offspring (Population individualsk, Population individualsk1, int i,
 
 	for (l = 0; l < genome_size; l++) {
 		if (random_number() <= 0.00025) {
-			count3++;
 			mutation(individualsk1, i, l);
 		}
 	}
