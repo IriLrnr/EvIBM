@@ -6,6 +6,7 @@
 
 typedef struct {
   int V;
+  int U;
   int A;
   int **adj;
 } graph;
@@ -24,19 +25,25 @@ int** AlocateMatrix (int m, int n, int value)
   return A;
 }
 
-Graph CreateGraph (int V)
+Graph CreateGraph (int V, int U)
 {
   Graph G;
   G = (Graph) malloc (sizeof (graph));
+  G->U = U;
   G->V = V;
   G->A = 0;
   G->adj = AlocateMatrix (V, V, 0);
   return G;
 }
 
+void ChangeGraphSize (Graph G, int add_or_remove)
+{
+  G->U = G->U + add_or_remove;
+}
+
 void InsertArch (Graph G, Vertix u, Vertix v, int k)
 {
-  if (u != v && u < G->V && v < G->V && G->adj[u][v] == 0 && G->adj[v][u] == 0) {
+  if (u != v && u < G->U && v < G->U && G->adj[u][v] == 0 && G->adj[v][u] == 0) {
     G->adj[u][v] = k;
     G->adj[v][u] = k;
     (G->A)++;
@@ -45,7 +52,7 @@ void InsertArch (Graph G, Vertix u, Vertix v, int k)
 
 void RemoveArch (Graph G, Vertix u, Vertix v)
 {
-  if (u != v && u < G->V && v < G->V && G->adj[u][v] != 0 && G->adj[v][u] != 0) {
+  if (u != v && u < G->U && v < G->U && G->adj[u][v] != 0 && G->adj[v][u] != 0) {
     G->adj[u][v] = 0;
     G->adj[v][u] = 0;
     (G->A)--;
@@ -56,9 +63,9 @@ void PrintGraph (Graph G)
 {
   Vertix u, v;
 
-  for (u = 0; u < G->V; u++) {
+  for (u = 0; u < G->U; u++) {
     printf("%d: ", u);
-    for (v = 0; v < G->V; v++)
+    for (v = 0; v < G->U; v++)
       if (G->adj[u][v] > 0)
         printf("%d ", v);
     printf("\n");
@@ -69,20 +76,20 @@ void DestroiGraph (Graph G)
 {
  int i;
 
-  for (i = 0; i< G->V; i++ )
+  for (i = 0; i < G->V; i++ )
     free (G->adj[i]);
   free (G->adj);
 
   free(G);
 }
 
-Graph CreateCompleteGraph (int V, int k)
+Graph CreateCompleteGraph (int V, int U, int k)
 {
   Vertix u, v;
-  Graph G = CreateGraph(V);
+  Graph G = CreateGraph(V, U);
 
-  for (u = 0; u < G->V; u++)
-    for (v = 0; v < G->V; v++){
+  for (u = 0; u < G->U; u++)
+    for (v = 0; v < G->U; v++){
       InsertArch (G, u, v, k);
     }
   return G;
@@ -92,7 +99,7 @@ void DSFvisit (Graph G, Vertix v, int* parent)
 {
   int i;
 
-  for (i = 0; i < (G->V); i++) {
+  for (i = 0; i < (G->U); i++) {
     if (G->adj[v][i] != 0 && parent[i] == -1) {
       parent[i] = v;
       DSFvisit (G, i, parent);
@@ -105,14 +112,14 @@ void DepthFirstSearch (Graph G, int *counter_adress)
   int i;
   int* parent;
 
-  parent = (int*) malloc ((G->V) * sizeof (int));
-  for (i = 0; i < (G->V); i++) {
+  parent = (int*) malloc ((G->U) * sizeof (int));
+  for (i = 0; i < (G->U); i++) {
     parent[i] = -1;
   }
 
   (*counter_adress) = 0;
 
-  for (i = 0; i < (G->V); i++) {
+  for (i = 0; i < (G->U); i++) {
     if (parent[i] == -1) {
       parent[i] = -2;
       DSFvisit (G, i, parent);

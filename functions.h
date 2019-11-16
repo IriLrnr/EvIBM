@@ -15,20 +15,21 @@ typedef individual * Individual;
 
 typedef Individual * Population;
 
-/* This function checks if two individual are in the same point in space.
-It's not being used */
-int colliding (Population individualsk, int i, int number_individuals)
+typedef struct
 {
-	int j;
+	int number_individuals;
+	int individual_vector_size;
+	int population_size;
+	int genome_size;
+	int reproductive_distance;
+	int number_generations;
+	int neighbors;
+	float lattice_width;
+	float lattice_lenght;
+	float radius;
+} parameters;
 
-	for (j = 0; j < number_individuals; j++) {
-		if (i != j &&
-				individualsk[j]->x == individualsk[i]->x &&
-				individualsk[j]->y == individualsk[i]->y)
-				return 1;
-	}
-	return 0;
-}
+typedef parameters * Parameters;
 
 /*Generates a random number between 0 and 1*/
 float random_number()
@@ -36,37 +37,64 @@ float random_number()
 	return ((float)rand()/RAND_MAX);
 }
 
+/*This function determines if other individual is within the range of the focal individual.*/
+int Verify_Distance (Population individualsk, int i, int j, float radius)
+{
+	if (individualsk[j]->x <= (individualsk[i]->x + radius) && individualsk[j]->x >= (individualsk[i]->x - radius)) {
+		if (individualsk[j]->y <= individualsk[i]->y + radius && individualsk[j]->y >= individualsk[i]->y - radius) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /*This is a binary genome generator. It generates the first genome.*/
 void Generate_Genome (int* first_genome, int genome_size)
 {
-  int i;
+	int i;
 
-  for (i = 0; i < genome_size; i++) {
-    first_genome[i] = rand()%2;
-  }
+	for (i = 0; i < genome_size; i++) {
+		first_genome[i] = rand()%2;
+	}
 }
 
-/*This function compares the genomes and creates a Graph, where vertix are individuals, arches means they can reproduce (similar genomes).
-The weight of the arch is the distance between genomes.
-Currently very inneficient*/
-void Stablish_Distances (Graph G, Population individuals, int genome_size, int reproductive_distance)
+/* Calculates the number of neigbors an individual i can reproduce with */
+int neighborhood (Graph G, Population individualsk, int i, int radius)
 {
-  int i, j, k, divergences;
+	int neighbors, j;
 
-	for (i = 0; i < (G->V); i++) {
-		for (j = i + 1; j < (G->V); j++) {
+	neighbors = 0;
 
+	for (j = 0; j < (G->U); j++) {
+		if (G->adj[i][j] != 0 && Verify_Distance (individualsk, i, j, radius))
+			neighbors++;
+	}
+
+	return neighbors;
+}
+
+/*This function compares the genomes and creates a Graph, where vertix are individuals,
+arches means they can reproduce (similar genomes). The weight of the arch is the distance
+between genomes. Currently very inneficient*/
+void Stablish_Distances (Graph G, Population individuals, Parameters info)
+{
+  int i, j, k, divergences, size_difference;
+
+	G->U = info->population_size;
+
+	for (i = 0; i < G->U; i++) {
+		for (j = i + 1; j < G->U; j++) {
       divergences = 0;
-      for (k = 0; k < genome_size; k++) {
+      for (k = 0; k < info->genome_size; k++) {
         if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
            divergences++;
          }
       }
 
-      if (divergences <= reproductive_distance) {
-        InsertArch (G, i, j, (genome_size - divergences));
+      if (divergences <= info->reproductive_distance) {
+        InsertArch (G, i, j, (info->genome_size - divergences));
       }
-			else {
+			else if (G->adj[i][j] != 0) {
 				RemoveArch (G, i, j);
 			}
     }
@@ -75,7 +103,7 @@ void Stablish_Distances (Graph G, Population individuals, int genome_size, int r
 
 /*This function defines the offspring position, that is, if it is going to move, how much, and in which direction.
 It can move in it's focal parent range, with 1% chance*/
-void Offspring_Position (Population individualsk, Population individualsk1, int i, int j, float radius)
+void Offspring_Position (Population individualsk, Population individualsk1, int i, int k, float radius)
 {
 	float movement_x, movement_y;
 
@@ -92,8 +120,8 @@ void Offspring_Position (Population individualsk, Population individualsk1, int 
 			}
 	}
 
-  individualsk1[i]->x= individualsk[i]->x + movement_x;
-  individualsk1[i]->y = individualsk[i]->y + movement_y;
+  individualsk1[i]->x = individualsk[k]->x + movement_x;
+  individualsk1[i]->y = individualsk[k]->y + movement_y;
 }
 
 /*This function, called by Create_Offspring, allocates the mutation in the genome */
@@ -109,23 +137,23 @@ void mutation (Population individualsk1, int i, int mutation)
 
 /*This function determines the characteristics of the offspring, based on the parent's.
 The new offspring will have the position of the focal individual (i).*/
-void Create_Offspring (Population individualsk, Population individualsk1, int i, int j, int genome_size, float radius)
+void Create_Offspring (Population individualsk, Population individualsk1, int i, int k, int j, int genome_size, float radius)
 {
   int l;
 
-	Offspring_Position(individualsk, individualsk1, i, j, radius);
+	Offspring_Position(individualsk, individualsk1, i, k, radius);
 
   for (l = 0; l < genome_size; l++) {
-		if (individualsk[i]->genome[l] != individualsk[j]->genome[l]) {
+		if (individualsk[k]->genome[l] != individualsk[j]->genome[l]) {
 			if (rand()%2 == 1) {
 				individualsk1[i]->genome[l] = individualsk[j]->genome[l];
 			}
 			else {
-				individualsk1[i]->genome[l] = individualsk[i]->genome[l];
+				individualsk1[i]->genome[l] = individualsk[k]->genome[l];
 			}
 		}
 		else {
-			individualsk1[i]->genome[l] = individualsk[i]->genome[l];
+			individualsk1[i]->genome[l] = individualsk[j]->genome[l];
 		}
   }
 
@@ -136,31 +164,20 @@ void Create_Offspring (Population individualsk, Population individualsk1, int i,
 	}
 }
 
-/*This function determines if other individual is within the range of the focal individual.*/
-int Verify_Distance (Population individualsk, int i, int j, float radius)
-{
-	if (individualsk[j]->x <= (individualsk[i]->x + radius) && individualsk[j]->x >= (individualsk[i]->x - radius)) {
-		if (individualsk[j]->y <= individualsk[i]->y + radius && individualsk[j]->y >= individualsk[i]->y - radius) {
-			return 1;
-		}
-	}
-	return 0;
-}
 
 /*This function chooses the mate of the focal individual (i) based on the graph
 (who it can reproduce with) and the distance of the others (who is in their range).*/
 int Choose_Mate (Graph G, int i, Population individualsk, float radius)
 {
 	int j, l, radius_increase, mate;
-	int *tested = calloc ((G->V), sizeof (int));
 
 	mate = -1;
 	radius_increase = 0;
 
 	while (radius_increase <= 3 && mate == -1) {
-		for (l = 0; l < (G->V); l++) {
-			j = rand()%(G->V);
-			if (i != j && G->adj[i][j] > 0 && Verify_Distance(individualsk, i, j, radius)) {
+		for (l = 0; l < (G->U); l++) {
+			j = rand()%(G->U);
+			if (i != j && G->adj[i][j] > 0 && Verify_Distance (individualsk, i, j, radius)) {
 				mate = j;
 				break;
 			}
@@ -170,28 +187,73 @@ int Choose_Mate (Graph G, int i, Population individualsk, float radius)
 			radius_increase += 1;
 		}
 	}
-	free (tested);
 	return mate;
 }
 
+/* Chooses a neighbor of the same species as i */
+int Choose_Neighbor (Graph G, Population individualsk, int i, float radius)
+{
+	int j, k;
+
+	k = -1;
+	for (j = 0; j < (G->U); j++) {
+		if (G->adj[i][j] && Verify_Distance (individualsk, i, j, radius)) {
+			k = j;
+			break;
+		}
+	}
+
+	return k;
+}
+/*k should be randomly choosen. How do I do that? */
+
 /*This function makes the reproduction happen, with creation of a new individual,
 who is to be put in a paralel lattice, where the next generation will be*/
-void Reproduction (Graph G, Population individualsk, Population individualsk1, float radius, int genome_size)
+/*PROBLEMATIC*/
+void Reproduction (Graph G, Population individualsk, Population individualsk1, Parameters info)
 {
-	int i, j, k;
+	int i, j, k, l, n;
 
-	for (i = 0; i < (G->V); i++) {
-		k = i;
-		j = -1;  /*N TIRA*/
-		while (j == -1) {
-			j = Choose_Mate(G, k, individualsk, radius);
-		 	if (j == -1){
-				k = rand()%(G->V);
+	l = 0;
+
+	if (info->population_size < info->number_individuals) {
+		for (i = 0; i < info->population_size; i++) {
+			if (neighborhood (G, individualsk, i, info->radius) < info->neighbors) {
+				j = Choose_Mate(G, i, individualsk, info->radius);
+				if (j != -1) {
+					Create_Offspring (individualsk, individualsk1, l, i, j, info->genome_size, info->radius);
+					l++;
+					info->population_size ++;
+				}
 			}
-			/*printf("loopsy\n");*/
 		}
-    Create_Offspring (individualsk, individualsk1, k, j, genome_size, radius);
 	}
+
+	for (i = 0; i < (G->U); i++) {
+		k = i;
+		j = -1;
+
+		if (random_number() <= 0.64 && neighborhood (G, individualsk, i, info->radius) < 3) {
+			j = Choose_Mate(G, i, individualsk, info->radius);
+		}
+
+		for ( n = 0; n < 2; n++) {
+			if (j == -1) {
+				k = Choose_Mate (G, i, individualsk, info->radius);
+				if (k != -1)
+					j = Choose_Mate(G, k, individualsk, info->radius);
+			}
+		}
+
+		if (j != -1 && k != -1) {
+			Create_Offspring (individualsk, individualsk1, l, k, j, info->genome_size, info->radius);
+			l++;
+		}
+		else {
+			info->population_size --;
+		}
+	}
+
 }
 
 /*Exchanges the generation's vector's pointers*/
