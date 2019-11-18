@@ -37,15 +37,57 @@ float random_number()
 	return ((float)rand()/RAND_MAX);
 }
 
-/*This function determines if other individual is within the range of the focal individual.*/
 int Verify_Distance (Population individualsk, int i, int j, Parameters info)
 {
-	if (individualsk[j]->x <= (individualsk[i]->x + info->radius) && individualsk[j]->x >= (individualsk[i]->x - info->radius)) {
-		if (individualsk[j]->y <= individualsk[i]->y + info->radius && individualsk[j]->y >= individualsk[i]->y - info->radius) {
-			return 1;
+	int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
+
+	y_compatible = 0;
+	x_compatible = 0;
+
+	x_out_left = 0;
+	x_out_right = 0;
+	y_out_up = 0;
+	y_out_down = 0;
+
+	if (individualsk[j]->x <= individualsk[i]->x + info->radius && individualsk[j]->x >= individualsk[i]->x - info->radius) {
+		x_compatible = 1;
+	}
+	if (individualsk[j]->y <= individualsk[i]->y + info->radius && individualsk[j]->y >= individualsk[i]->y - info->radius) {
+		y_compatible = 1;
+	}
+
+	if (!x_compatible) {
+		if (individualsk[i]->x + info->radius > info->lattice_width) {
+			x_out_right = individualsk[i]->x + info->radius - info->lattice_width;
+			if (individualsk[j]->x <= x_out_right) {
+				x_compatible = 1;
+			}
+		}
+		else if (individualsk[i]->x - info->radius < 0) {
+			x_out_left = individualsk[i]->x - info->radius + info->lattice_width;
+			if (individualsk[j]->x >= x_out_left) {
+				x_compatible = 1;
+			}
 		}
 	}
-	return 0;
+
+	if (!y_compatible) {
+		if (individualsk[i]->y + info->radius > info->lattice_lenght) {
+			y_out_up = individualsk[i]->y + info->radius - info->lattice_lenght;
+			if (individualsk[j]->y <= y_out_up) {
+				y_compatible = 1;
+			}
+		}
+		else if (individualsk[i]->y - info->radius < 0) {
+			y_out_down = individualsk[i]->y - info->radius + info->lattice_lenght;
+			if (individualsk[j]->y >= y_out_down) {
+				y_compatible = 1;
+			}
+		}
+	}
+
+	if (x_compatible && y_compatible) return 1;
+	else return 0;
 }
 
 /*This is a binary genome generator. It generates the first genome.*/
@@ -101,8 +143,8 @@ void Stablish_Distances (Graph G, Population individuals, Parameters info)
   }
 }
 
-/*This function defines the offspring position, that is, if it is going to move, how much, and in which direction.
-It can move in it's focal parent range, with 1% chance*/
+/*This function defines the offspring position, that is, if it is going to move, how much,
+and in which direction. It can move in it's focal parent range, with 1% chance*/
 void Offspring_Position (Population individualsk, Population individualsk1, int i, int k, Parameters info)
 {
 	float movement_x, movement_y;
@@ -110,18 +152,34 @@ void Offspring_Position (Population individualsk, Population individualsk1, int 
 	movement_x = movement_y = 0;
 
 	if (random_number() <= 0.01) {
-			movement_y = random_number()*info->radius;
-			movement_x = random_number()*info->radius;
-			if (random_number() < 0.5) {
-				movement_x = -movement_x;
-			}
-			if (random_number() < 0.5) {
-				movement_y = -movement_x;
-			}
+		movement_y = random_number()*info->radius;
+		movement_x = random_number()*info->radius;
+		if (random_number() < 0.5) {
+			movement_x = -movement_x;
+			movement_y = -movement_y;
+		}
 	}
 
-  individualsk1[i]->x = individualsk[k]->x + movement_x;
-  individualsk1[i]->y = individualsk[k]->y + movement_y;
+	if (individualsk[k]->x + movement_x <= info->lattice_width && individualsk[k]->x + movement_x >= 0)
+  	individualsk1[i]->x = individualsk[k]->x + movement_x;
+
+	else if (individualsk[k]->x + movement_x > info->lattice_width)
+		individualsk1[i]->x = individualsk[k]->x + movement_x - info->lattice_width;
+
+	else if (individualsk[k]->x + movement_x < 0)
+		individualsk1[i]->x = individualsk[k]->x + movement_x + info->lattice_width;
+
+	if (individualsk[k]->y + movement_y <= info->lattice_lenght && individualsk[k]->y + movement_y >= 0)
+  	individualsk1[i]->y = individualsk[k]->y + movement_y;
+
+	else if (individualsk[k]->y + movement_y > info->lattice_lenght)
+		individualsk1[i]->y = individualsk[k]->y + movement_y - info->lattice_lenght;
+
+	else if (individualsk[k]->y + movement_y < 0)
+		individualsk1[i]->y = individualsk[k]->y + movement_y + info->lattice_lenght;
+
+//	printf("%d, focal: %d. position: (%f, %f)\n", i, k, individualsk1[i]->x, individualsk1[i]->y);
+
 }
 
 /*This function, called by Create_Offspring, allocates the mutation in the genome */
