@@ -94,37 +94,3 @@ Graph CreateCompleteGraph (int V, int U, int k)
     }
   return G;
 }
-
-void DSFvisit (Graph G, Vertix v, int* parent)
-{
-  int i;
-
-  for (i = 0; i < (G->U); i++) {
-    if (G->adj[v][i] != 0 && parent[i] == -1) {
-      parent[i] = v;
-      DSFvisit (G, i, parent);
-    }
-  }
-}
-
-void DepthFirstSearch (Graph G, int *counter_adress)
-{
-  int i;
-  int* parent;
-
-  parent = (int*) malloc ((G->U) * sizeof (int));
-  for (i = 0; i < (G->U); i++) {
-    parent[i] = -1;
-  }
-
-  (*counter_adress) = 0;
-
-  for (i = 0; i < (G->U); i++) {
-    if (parent[i] == -1) {
-      parent[i] = -2;
-      DSFvisit (G, i, parent);
-      (*counter_adress)++;
-    }
-  }
-  free (parent);
-}

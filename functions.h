@@ -3,10 +3,12 @@
 #include <time.h>
 #include "graph.h"
 
-/*This defines and individual as a struct with genome and location*/
+/* Here we define and individual as a struct with genome, species and location, and
+a population as a vector of individuals*/
 typedef struct
 {
 	int* genome;
+	int species;
 	float x;
 	float y;
 } individual;
@@ -15,6 +17,8 @@ typedef individual * Individual;
 
 typedef Individual * Population;
 
+/* Here we define a struct to keep all the fixed parameters wildely used in the simulation,
+because this way they're easy to pass between functions */
 typedef struct
 {
 	int number_individuals;
@@ -37,6 +41,17 @@ float random_number()
 	return ((float)rand()/RAND_MAX);
 }
 
+/*This is a binary genome generator. It generates the first genome.*/
+void Generate_Genome (int* first_genome, int genome_size)
+{
+	int i;
+
+	for (i = 0; i < genome_size; i++) {
+		first_genome[i] = rand()%2;
+	}
+}
+
+/* This function checks if an individual (j) is within the range of another individual (i) */
 int Verify_Distance (Population individualsk, int i, int j, Parameters info)
 {
 	int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
@@ -49,6 +64,7 @@ int Verify_Distance (Population individualsk, int i, int j, Parameters info)
 	y_out_up = 0;
 	y_out_down = 0;
 
+	/* If an individual ratio reaches an end of the lattice, it will look on the other side, because the lattice work as a toroid */
 	if (individualsk[j]->x <= individualsk[i]->x + info->radius && individualsk[j]->x >= individualsk[i]->x - info->radius) {
 		x_compatible = 1;
 	}
@@ -90,17 +106,7 @@ int Verify_Distance (Population individualsk, int i, int j, Parameters info)
 	else return 0;
 }
 
-/*This is a binary genome generator. It generates the first genome.*/
-void Generate_Genome (int* first_genome, int genome_size)
-{
-	int i;
-
-	for (i = 0; i < genome_size; i++) {
-		first_genome[i] = rand()%2;
-	}
-}
-
-/* Calculates the number of neigbors an individual i can reproduce with */
+/* This function calculates the number of neighbors an individual i can reproduce with */
 int neighborhood (Graph G, Population individualsk, int i, Parameters info)
 {
 	int neighbors, j;
@@ -115,35 +121,35 @@ int neighborhood (Graph G, Population individualsk, int i, Parameters info)
 	return neighbors;
 }
 
-/*This function compares the genomes and creates a Graph, where vertix are individuals,
+/* This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
 arches means they can reproduce (similar genomes). The weight of the arch is the distance
-between genomes. Currently very inneficient*/
+between genomes. */
 void Stablish_Distances (Graph G, Population individuals, Parameters info)
 {
-  int i, j, k, divergences, size_difference;
+	int i, j, k, divergences, size_difference;
 
 	G->U = info->population_size;
 
 	for (i = 0; i < G->U; i++) {
 		for (j = i + 1; j < G->U; j++) {
-      divergences = 0;
-      for (k = 0; k < info->genome_size; k++) {
-        if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
-           divergences++;
-         }
-      }
+			divergences = 0;
+			for (k = 0; k < info->genome_size; k++) {
+				if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
+					divergences++;
+				}
+			}
 
-      if (divergences <= info->reproductive_distance) {
-        InsertArch (G, i, j, (info->genome_size - divergences));
-      }
+			if (divergences <= info->reproductive_distance) {
+				InsertArch (G, i, j, (info->genome_size - divergences));
+			}
 			else if (G->adj[i][j] != 0) {
 				RemoveArch (G, i, j);
-			}
-    }
-  }
+			}	
+		}
+	}
 }
 
-/*This function defines the offspring position, that is, if it is going to move, how much,
+/* This function, called by Reproduction, defines the offspring position, that is, if it is going to move, how much,
 and in which direction. It can move in it's focal parent range, with 1% chance*/
 void Offspring_Position (Population individualsk, Population individualsk1, int i, int k, Parameters info)
 {
@@ -160,6 +166,7 @@ void Offspring_Position (Population individualsk, Population individualsk1, int 
 		}
 	}
 
+	/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
 	if (individualsk[k]->x + movement_x <= info->lattice_width && individualsk[k]->x + movement_x >= 0)
   	individualsk1[i]->x = individualsk[k]->x + movement_x;
 
@@ -177,12 +184,9 @@ void Offspring_Position (Population individualsk, Population individualsk1, int 
 
 	else if (individualsk[k]->y + movement_y < 0)
 		individualsk1[i]->y = individualsk[k]->y + movement_y + info->lattice_lenght;
-
-//	printf("%d, focal: %d. position: (%f, %f)\n", i, k, individualsk1[i]->x, individualsk1[i]->y);
-
 }
 
-/*This function, called by Create_Offspring, allocates the mutation in the genome */
+/* This function, called by Create_Offspring, allocates the mutation in the genome */
 void mutation (Population individualsk1, int i, int mutation)
 {
 	if (individualsk1[i]->genome[mutation] == 1) {
@@ -193,8 +197,9 @@ void mutation (Population individualsk1, int i, int mutation)
 	}
 }
 
-/*This function determines the characteristics of the offspring, based on the parent's.
-The new offspring will have the position of the focal individual (i).*/
+/* This function, called by Reproduction, determines the characteristics of the offspring, based on the parent's.
+The new offspring will have the position of the focal individual (i). The genome of the offspring has, for
+each loci, 50% chance of coming from either of his parents */
 void Create_Offspring (Population individualsk, Population individualsk1, int i, int k, int j, Parameters info)
 {
   int l;
@@ -223,7 +228,7 @@ void Create_Offspring (Population individualsk, Population individualsk1, int i,
 }
 
 
-/*This function chooses the mate of the focal individual (i) based on the graph
+/* This function, called by Reproduction, chooses the mate of the focal individual (i) based on the graph
 (who it can reproduce with) and the distance of the others (who is in their range).*/
 int Choose_Mate (Graph G, int i, Population individualsk, Parameters info)
 {
@@ -248,26 +253,8 @@ int Choose_Mate (Graph G, int i, Population individualsk, Parameters info)
 	return mate;
 }
 
-/* Chooses a neighbor of the same species as i */
-int Choose_Neighbor (Graph G, Population individualsk, int i, Parameters info)
-{
-	int j, k;
-
-	k = -1;
-	for (j = 0; j < (G->U); j++) {
-		if (G->adj[i][j] && Verify_Distance (individualsk, i, j, info)) {
-			k = j;
-			break;
-		}
-	}
-
-	return k;
-}
-/*k should be randomly choosen. How do I do that? */
-
-/*This function makes the reproduction happen, with creation of a new individual,
-who is to be put in a paralel lattice, where the next generation will be*/
-/*PROBLEMATIC*/
+/* This function, called by main, makes the reproduction happen, with creation of a new individual,
+who is to be put in a paralel lattice, where the next generation will be */
 void Reproduction (Graph G, Population individualsk, Population individualsk1, Parameters info)
 {
 	int i, j, k, l, n;
@@ -314,7 +301,7 @@ void Reproduction (Graph G, Population individualsk, Population individualsk1, P
 
 }
 
-/*Exchanges the generation's vector's pointers*/
+/*This function, called by main, Exchanges the generation's vector's pointers*/
 void New_Generation_k (Population* individualsk_pointer, Population* individualsk1_pointer)
 {
 	Population helper;
@@ -324,12 +311,50 @@ void New_Generation_k (Population* individualsk_pointer, Population* individuals
 	(*individualsk1_pointer) = helper;
 }
 
-/* Calls DFS to count the number of connected components in the graph */
-int Count_Species (Graph G)
+
+void DSFvisit (Graph G, Vertix v, int* parent, Population individuals, int species)
+{
+  int i;
+
+  for (i = 0; i < (G->U); i++) {
+    if (G->adj[v][i] != 0 && parent[i] == -1) {
+      parent[i] = v;
+      individuals[i]->species = species;
+      DSFvisit (G, i, parent, individuals, species);
+    }
+  }
+}
+
+void DepthFirstSearch (Graph G, int* counter_adress, Population individuals)
+{
+  int i;
+  int* parent;
+
+  parent = (int*) malloc ((G->U) * sizeof (int));
+  for (i = 0; i < (G->U); i++) {
+    parent[i] = -1;
+  }
+
+  (*counter_adress) = 0;
+
+  for (i = 0; i < (G->U); i++) {
+    if (parent[i] == -1) {
+      parent[i] = -2;
+      individuals[i]->species = (*counter_adress);
+      DSFvisit (G, i, parent, individuals, (*counter_adress));
+      (*counter_adress)++;
+    }
+  }
+  free (parent);
+}
+
+/* This function, called by main, calls DFS to count the number of maximal connected components in the graph */
+int Count_Species (Graph G, Population individuals)
 {
 	int counter;
 
-	DepthFirstSearch (G, &counter);
+	DepthFirstSearch (G, &counter, individuals);
 
 	return counter;
 }
+
