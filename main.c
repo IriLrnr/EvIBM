@@ -61,6 +61,8 @@ int main()
   for (i = 0; i < G->V; i++) {
     individualsk[i]->x = random_number()*info->lattice_width;
     individualsk[i]->y = random_number()*info->lattice_lenght;
+    individualsk[i]->neighborhood = CreateHeadedList ();
+    individualsk1[i]->neighborhood = CreateHeadedList (); 
   }
 
   /* After all these first definitions, the actual program is here. In each generation, we make the kth population's graph
