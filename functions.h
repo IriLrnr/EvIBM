@@ -185,6 +185,9 @@
 
 		movement_x = movement_y = 0;
 
+		individualsk1[i]->x = individualsk[k]->x;
+		individualsk1[i]->y = individualsk[k]->y;
+
 		if (random_number() <= 0.01) {
 			movement_y = random_number()*info->radius;
 			movement_x = random_number()*info->radius;
@@ -192,26 +195,27 @@
 				movement_x = -movement_x;
 				movement_y = -movement_y;
 			}
+
+			/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
+			if (individualsk1[i]->x + movement_x <= info->lattice_width && individualsk[k]->x + movement_x >= 0)
+		  		individualsk1[i]->x += movement_x;
+
+			else if (individualsk[k]->x + movement_x > info->lattice_width)
+				individualsk1[i]->x = individualsk1[i]->x + movement_x - info->lattice_width;
+
+			else if (individualsk[k]->x + movement_x < 0)
+				individualsk1[i]->x = individualsk1[i]->x + movement_x + info->lattice_width;
+
+			if (individualsk[k]->y + movement_y <= info->lattice_lenght && individualsk[k]->y + movement_y >= 0)
+		  	individualsk1[i]->y = individualsk1[i]->y + movement_y;
+
+			else if (individualsk[k]->y + movement_y > info->lattice_lenght)
+				individualsk1[i]->y = individualsk1[i]->y + movement_y - info->lattice_lenght;
+
+			else if (individualsk[k]->y + movement_y < 0)
+				individualsk1[i]->y = individualsk1[i]->y + movement_y + info->lattice_lenght;
 		}
-
-		/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
-		if (individualsk[k]->x + movement_x <= info->lattice_width && individualsk[k]->x + movement_x >= 0)
-	  	individualsk1[i]->x = individualsk[k]->x + movement_x;
-
-		else if (individualsk[k]->x + movement_x > info->lattice_width)
-			individualsk1[i]->x = individualsk[k]->x + movement_x - info->lattice_width;
-
-		else if (individualsk[k]->x + movement_x < 0)
-			individualsk1[i]->x = individualsk[k]->x + movement_x + info->lattice_width;
-
-		if (individualsk[k]->y + movement_y <= info->lattice_lenght && individualsk[k]->y + movement_y >= 0)
-	  	individualsk1[i]->y = individualsk[k]->y + movement_y;
-
-		else if (individualsk[k]->y + movement_y > info->lattice_lenght)
-			individualsk1[i]->y = individualsk[k]->y + movement_y - info->lattice_lenght;
-
-		else if (individualsk[k]->y + movement_y < 0)
-			individualsk1[i]->y = individualsk[k]->y + movement_y + info->lattice_lenght;
+		//printf("(%f, %f\n", individualsk1[i]->x, individualsk1[i]->y);
 	}
 
 	/* This function, called by Create_Offspring, allocates the mutation in the genome */
@@ -231,10 +235,10 @@
 	void Create_Offspring (Population individualsk, Population individualsk1, int i, int k, int j, Parameters info)
 	{
 	  int l;
-
+		
 		Offspring_Position(individualsk, individualsk1, i, k, info);
 
-	  for (l = 0; l < info->genome_size; l++) {
+		for (l = 0; l < info->genome_size; l++) {
 			if (individualsk[k]->genome[l] != individualsk[j]->genome[l]) {
 				if (rand()%2 == 1) {
 					individualsk1[i]->genome[l] = individualsk[j]->genome[l];
@@ -246,7 +250,7 @@
 			else {
 				individualsk1[i]->genome[l] = individualsk[j]->genome[l];
 			}
-	  }
+		}
 
 		for (l = 0; l < info->genome_size; l++) {
 			if (random_number() <= 0.00025) {
@@ -285,14 +289,13 @@
 				radius_increase += 1;
 			}
 		}
-
 		return mate;
 	}
 
 	/* This function, called by main, makes the reproduction happen, with creation of a new individual,
 	who is to be put in a paralel lattice, where the next generation will be */
 	void Reproduction (Graph G, Population individualsk, Population individualsk1, Parameters info)
-	{
+	{ 	
 		int i, j, k, l, n;
 
 		l = 0;
@@ -314,7 +317,7 @@
 			k = i;
 			j = -1;
 
-			if (random_number() <= 0.64 && Verify_Neighborhood (individualsk, i) < 3) {
+			if (random_number() <= 0.64 && Verify_Neighborhood (individualsk, i) >= info->neighbors) {
 				j = Choose_Mate(G, i, individualsk, info);
 			}
 
@@ -334,6 +337,7 @@
 				info->population_size --;
 			}
 		}
+		printf("pop size: %d\n", info->population_size);
 	}
 
 /* ========================================================================= */
