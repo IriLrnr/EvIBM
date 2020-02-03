@@ -93,3 +93,10 @@ int main()
 
 return 0;
 }
+
+/*----------------------------------------
+Situação atual:
+
+- Forma muita espécie muito rápido, dai estabiliza muito, indicando colapso da posição dos individuos para poucos pontos.
+
+------------------------------------------*/
