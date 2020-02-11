@@ -79,7 +79,7 @@ int main()
     Reproduction (G, individualsk, individualsk1, info);
     number_species = Count_Species (G, individualsk);
     /*This part is just for printing the result for making graphs in R later*/
-    if (i%100 == 99) {
+    if (i < 10) {
       sprintf(nome_arq, "%d", i);
       strcat (nome_arq, "gen.txt");
       output = fopen (nome_arq,"w");
