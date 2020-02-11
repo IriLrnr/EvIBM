@@ -41,7 +41,7 @@ void ChangeGraphSize (Graph G, int add_or_remove)
   G->U = G->U + add_or_remove;
 }
 
-void InsertArch (Graph G, Vertix u, Vertix v, int k)
+void InsertArc (Graph G, Vertix u, Vertix v, int k)
 {
   if (u != v && u < G->U && v < G->U && G->adj[u][v] == 0 && G->adj[v][u] == 0) {
     G->adj[u][v] = k;
@@ -50,7 +50,7 @@ void InsertArch (Graph G, Vertix u, Vertix v, int k)
   }
 }
 
-void RemoveArch (Graph G, Vertix u, Vertix v)
+void RemoveArc (Graph G, Vertix u, Vertix v)
 {
   if (u != v && u < G->U && v < G->U && G->adj[u][v] != 0 && G->adj[v][u] != 0) {
     G->adj[u][v] = 0;
@@ -90,7 +90,7 @@ Graph CreateCompleteGraph (int V, int U, int k)
 
   for (u = 0; u < G->U; u++)
     for (v = 0; v < G->U; v++){
-      InsertArch (G, u, v, k);
+      InsertArc (G, u, v, k);
     }
   return G;
 }
