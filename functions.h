@@ -301,13 +301,15 @@
 		i = 0;
 
 		if (info->population_size < info->number_individuals) {
-			for (focal = 0; focal < info->population_size; focal++) {
-				if (Verify_Neighborhood (individualsk, focal) < info->neighbors) {
-					mate = Choose_Mate(G, focal, individualsk, info);
-					if (mate != -1) {
-						Create_Offspring (individualsk, individualsk1, i, focal, mate, info);
-						i++;
-						info->population_size ++;
+			if (random_number() <= 0.64) {
+				for (focal = 0; focal < info->population_size; focal++) {
+					if (Verify_Neighborhood (individualsk, focal) < info->neighbors) {
+						mate = Choose_Mate(G, focal, individualsk, info);
+						if (mate != -1) {
+							Create_Offspring (individualsk, individualsk1, i, focal, mate, info);
+							i++;
+							info->population_size ++;
+						}
 					}
 				}
 			}

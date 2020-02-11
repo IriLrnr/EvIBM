@@ -1,5 +1,4 @@
 # EvIBM
 IC
 
-
-In this version, I changed the names of the variables assigned to the individuals.
+I added mortality to low-density individuals, but it didn't help (even got worse). The individuals are collapsing.
