@@ -6,8 +6,9 @@
 
 /* =======================  Definitions ========================== */
 
-	/* Here we define and individual as a struct with genome, species and location, and
-	a population as a vector of individuals*/
+	/* Here we define and individual as a struct with genome, species, location and a list of neighbors. A
+	population is as a vector of individuals */
+	
 	typedef struct
 	{
 		int* genome;
@@ -23,6 +24,7 @@
 
 	/* Here we define a struct to keep all the fixed parameters wildely used in the simulation,
 	because this way they're easy to pass between functions */
+
 	typedef struct
 	{
 		int number_individuals;
@@ -44,13 +46,13 @@
 
 /* =======================  Used everywhere  ========================== */
 
-	/*Generates a random number between 0 and 1*/
+	/*Generates a random number between 0 and 1 */ /* TESTED OK */
 	float random_number()
 	{
 		return ((float)rand()/RAND_MAX);
 	}
 
-	/*This is a binary genome generator. It generates the first genome.*/
+	/*This is a binary genome generator. It generates the first genome.*/ /* TESTED OK */
 	void Generate_Genome (int* first_genome, int genome_size)
 	{
 		int i;
@@ -60,8 +62,7 @@
 		}
 	}
 
-	/* This function checks if an individual (j) is within the range of another individual (i) 
-	PROBLEMATIC */
+	/* This function checks if an individual (j) is within the range of another individual */
 	int Verify_Distance (Population individualsk, int focal, int mate, Parameters info, int increase)
 	{
 		int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
@@ -188,7 +189,7 @@
 		individualsk1[baby]->x = individualsk[focal]->x;
 		individualsk1[baby]->y = individualsk[focal]->y;
 
-		if (random_number() <= 0.01) {
+		if (random_number() <= 0.60) {
 			movement_y = random_number()*info->radius;
 			movement_x = random_number()*info->radius;
 			if (random_number() < 0.5) {
@@ -215,7 +216,6 @@
 			else if (individualsk[focal]->y + movement_y < 0)
 				individualsk1[baby]->y = individualsk1[baby]->y + movement_y + info->lattice_lenght;
 		}
-		//printf("(%f, %f\n", individualsk1[baby]->x, individualsk1[baby]->y);
 	}
 
 	/* This function, called by Create_Offspring, allocates the mutation in the genome */
@@ -293,10 +293,11 @@
 	}
 
 	/* This function, called by main, makes the reproduction happen, with creation of a new individual,
-	who is to be put in a paralel lattice, where the next generation will be */
+	who is to be put in a paralel lattice, where the next generation will be */ /* IS IT CONCEPTUALY OK? */
 	void Reproduction (Graph G, Population individualsk, Population individualsk1, Parameters info)
 	{ 	
 		int focal, mate, other, i, n;
+		float rn;
 
 		i = 0;
 
@@ -318,7 +319,6 @@
 		for (focal = 0; focal < (G->U); focal++) {
 			other = focal;
 			mate = -1;
-
 			if (random_number() <= 0.64 && Verify_Neighborhood (individualsk, focal) >= info->neighbors) {
 				mate = Choose_Mate(G, focal, individualsk, info);
 			}

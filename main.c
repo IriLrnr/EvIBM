@@ -79,9 +79,9 @@ int main()
     Reproduction (G, individualsk, individualsk1, info);
     number_species = Count_Species (G, individualsk);
     /*This part is just for printing the result for making graphs in R later*/
-    if (i < 10) {
+    if (i == info->number_generations - 1) {
       sprintf(nome_arq, "%d", i);
-      strcat (nome_arq, "gen.txt");
+      strcat (nome_arq, "gen.csv");
       output = fopen (nome_arq,"w");
       for (j = 0; j < info->population_size; ++j) {
        sprintf(line, "%d;", i);
