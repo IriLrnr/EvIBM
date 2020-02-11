@@ -9,6 +9,12 @@ int main()
   Population individualsk, individualsk1;
   Graph G; /*  Individuals' relations graph */
   Parameters info;
+  char nome_arq[15] = "";
+  char line[65] = "";
+  char x[20] = "";
+  char y[20] = "";
+  char sp[20] = "";
+  FILE *output;
 
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
@@ -70,12 +76,28 @@ int main()
 	for (number_species = 0, i = 0; i < info->number_generations; i++) {
     printf("GENERATION: %d\n", i);
     Stablish_Distances (G, individualsk, info);
-		Reproduction (G, individualsk, individualsk1, info);
+    Reproduction (G, individualsk, individualsk1, info);
     number_species = Count_Species (G, individualsk);
+    /*This part is just for printing the result for making graphs in R later*/
+    if (i%100 == 99) {
+      sprintf(nome_arq, "%d", i);
+      strcat (nome_arq, "gen.txt");
+      output = fopen (nome_arq,"w");
+      for (j = 0; j < info->population_size; ++j) {
+       sprintf(line, "%d;", i);
+       sprintf (x, "%f;", individualsk[j]->x);
+       sprintf(y, "%f;", individualsk[j]->y);
+       sprintf(sp, "%d\n", individualsk[j]->species);
+       strcat(line, x);
+       strcat(line, y);
+       strcat(line, sp);  
+       fputs (line, output);
+      }
+      fclose (output);
+    }
     New_Generation_k (&individualsk, &individualsk1);
     printf("NUMBER OF SPECIES = %d\n", number_species);
-	}
-
+  }
   /* We end the simulation freeing the used memory */
 
   DestroiGraph(G);
