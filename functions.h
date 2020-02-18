@@ -43,7 +43,7 @@
 
 /* ======================================================================= */
 
-
+/* The only problem here may be Verify_Distance. I need to check it */
 /* =======================  Used everywhere  ========================== */
 
 	/*Generates a random number between 0 and 1 */ /* TESTED OK */
@@ -62,7 +62,7 @@
 		}
 	}
 
-	/* This function checks if an individual (j) is within the range of another individual */
+	/* ** This function checks if an individual (j) is within the range of another individual */
 	int Verify_Distance (Population individualsk, int focal, int mate, Parameters info, int increase)
 	{
 		int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
@@ -117,12 +117,13 @@
 		else return 0;
 	}
 
+	/* ok because the head always going to have the smallest value */
 	int Verify_Neighborhood (Population individualsk, int focal)
 	{
 		return (-(individualsk[focal]->neighborhood->info + 1));
 	}
 
-	/* This function computes the neighbors an individual i can reproduce with and stores this info in a list */
+	/*  This function computes the neighbors an individual can reproduce with and stores this info in a list */
 	void neighborhood (Graph G, Population individualsk, int focal, Parameters info, int increase)
 	{
 		int mate;
@@ -136,7 +137,7 @@
 
 /* ==================================================================== */
 
-
+/* This function is not ideal, but is not the problem either */
 /* =======================  Used for Creating the graph  ========================== */
 
 	/* This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
@@ -175,7 +176,7 @@
 
 /* =================================================================================== */
 
-
+/* THE PROBLEM IS HERE. I DON'T KNOW EXACLY WHERE, IF IT IS CONCEPTUAL OR A MODELING PROBLEM */
 /* =======================  Used for Reproduction  ========================== */
 
 	/* This function, called by Reproduction, defines the offspring position, that is, if it is going to move, how much,
@@ -189,7 +190,7 @@
 		individualsk1[baby]->x = individualsk[focal]->x;
 		individualsk1[baby]->y = individualsk[focal]->y;
 
-		if (random_number() <= 0.60) {
+		if (random_number() <= 0.01) {
 			movement_y = random_number()*info->radius;
 			movement_x = random_number()*info->radius;
 			if (random_number() < 0.5) {
@@ -198,7 +199,7 @@
 			}
 
 			/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
-			if (individualsk1[baby]->x + movement_x <= info->lattice_width && individualsk[focal]->x + movement_x >= 0)
+			if (individualsk[focal]->x + movement_x <= info->lattice_width && individualsk[focal]->x + movement_x >= 0)
 		  		individualsk1[baby]->x += movement_x;
 
 			else if (individualsk[focal]->x + movement_x > info->lattice_width)
@@ -275,15 +276,17 @@
 				individualsk[focal]->neighborhood = CreateHeadedList ();
 				neighborhood (G, individualsk, focal, info, radius_increase);
 			}
+
 			neighbors = Verify_Neighborhood (individualsk, focal);
+
 			if (neighbors) {
 				i = rand()%neighbors;
 			}
 
-			for (j = 0, p = individualsk[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+			for (j = 0, p = individualsk[focal]->neighborhood->next; 
+				p != NULL && j < i; p = p->next, j++);
 			if (j == i && p != NULL) mate = p->info;
 			else mate = -1;
-
 			if (mate == -1) {
 				radius += 1;
 				radius_increase += 1;
@@ -302,36 +305,34 @@
 		i = 0;
 
 		if (info->population_size < info->number_individuals) {
-			if (random_number() <= 0.64) {
-				for (focal = 0; focal < info->population_size; focal++) {
-					if (Verify_Neighborhood (individualsk, focal) < info->neighbors) {
-						mate = Choose_Mate(G, focal, individualsk, info);
-						if (mate != -1) {
-							Create_Offspring (individualsk, individualsk1, i, focal, mate, info);
-							i++;
-							info->population_size ++;
-						}
+			for (focal = 0; focal < info->population_size; focal++) {
+				if (Verify_Neighborhood (individualsk, focal) < info->neighbors) {
+					mate = Choose_Mate(G, focal, individualsk, info);
+					if (mate != -1) {
+						Create_Offspring (individualsk, individualsk1, i, focal, mate, info);
+						i++;
+						info->population_size ++;
 					}
 				}
 			}
-		}
+		} 
 
 		for (focal = 0; focal < (G->U); focal++) {
-			other = focal;
+			other = focal; 
 			mate = -1;
-			if (random_number() <= 0.64 && Verify_Neighborhood (individualsk, focal) >= info->neighbors) {
-				mate = Choose_Mate(G, focal, individualsk, info);
+			if (random_number() <= 0.63 && Verify_Neighborhood (individualsk, focal) >= 2) {
+				mate = Choose_Mate (G, focal, individualsk, info);
 			}
 
 			for (n = 0; n < 2; n++) {
 				if (mate == -1) {
 					other = Choose_Mate (G, focal, individualsk, info);
 					if (other != -1)
-						mate = Choose_Mate(G, other, individualsk, info);
+						mate = Choose_Mate (G, other, individualsk, info);
 				}
 			}
 
-			if (mate != -1 && other != -1) {
+			if (mate != -1) {
 				Create_Offspring (individualsk, individualsk1, i, other, mate, info);
 				i++;
 			}

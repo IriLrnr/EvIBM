@@ -98,8 +98,8 @@ int main()
     New_Generation_k (&individualsk, &individualsk1);
     printf("NUMBER OF SPECIES = %d\n", number_species);
   }
+  
   /* We end the simulation freeing the used memory */
-
   DestroiGraph(G);
   free (first_genome);
   free (info);
@@ -115,10 +115,3 @@ int main()
 
 return 0;
 }
-
-/*----------------------------------------
-Situação atual:
-
-- Forma muita espécie muito rápido, dai estabiliza muito, indicando colapso da posição dos individuos para poucos pontos.
-
-------------------------------------------*/
