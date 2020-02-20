@@ -1,24 +1,24 @@
 # EvIBM
 IC
 
-##How to compile
-~~~bash
+## How to compile
+```bash
 $ gcc main.c -o out
 $ ./out
-~~~
-###With make
+```
+### With make
 After cloning the folder, go in it and compile with the command
-~~~bash
+```bash
 $ make
-~~~
+```
 If you need, here's how to install make
-~~~bash
+```bash
 $ sudo apt install build.essentials
-~~~
+```
 After cloning the folder, go in it and compile with the command
-~~~bash
+```bash
 $ make
-~~~
+```
 
 CHANGING PROBABILITY OF OFFSPRING MOVEMENT
 
