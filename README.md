@@ -1,7 +1,21 @@
 # EvIBM
 IC
 
-I added mortality to low-density individuals, but it didn't help (even got worse). The individuals are collapsing.
+HOW TO INCLUDE GSL - GNU SCIENTIFIC LIBRARY
+install GLS
+
+~~~bash
+$ sudo apt update
+$ sudo apt install libgsl-dev
+~~~
+Install make
+~~~bash
+$ sudo apt install build.essentials
+~~~
+After cloning the folder, go in it and compile with the command
+~~~bash
+$ make
+~~~
 
 CHANGING PROBABILITY OF OFFSPRING MOVEMENT
 
@@ -24,8 +38,6 @@ CHANGING PROBABILITY OF OFFSPRING MOVEMENT
 	In this case, there's no fast collapse, no species and THE FINAL PLOT IS SO SO SO SO WEIRD.
 
 
-
-I think I got wrong the reproduction. Variation in the movement of the offspring shows that the collapse isn't dependent of it, but it changes the pattern of the collapse. Is always stabilizes at a number of species, and the smaller the probability of movement, the bigger is the number of species.
 
 
 TO VISUALIZE WHAT IS HAPPENING I NEED GIFS OF THE FOLLOWING PROCESSES:
