@@ -19,6 +19,21 @@ After cloning the folder, go in it and compile with the command
 ```bash
 $ make
 ```
+## Exploring the output
+The program's output is a list of numerated files, that contains a table of the individuals with their respective species and positions. To explore the output, first, save all the output files in a separated folder, open the script printposition.R, change the paths inside it and run it. In the plots folder, if you want to make a gif, type
+```bash
+$ convert *.png out.gif
+```
+This step may take a while.
+
+To read the output, in Linux, you may have to download sxiv to open the gif, so if you need:
+```bash
+$ sudo apt install sxiv
+```
+To open the gif type
+```bash
+$ sxiv out.gif
+```
 
 CHANGING PROBABILITY OF OFFSPRING MOVEMENT
 
