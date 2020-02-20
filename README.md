@@ -15,10 +15,6 @@ If you need, here's how to install make
 ```bash
 $ sudo apt install build.essentials
 ```
-After cloning the folder, go in it and compile with the command
-```bash
-$ make
-```
 ## Exploring the output
 The program's output is a list of numerated files, that contains a table of the individuals with their respective species and positions. To explore the output, first, save all the output files in a separated folder, open the script printposition.R, change the paths inside it and run it. In the plots folder, if you want to make a gif, type
 ```bash
@@ -35,7 +31,7 @@ To open the gif type
 $ sxiv out.gif
 ```
 
-CHANGING PROBABILITY OF OFFSPRING MOVEMENT
+## CHANGING PROBABILITY OF OFFSPRING MOVEMENT
 
 0% probability of moving:
 	VERY fast formation, with 58 species at the "end"
@@ -54,8 +50,6 @@ CHANGING PROBABILITY OF OFFSPRING MOVEMENT
 
 100% probability of moving:
 	In this case, there's no fast collapse, no species and THE FINAL PLOT IS SO SO SO SO WEIRD.
-
-
 
 
 TO VISUALIZE WHAT IS HAPPENING I NEED GIFS OF THE FOLLOWING PROCESSES:
