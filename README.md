@@ -1,14 +1,17 @@
 # EvIBM
 IC
 
-HOW TO INCLUDE GSL - GNU SCIENTIFIC LIBRARY
-install GLS
-
+##How to compile
 ~~~bash
-$ sudo apt update
-$ sudo apt install libgsl-dev
+$ gcc main.c -o out
+$ ./out
 ~~~
-Install make
+###With make
+After cloning the folder, go in it and compile with the command
+~~~bash
+$ make
+~~~
+If you need, here's how to install make
 ~~~bash
 $ sudo apt install build.essentials
 ~~~
