@@ -52,21 +52,4 @@ TO VISUALIZE WHAT IS HAPPENING I NEED GIFS OF THE FOLLOWING PROCESSES:
  To do that, I need to learn GNU plot. Of automatization of the R plot. But how??
 
  WHERE I STOPPED
- 	I was varying the probability of movement in "Offspring_position" and plotting in R the first 10 generations (to see if the collapse is early) and the last one. I found ont weird patterns for the final distribution, and some but not complete correlation with this value and the problem of the collapse. I want to make gifs to show Fla and Carlinhos whats going on. 
-
-
- ALTERATIONS SUGGESTED BY FLÁVIA
-
- 	- Mortalidade 37% - mimetização de sorteio com reposição
- 	- INDIVIDUOS COM DENSIDADE BAIXA - TIRAR MORTALIDADE
-
- 	I think I didn't understand what I have to change to test...
-
- 	ficou bem zoado tirando o loop para substituir o parceiro
-
- 	Dúvida: quando eu devo sortear uma nova posição, durante a resposição, para um individuo?
-
-Suggestions by PhD Candidate Juan
- 	- Ident input arguments in functions (code styler/ formater)
- 	- 
-
+ 	I was varying the probability of movement in "Offspring_position" and plotting in R the first 10 generations (to see if the collapse is early) and the last one. I found ont weird patterns for the final distribution, and some but not complete correlation with this value and the problem of the collapse.
