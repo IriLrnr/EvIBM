@@ -32,7 +32,7 @@ int main()
       Stablish_Distances (G, progenitors, info);
   		Reproduction (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
-      New_Generation_k (&progenitors, &offspring);
+      Swap_Generations (&progenitors, &offspring);
       printf("NUMBER OF SPECIES = %d\n", number_species);
   	}
 

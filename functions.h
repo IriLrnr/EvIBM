@@ -417,7 +417,7 @@
 /* =======================  Exchange Generations  ========================== */
 
 	/*This function, called by main, Exchanges the generation's vector's pointers*/
-	void New_Generation_k (Population* progenitors_pointer, Population* offspring_pointer)
+	void Swap_Generations (Population* progenitors_pointer, Population* offspring_pointer)
 	{
 		Population helper;
 
