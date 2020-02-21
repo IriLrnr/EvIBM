@@ -37,6 +37,7 @@
 	} parameters;
 
 	typedef parameters * Parameters;
+
 /* ======================================================================= */
 
 /* =======================  Used everywhere  ========================== */
@@ -44,8 +45,14 @@
 	/*Generates a random number between 0 and 1*/
 	float random_number()
 	{
-		return ((float)rand()/RAND_MAX);
+		return((float)rand() / ((float)RAND_MAX + 1));
 	}
+
+	int rand_upto (int n)
+	{
+		return (rand() / (RAND_MAX / n + 1));
+	}
+
 
 	/*This is a binary genome generator. It generates the first genome.*/
 	int* Generate_Genome (int genome_size)
@@ -56,7 +63,7 @@
 		first_genome = (int*) malloc (genome_size * sizeof(int));
 
 		for (i = 0; i < genome_size; i++) {
-			first_genome[i] = rand()%2;
+			first_genome[i] = rand_upto(1);
 		}
 		return first_genome;
 	}
@@ -133,6 +140,8 @@
 			}
 		}
 	}
+
+/* ====================================================================== */
 
 /* ========================== Initializing ============================== */
 	Parameters Set_Parameters () 
@@ -302,7 +311,7 @@
 
 		for (i = 0; i < info->genome_size; i++) {
 			if (progenitors[focal]->genome[i] != progenitors[mate]->genome[i]) {
-				if (rand()%2 == 1) {
+				if (rand_upto(1) == 1) {
 					offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 				}
 				else {
@@ -339,7 +348,7 @@
 			}
 			neighbors = Verify_Neighborhood (progenitors, focal);
 			if (neighbors) {
-				i = rand()%neighbors;
+				i = rand_upto(neighbors);
 			}
 
 			for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
@@ -469,6 +478,23 @@
 	}
 
 /* ========================================================================== */
+
+/* ============================== freeing =====================================*/
+
+	void Free_Population (Population individuals, Parameters info)
+	{
+		int i;
+
+		for (i = 0; i < info->individual_vector_size; i++) {
+	      if (individuals[i]->genome != NULL)
+	      free (individuals[i]->genome);
+	    }
+
+	    free (individuals);
+	}
+
+/* ========================================================================== */
+
 
 /* =================================LIB MODE=========================================
 	#ifndef _FUNCTIONS_H_

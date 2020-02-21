@@ -7,7 +7,7 @@ int main()
   /* A vector for keeping all the individuals of the kth generation, and other for the
   /* (k+1)th generation */
   Population progenitors, offspring;
-  Graph G; /*  Individuals' relations graph */
+  Graph G;
   Parameters info;
 
   /* This loop is used when more simulations are needed */
@@ -39,24 +39,10 @@ int main()
     /* We end the simulation freeing the used memory */
 
     DestroiGraph(G);
-    free (first_genome);
+    Free_Population (progenitors, info);
+    Free_Population (offspring, info);
     free (info);
-
-    for (i = 0; i < info->number_individuals; i++) {
-      free (progenitors[i]->genome);
-      free (offspring[i]->genome);
-    }
-
-    free (progenitors);
-    free (offspring);
   }
 
 return 0;
 }
-
-/*----------------------------------------
-Situação atual:
-
-- Forma muita espécie muito rápido, dai estabiliza muito, indicando colapso da posição dos individuos para poucos pontos.
-
-------------------------------------------*/
