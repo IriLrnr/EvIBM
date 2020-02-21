@@ -1,7 +1,13 @@
 
 # Model and Code Walkthrough
 
-Instead of telling the computer how to run my program, I am going to explain to you how I want the computer to run my program. Because people don't understand the same language as computers, I am going to do this with Literate programming (for now it's just a walkthrough, but I want it to compile later).
+#### Hello!
+
+Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows me and the work (or some of the theory behind it); but all the possible readers have different backgrounds, and I want the text to be clear to anyone, and the code as self-explanatory as possible, so I'm making an informal text, with bits of theory.
+
+My goal is the text to be complete, informative and helpfull on understanding the relation between what we **want** to model, and what we are **actually** modeling, because frankly, both you and me are here to help me fix some mistakes. So I'll be needing every little feedback you can give me, even if it's just a stylistic tip.
+
+#### Let's begin!
 
 This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code correspondence at the same time, so it is also a documentation. If you have a specific doubt, you can look into function section through the table of contents, or in F.A.Q.
 
@@ -21,13 +27,15 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [Reproduction](#reproduction)
 		- [Count_Species](#count_species)
 		- [Swap_Generations](#swap_generations)
+	- [Libraries](#libraries)
+		- [rand_upto](#rand_upto)
 
 ## The model <a name="model"></a>
 The goal is to model evolution, that is, how do many species arise from only one?
 
 We know the answer. When the genetic flow between populations stop, as the time passes, those populations reproduce only within, they accumulate mutations until a point where the genetic pool is so far apart, no one from one population can reproduce with someone of the other.
 
-But it doesn't mean there are no questions to be answered. For example, how long this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many many others.
+But it doesn't mean there are no questions to be answered. For example, how long this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
 
 Modeling simplified evolution can give insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in the long timescale, and removing the ones that we don't.
 
@@ -87,7 +95,7 @@ The "main" keeps the skeleton of the code, while the functions' library keep the
 ```
 So that way, the libraries declared in functions.h can be used in main.c. I will not expose the full graph.h and linkedlist.h code here, but you can trust me it works, I tested it extensively.
 
-I will present the code the same way I built it. The main file will appear in order, so every code part beginning with "//main" is exactly in the same order as it appears in the file. We cannot apply the same method for presenting the functions' library, because the same function can be used more than once. Everything that is used from that library will be presented.
+ The main file will appear in order, so every code part beginning with "//main" in this file, is exactly in the same order as it appears in the main section. We cannot apply the same method for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
 
 To initialize the code, because c is a typed language, we need to declare the variables what we are using
 ```c
@@ -95,7 +103,6 @@ To initialize the code, because c is a typed language, we need to declare the va
 int main(){...}
 //...
 	int i, j, l, number_species;
-	int* first_genome;
 	Population progenitors, offspring;
 	Graph G;
 	Parameters info;
@@ -358,3 +365,28 @@ return 0;
 ```
 
 ## Libraries <a name="libraries"></a>
+
+### functions.h <a name="functions"></a>
+<a name="rand_upto"></a>
+```c
+int rand_upto (int n)
+	{
+		return (rand() / (RAND_MAX / n + 1));
+	}
+
+```
+
+When we need a random number between 0 and 1, we use
+
+```c
+//in functionsh
+float random_number()
+	{
+		return((float)rand() / ((float)RAND_MAX + 1));
+	}
+```
+
+
+### graph.h <a name="graph"></a>
+
+### linkedlist.h <a name="linkedlist"></a>
