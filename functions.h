@@ -5,7 +5,6 @@
 #include "linkedlist.h"
 
 /* =======================  Definitions ========================== */
-
 	/* Here we define and individual as a struct with genome, species and location, and
 	a population as a vector of individuals*/
 	typedef struct
@@ -41,7 +40,6 @@
 
 /* ======================================================================= */
 
-
 /* =======================  Used everywhere  ========================== */
 
 	/*Generates a random number between 0 and 1*/
@@ -62,7 +60,7 @@
 
 	/* This function checks if an individual (j) is within the range of another individual (i) 
 	PROBLEMATIC */
-	int Verify_Distance (Population individualsk, int focal, int mate, Parameters info, int increase)
+	int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase)
 	{
 		int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
 
@@ -75,38 +73,38 @@
 		y_out_down = 0;
 
 		/* If an individual ratio reaches an end of the lattice, it will look on the other side, because the lattice work as a toroid */
-		if (individualsk[mate]->x <= individualsk[focal]->x + info->radius + increase && individualsk[mate]->x >= individualsk[focal]->x - info->radius + increase) {
+		if (progenitors[mate]->x <= progenitors[focal]->x + info->radius + increase && progenitors[mate]->x >= progenitors[focal]->x - info->radius + increase) {
 			x_compatible = 1;
 		}
-		if (individualsk[mate]->y <= individualsk[focal]->y + info->radius + increase && individualsk[mate]->y >= individualsk[focal]->y - info->radius + increase) {
+		if (progenitors[mate]->y <= progenitors[focal]->y + info->radius + increase && progenitors[mate]->y >= progenitors[focal]->y - info->radius + increase) {
 			y_compatible = 1;
 		}
 
 		if (!x_compatible) {
-			if (individualsk[focal]->x + info->radius + increase > info->lattice_width) {
-				x_out_right = individualsk[focal]->x + info->radius + increase - info->lattice_width;
-				if (individualsk[mate]->x <= x_out_right) {
+			if (progenitors[focal]->x + info->radius + increase > info->lattice_width) {
+				x_out_right = progenitors[focal]->x + info->radius + increase - info->lattice_width;
+				if (progenitors[mate]->x <= x_out_right) {
 					x_compatible = 1;
 				}
 			}
-			else if (individualsk[focal]->x - info->radius + increase < 0) {
-				x_out_left = individualsk[focal]->x - info->radius + increase + info->lattice_width;
-				if (individualsk[mate]->x >= x_out_left) {
+			else if (progenitors[focal]->x - info->radius + increase < 0) {
+				x_out_left = progenitors[focal]->x - info->radius + increase + info->lattice_width;
+				if (progenitors[mate]->x >= x_out_left) {
 					x_compatible = 1;
 				}
 			}
 		}
 
 		if (!y_compatible) {
-			if (individualsk[focal]->y + info->radius + increase > info->lattice_lenght) {
-				y_out_up = individualsk[focal]->y + info->radius + increase - info->lattice_lenght;
-				if (individualsk[mate]->y <= y_out_up) {
+			if (progenitors[focal]->y + info->radius + increase > info->lattice_lenght) {
+				y_out_up = progenitors[focal]->y + info->radius + increase - info->lattice_lenght;
+				if (progenitors[mate]->y <= y_out_up) {
 					y_compatible = 1;
 				}
 			}
-			else if (individualsk[focal]->y - info->radius + increase < 0) {
-				y_out_down = individualsk[focal]->y - info->radius + increase + info->lattice_lenght;
-				if (individualsk[mate]->y >= y_out_down) {
+			else if (progenitors[focal]->y - info->radius + increase < 0) {
+				y_out_down = progenitors[focal]->y - info->radius + increase + info->lattice_lenght;
+				if (progenitors[mate]->y >= y_out_down) {
 					y_compatible = 1;
 				}
 			}
@@ -116,22 +114,47 @@
 		else return 0;
 	}
 
-	int Verify_Neighborhood (Population individualsk, int focal)
+	int Verify_Neighborhood (Population progenitors, int focal)
 	{
-		return (-(individualsk[focal]->neighborhood->info + 1));
+		return (-(progenitors[focal]->neighborhood->info + 1));
 	}
 
 	/* This function computes the neighbors an individual i can reproduce with and stores this info in a list */
-	void neighborhood (Graph G, Population individualsk, int focal, Parameters info, int increase)
+	void neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
 	{
 		int mate;
 
 		for (mate = 0; mate < (G->U); mate++) {
-			if (G->adj[focal][mate] != 0 && Verify_Distance (individualsk, focal, mate, info, increase)){
-				AddCellInOrder(&individualsk[focal]->neighborhood, mate);
+			if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)){
+				AddCellInOrder(&progenitors[focal]->neighborhood, mate);
 			}
 		}
 	}
+
+/* ========================== Initializing ============================== */
+	Parameters Set_Parameters () 
+	{
+		Parameters info;
+
+		info = (Parameters) malloc (sizeof (parameters));
+
+		info->number_individuals     = 1000;
+		info->population_size        = 1000;
+		/* The population can grow and sink. Here we estimate the grown aoround 20% */
+		info->individual_vector_size = (int)(info->number_individuals * 1.4);
+		info->reproductive_distance  = 7;
+		info->genome_size            = 150;
+		info->number_generations     = 1000;
+		info->lattice_lenght         = 100;
+		info->lattice_width          = 100;
+		info->radius                 = 5;
+		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
+		individuals that mark the density limit (60% of the original density) */
+		info->neighbors = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_lenght * info->lattice_width);
+		
+		return info;
+	}
+
 
 /* ==================================================================== */
 
@@ -179,14 +202,14 @@
 
 	/* This function, called by Reproduction, defines the offspring position, that is, if it is going to move, how much,
 	and in which direction. It can move in it's focal parent range, with 1% chance*/
-	void Offspring_Position (Population individualsk, Population individualsk1, int baby, int focal, Parameters info)
+	void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info)
 	{
 		float movement_x, movement_y;
 
 		movement_x = movement_y = 0;
 
-		individualsk1[baby]->x = individualsk[focal]->x;
-		individualsk1[baby]->y = individualsk[focal]->y;
+		offspring[baby]->x = progenitors[focal]->x;
+		offspring[baby]->y = progenitors[focal]->y;
 
 		if (random_number() <= 0.01) {
 			movement_y = random_number()*info->radius;
@@ -197,71 +220,71 @@
 			}
 
 			/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
-			if (individualsk1[baby]->x + movement_x <= info->lattice_width && individualsk[focal]->x + movement_x >= 0)
-		  		individualsk1[baby]->x += movement_x;
+			if (offspring[baby]->x + movement_x <= info->lattice_width && progenitors[focal]->x + movement_x >= 0)
+		  		offspring[baby]->x += movement_x;
 
-			else if (individualsk[focal]->x + movement_x > info->lattice_width)
-				individualsk1[baby]->x = individualsk1[baby]->x + movement_x - info->lattice_width;
+			else if (progenitors[focal]->x + movement_x > info->lattice_width)
+				offspring[baby]->x = offspring[baby]->x + movement_x - info->lattice_width;
 
-			else if (individualsk[focal]->x + movement_x < 0)
-				individualsk1[baby]->x = individualsk1[baby]->x + movement_x + info->lattice_width;
+			else if (progenitors[focal]->x + movement_x < 0)
+				offspring[baby]->x = offspring[baby]->x + movement_x + info->lattice_width;
 
-			if (individualsk[focal]->y + movement_y <= info->lattice_lenght && individualsk[focal]->y + movement_y >= 0)
-		  	individualsk1[baby]->y = individualsk1[baby]->y + movement_y;
+			if (progenitors[focal]->y + movement_y <= info->lattice_lenght && progenitors[focal]->y + movement_y >= 0)
+		  	offspring[baby]->y = offspring[baby]->y + movement_y;
 
-			else if (individualsk[focal]->y + movement_y > info->lattice_lenght)
-				individualsk1[baby]->y = individualsk1[baby]->y + movement_y - info->lattice_lenght;
+			else if (progenitors[focal]->y + movement_y > info->lattice_lenght)
+				offspring[baby]->y = offspring[baby]->y + movement_y - info->lattice_lenght;
 
-			else if (individualsk[focal]->y + movement_y < 0)
-				individualsk1[baby]->y = individualsk1[baby]->y + movement_y + info->lattice_lenght;
+			else if (progenitors[focal]->y + movement_y < 0)
+				offspring[baby]->y = offspring[baby]->y + movement_y + info->lattice_lenght;
 		}
-		//printf("(%f, %f\n", individualsk1[baby]->x, individualsk1[baby]->y);
+		//printf("(%f, %f\n", offspring[baby]->x, offspring[baby]->y);
 	}
 
 	/* This function, called by Create_Offspring, allocates the mutation in the genome */
-	void mutation (Population individualsk1, int baby, int mutation)
+	void mutation (Population offspring, int baby, int mutation)
 	{
-		if (individualsk1[baby]->genome[mutation] == 1) {
-			individualsk1[baby]->genome[mutation] = 0;
+		if (offspring[baby]->genome[mutation] == 1) {
+			offspring[baby]->genome[mutation] = 0;
 		}
 		else {
-			individualsk1[baby]->genome[mutation] = 1;
+			offspring[baby]->genome[mutation] = 1;
 		}
 	}
 
 	/* This function, called by Reproduction, determines the characteristics of the offspring, based on the parent's.
 	The new offspring will have the position of the focal individual (i). The genome of the offspring has, for
 	each loci, 50% chance of coming from either of his parents */
-	void Create_Offspring (Population individualsk, Population individualsk1, int baby, int focal, int mate, Parameters info)
+	void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int mate, Parameters info)
 	{
 	  int i;
 		
-		Offspring_Position(individualsk, individualsk1, baby, focal, info);
+		Offspring_Position(progenitors, offspring, baby, focal, info);
 
 		for (i = 0; i < info->genome_size; i++) {
-			if (individualsk[focal]->genome[i] != individualsk[mate]->genome[i]) {
+			if (progenitors[focal]->genome[i] != progenitors[mate]->genome[i]) {
 				if (rand()%2 == 1) {
-					individualsk1[baby]->genome[i] = individualsk[mate]->genome[i];
+					offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 				}
 				else {
-					individualsk1[baby]->genome[i] = individualsk[focal]->genome[i];
+					offspring[baby]->genome[i] = progenitors[focal]->genome[i];
 				}
 			}
 			else {
-				individualsk1[baby]->genome[i] = individualsk[mate]->genome[i];
+				offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 			}
 		}
 
 		for (i = 0; i < info->genome_size; i++) {
 			if (random_number() <= 0.00025) {
-				mutation (individualsk1, baby, i);
+				mutation (offspring, baby, i);
 			}
 		}
 	}
 
 	/* This function, called by Reproduction, chooses the mate of the focal individual (i) based on the graph
 	(who it can reproduce with) and the distance of the others (who is in their range).*/
-	int Choose_Mate (Graph G, int focal, Population individualsk, Parameters info)
+	int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
 	{
 		int j, i, neighbors, radius_increase, radius, mate;
 		List p;
@@ -271,16 +294,16 @@
 
 		while (radius_increase <= 3 && mate == -1) {
 			if (radius_increase > 0) {
-				DestroyList(&individualsk[focal]->neighborhood);
-				individualsk[focal]->neighborhood = CreateHeadedList ();
-				neighborhood (G, individualsk, focal, info, radius_increase);
+				DestroyList(&progenitors[focal]->neighborhood);
+				progenitors[focal]->neighborhood = CreateHeadedList ();
+				neighborhood (G, progenitors, focal, info, radius_increase);
 			}
-			neighbors = Verify_Neighborhood (individualsk, focal);
+			neighbors = Verify_Neighborhood (progenitors, focal);
 			if (neighbors) {
 				i = rand()%neighbors;
 			}
 
-			for (j = 0, p = individualsk[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+			for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
 			if (j == i && p != NULL) mate = p->info;
 			else mate = -1;
 
@@ -294,22 +317,20 @@
 
 	/* This function, called by main, makes the reproduction happen, with creation of a new individual,
 	who is to be put in a paralel lattice, where the next generation will be */
-	void Reproduction (Graph G, Population individualsk, Population individualsk1, Parameters info)
+	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, i, n;
 
 		i = 0;
 
 		if (info->population_size < info->number_individuals) {
-			if (random_number() <= 0.64) {
-				for (focal = 0; focal < info->population_size; focal++) {
-					if (Verify_Neighborhood (individualsk, focal) < info->neighbors) {
-						mate = Choose_Mate(G, focal, individualsk, info);
-						if (mate != -1) {
-							Create_Offspring (individualsk, individualsk1, i, focal, mate, info);
-							i++;
-							info->population_size ++;
-						}
+			for (focal = 0; focal < info->population_size; focal++) {
+				if (Verify_Neighborhood (progenitors, focal) < info->neighbors) {
+					mate = Choose_Mate(G, focal, progenitors, info);
+					if (mate != -1) {
+						Create_Offspring (progenitors, offspring, i, focal, mate, info);
+						i++;
+						info->population_size ++;
 					}
 				}
 			}
@@ -319,20 +340,20 @@
 			other = focal;
 			mate = -1;
 
-			if (random_number() <= 0.64 && Verify_Neighborhood (individualsk, focal) >= info->neighbors) {
-				mate = Choose_Mate(G, focal, individualsk, info);
+			if (random_number() < 0.63 && Verify_Neighborhood (progenitors, focal) > 2) {
+				mate = Choose_Mate(G, focal, progenitors, info);
 			}
 
 			for (n = 0; n < 2; n++) {
 				if (mate == -1) {
-					other = Choose_Mate (G, focal, individualsk, info);
+					other = Choose_Mate (G, focal, progenitors, info);
 					if (other != -1)
-						mate = Choose_Mate(G, other, individualsk, info);
+						mate = Choose_Mate(G, other, progenitors, info);
 				}
 			}
 
 			if (mate != -1 && other != -1) {
-				Create_Offspring (individualsk, individualsk1, i, other, mate, info);
+				Create_Offspring (progenitors, offspring, i, other, mate, info);
 				i++;
 			}
 			else {
@@ -348,13 +369,13 @@
 /* =======================  Exchange Generations  ========================== */
 
 	/*This function, called by main, Exchanges the generation's vector's pointers*/
-	void New_Generation_k (Population* individualsk_pointer, Population* individualsk1_pointer)
+	void New_Generation_k (Population* progenitors_pointer, Population* offspring_pointer)
 	{
 		Population helper;
 
-		helper = (*individualsk_pointer);
-		(*individualsk_pointer) = (*individualsk1_pointer);
-		(*individualsk1_pointer) = helper;
+		helper = (*progenitors_pointer);
+		(*progenitors_pointer) = (*offspring_pointer);
+		(*offspring_pointer) = helper;
 	}
 
 /* ============================================================================ */
@@ -409,3 +430,66 @@
 	}
 
 /* ========================================================================== */
+
+/* =================================LIB MODE=========================================
+	#ifndef _FUNCTIONS_H_
+	#define _FUNCTIONS_H_
+
+	#include "graph.h"
+	#include "linkedlist.h"
+
+		typedef struct
+		{
+			int* genome;
+			int species;
+			float x;
+			float y;
+			List neighborhood;
+		} individual;
+
+		typedef individual * Individual;
+
+		typedef Individual * Population;
+
+		typedef struct
+		{
+			int number_individuals;
+			int individual_vector_size;
+			int population_size;
+			int genome_size;
+			int reproductive_distance;
+			int number_generations;
+			int neighbors;
+			float lattice_width;
+			float lattice_lenght;
+			float radius;
+		} parameters;
+
+		typedef parameters * Parameters;
+
+		float random_number();
+		void Generate_Genome (int* first_genome, int genome_size);
+		int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase);
+		int Verify_Neighborhood (Population progenitors, int focal);
+		void neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase);
+
+		void Stablish_Distances (Graph G, Population individuals, Parameters info);
+
+		void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info);
+		void mutation (Population offspring, int baby, int mutation);
+		void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int mate, Parameters info);
+		int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info);
+		void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info);
+
+
+		void New_Generation_k (Population* progenitors_pointer, Population* offspring_pointer);
+
+
+		void DSFvisit (Graph G, Vertix v, int* parent, Population individuals, int species);
+		void DepthFirstSearch (Graph G, int* counter_adress, Population individuals);
+		int Count_Species (Graph G, Population individuals);
+
+
+	#endif
+
+ ========================================================================== */
