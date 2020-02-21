@@ -37,7 +37,6 @@
 	} parameters;
 
 	typedef parameters * Parameters;
-
 /* ======================================================================= */
 
 /* =======================  Used everywhere  ========================== */
@@ -49,13 +48,17 @@
 	}
 
 	/*This is a binary genome generator. It generates the first genome.*/
-	void Generate_Genome (int* first_genome, int genome_size)
+	int* Generate_Genome (int genome_size)
 	{
 		int i;
+		int* first_genome;
+
+		first_genome = (int*) malloc (genome_size * sizeof(int));
 
 		for (i = 0; i < genome_size; i++) {
 			first_genome[i] = rand()%2;
 		}
+		return first_genome;
 	}
 
 	/* This function checks if an individual (j) is within the range of another individual (i) 
@@ -155,6 +158,42 @@
 		return info;
 	}
 
+	Population Alloc_Population (Parameters info)
+	{
+		Population individuals;
+		int i, j;
+
+		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
+
+		for (i = 0; i < info->individual_vector_size; i++) {
+			individuals[i] = (Individual) malloc (sizeof (individual));
+			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
+			individuals[i]->neighborhood = CreateHeadedList ();
+		}
+
+		return individuals;
+	}
+
+	void Set_Initial_Values (Population progenitors, Parameters info)
+	{
+		int i, j;
+		int* first_genome;
+
+    	first_genome = Generate_Genome(info->genome_size);
+
+    	for (i = 0; i < info->individual_vector_size; i++) {
+    		for (j = 0; j < info->genome_size; j++) {
+	        progenitors[i]->genome[j] = first_genome[j];
+	    	}
+    	}
+	 
+    	for (i = 0; i < info->number_individuals; i++) {
+	      progenitors[i]->x = random_number() * info->lattice_width;
+	      progenitors[i]->y = random_number() * info->lattice_lenght;
+	    }
+
+	    free (first_genome);
+	}
 
 /* ==================================================================== */
 

@@ -12,45 +12,20 @@ int main()
 
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
+  /* Using a fixed seed gives same results at every simulation. */
+    srand (1);
 
     info = Set_Parameters();
 
-    /* Using a fixed seed gives same results at every simulation. */
-    srand (1);
+    progenitors = Alloc_Population (info);
+    offspring = Alloc_Population (info);
 
-    /* The populations k and k+1 are allocated */
-    progenitors  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
-    offspring = (Population) malloc (info->individual_vector_size * sizeof (Individual));
-
-    /* A random first genome is created */
-    first_genome = (int*) malloc (info->genome_size * sizeof(int));
-    Generate_Genome(first_genome, info->genome_size);
-
-    /* The genome of each individual is allocated and the first genome is copied to each of
-     them */
-    for (i = 0; i < info->individual_vector_size; i++) {
-      progenitors[i] = (Individual) malloc (sizeof (individual));
-      offspring[i] = (Individual) malloc (sizeof (individual));
-      progenitors[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
-      offspring[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
-      progenitors[i]->neighborhood = CreateHeadedList ();
-      offspring[i]->neighborhood = CreateHeadedList (); 
-      for (j = 0; j < info->genome_size; j++) {
-        progenitors[i]->genome[j] = first_genome[j];
-      }
-    }
-
-    /* The individuals are in the space */
-    for (i = 0; i < info->number_individuals; i++) {
-      progenitors[i]->x = random_number() * info->lattice_width;
-      progenitors[i]->y = random_number() * info->lattice_lenght;
-    }
-
+    Set_Initial_Values (progenitors, info);
 
     /* The graph is created with the population's original size*/
     G = CreateGraph (info->individual_vector_size, info->number_individuals);
 
-    /* After all these first definitions, the actual program is here. In each generation, we make the kth population's graph
+    /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
   	for (number_species = 0, i = 0; i < info->number_generations; i++) {
       printf("GENERATION: %d\n", i);

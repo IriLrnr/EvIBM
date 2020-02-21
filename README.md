@@ -21,4 +21,4 @@ I cannot make libraries. I have to test and tidy up the code, but I just don't k
 
 ## References
 
-DE AGUIAR, Marcus Aloizo Martinez et al. Global patterns of speciation and diversity. **Nature**, v. 460, n. 7253, p. 384-387, 2009.s
+DE AGUIAR, Marcus Aloizo Martinez et al. Global patterns of speciation and diversity. **Nature**, v. 460, n. 7253, p. 384-387, 2009.
