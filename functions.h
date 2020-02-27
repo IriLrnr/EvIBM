@@ -141,6 +141,19 @@
 		}
 	}
 
+	void expand_neighborhood (Graph G, List bigger_neighborhood, Population progenitors, int focal, Parameters info, int increase)
+	{
+		int mate;
+
+		for (mate = 0; mate < (G->U); mate++) {
+			if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)) {
+				if (!Verify_Distance (progenitors, focal, mate, info, increase - 1)) {
+					AddCellInOrder(&bigger_neighborhood, mate);
+				}
+			}
+		}
+	}
+
 /* ====================================================================== */
 
 /* ========================== Initializing ============================== */
@@ -156,7 +169,7 @@
 		info->individual_vector_size = (int)(info->number_individuals * 1.2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 1000;
+		info->number_generations     = 2000;
 		info->lattice_lenght         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -237,8 +250,7 @@
 		}
 		for (i = 0; i < G->U; ++i)
 		{
-			DestroyList(&individuals[i]->neighborhood);
-			individuals[i]->neighborhood = CreateHeadedList ();
+			RestartList (&individuals[i]->neighborhood);
 			neighborhood (G, individuals, i, info, 0);
 		}
 	}
@@ -334,33 +346,50 @@
 	(who it can reproduce with) and the distance of the others (who is in their range).*/
 	int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
 	{
-		int j, i, neighbors, radius_increase, radius, mate;
+		int j, i, neighbors, expand, radius_increase, radius, mate;
 		List p;
 		List bigger_neighborhood;
 
 		mate = -1;
 		radius_increase = 0;
 
+		bigger_neighborhood = CreateHeadedList ();
+
 		while (radius_increase <= 3 && mate == -1) {
 			if (radius_increase > 0) {
-				DestroyList(&progenitors[focal]->neighborhood);
-				progenitors[focal]->neighborhood = CreateHeadedList ();
-				neighborhood (G, progenitors, focal, info, radius_increase);
-			}
-			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
-			if (neighbors) {
-				i = rand_upto(neighbors);
+				expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
 			}
 
-			for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
-			if (j == i && p != NULL) mate = p->info;
+			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
+			expand = Verify_Neighborhood (bigger_neighborhood);
+
+			if (neighbors + expand) {
+				i = rand_upto(neighbors + expand); //add 1?
+				
+				if (i <= neighbors) {
+					for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+				}
+				else {
+					i -= neighbors;
+					for (j = 0, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+				}
+
+				if (j == i && p != NULL) {
+					mate = p->info;
+				} 
+				else mate = -1;
+			}
+
 			else mate = -1;
 
 			if (mate == -1) {
 				radius += 1;
 				radius_increase += 1;
 			}
+
 		}
+		DestroyList (&bigger_neighborhood);
+		
 		return mate;
 	}
 
@@ -487,8 +516,10 @@
 		int i;
 
 		for (i = 0; i < info->individual_vector_size; i++) {
-	      if (individuals[i]->genome != NULL)
-	      free (individuals[i]->genome);
+			if (individuals[i]->genome != NULL)
+			free (individuals[i]->genome);
+			DestroyList (&individuals[i]->neighborhood);
+			free(individuals[i]);
 	    }
 
 	    free (individuals);
