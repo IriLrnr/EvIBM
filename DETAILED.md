@@ -9,7 +9,7 @@ My goal is the text to be complete, informative and helpfull on understanding th
 
 #### Let's begin!
 
-This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code correspondence at the same time, so it is also a documentation. If you have a specific doubt, you can look into function section through the table of contents, or in F.A.Q.
+This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code correspondence at the same time, so it is also a documentation. If you have a specific doubt, you can look into the table of contents.
 
 ## Table of Contents
 - [The model](#model)
@@ -21,6 +21,7 @@ This is a computational model for evolution and speciation. In this walkthrough,
 	- [Structures](#structure)
 		- [The individual](#individual)
 		- [The population](#population)
+		- [First Values](#alloc)
 		- [The graph](#graph)
 	- [Simulating](#simulation)
 		- [Stablish_Distances](#stablish_distances)
@@ -28,7 +29,15 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [Count_Species](#count_species)
 		- [Swap_Generations](#swap_generations)
 	- [Libraries](#libraries)
-		- [rand_upto](#rand_upto)
+		- [functions.h](#functionsh)
+			- [rand_upto](#rand_upto)
+			- [random_number](#random_number)
+			- [Set_Parameters](#set_parameters)
+			- [Alloc_Population](#alloc_population)
+			- [Set_Initial_Values](#set_initial_values)
+			- [Generate_Genome](#generate_genome)
+		- [graph.h](#graphh)
+		- [linkedlist.h](#linkedlisth)
 
 ## The model <a name="model"></a>
 The goal is to model evolution, that is, how do many species arise from only one?
@@ -111,7 +120,7 @@ int main(){...}
 Those structures are explained in the sections bellow.
 
 ### Randomness <a name="random"></a>
-To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the c random number generator, rand(). Beggining from one specific value, rand() returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value.
+To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the c pseudo-random number generator, rand(). Beggining from one specific value, rand() returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value.(_Maybe it would be better using a more powerfull random number generator_)
 ```c
 //in main, fixed seed
 srand (1);
@@ -122,23 +131,16 @@ The functions I am currently using to produce random numbers are one based on ra
 
 To achieve an integer between 0 and a value, we can use this function that generates an integer up to n.
 ```c
-int rand_upto (int n)
-	{
-		return (rand() / (RAND_MAX / n + 1));
-	}
+int rand_upto (int n){}
 
 ```
 
 When we need a random number between 0 and 1, we use
 
 ```c
-//in functionsh
-float random_number()
-	{
-		return((float)rand() / ((float)RAND_MAX + 1));
-	}
+float random_number(){}
 ```
-Maybe it would be better to use a more powerfull random number generator.
+Just passing by to remember the functions are docummented in the last section.
 
 ### Parameters <a name="parameters"></a>
 To begin the simulation, we have to tell the program what we want it to simulate, so in the main file we create an structure called Parameters, and set the initial values we want to
@@ -169,6 +171,7 @@ typedef struct
 ```
 These parameters can be manually set to the desired values. To make simulation and tests, we are using the following:
 
+<a name="set_parameters"></a>
 ```c
 //in functions.h
 Parameters Set_Parameters ()
@@ -179,19 +182,19 @@ Parameters Set_Parameters ()
 
 	info->number_individuals     = 1000;
 	info->population_size        = 1000;
-	info->individual_vector_size = 1200;
 	info->reproductive_distance  = 7;
 	info->genome_size            = 150;
 	info->number_generations     = 1000;
 	info->lattice_lenght         = 100;
 	info->lattice_width          = 100;
 	info->radius                 = 5;
-	info->neighbors              = 2;
+	info->individual_vector_size = (int)(info->number_individuals * 1.2);;
+	info->neighbors              = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_lenght * info->lattice_width);;
 
 	return info;
 }
 ```
-First, the structure is allocated dynamically, and then the values are set.
+First, the structure info is allocated dynamically, and then the values are set. It returns a "Parameters" structure. The hideous calculation for the neighborhood corresponds to an integer representing 60% of the average density of the system. In this case, the value is 2.
 
 - **number_individuals**: system's carry capacity
 - **population_size**: keeps the actual size of the focal population
@@ -221,7 +224,8 @@ typedef struct
 
 	typedef individual * Individual;
 ```
-It has a binary genome, with the parameterized size, an indicatior of which species it belongs, it's coordinates in space and a list of possible mates, those who are geneticaly compatible AND inside it's range (the radius).
+It has a binary genome, with the parameterized size, an indicatior of which species it belo//in functions.h
+ngs, it's coordinates in space and a list of possible mates, those who are geneticaly compatible AND inside it's range (the radius).
 
 #### The population <a name="population"></a>
 A population is just a vector of individuals.
@@ -240,28 +244,10 @@ progenitors = Alloc_Population (info);
 offspring = Alloc_Population (info);
 ```
 
-#### Allocate and Set first values<a name="alloc"></a>
-Now we have the population vectors, with empty individuals structures in it. So we allocate the individuals, and set their initial values
+#### Set first values<a name="alloc"></a>
+Now we have the population vectors, with empty individuals structures in it. For each individual in the vector of the population we have to alloc their "internal structures" and set values to the generation 0, that is allocated as the first "progenitors"
 
-```c
-//in functions.h
-Population Alloc_Population (Parameters info)
-	{
-		Population individuals;
-		int i, j;
-
-		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
-
-		for (i = 0; i < info->individual_vector_size; i++) {
-			individuals[i] = (Individual) malloc (sizeof (individual));
-			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
-			individuals[i]->neighborhood = CreateHeadedList ();
-		}
-
-		return individuals;
-	}
-```
-For each individual in the vector of the population we have to alloc their "internal structures" and set values to the generation 0, that is allocated as the first "progenitors"
+<a name="set_initial_values"></a>
 ```c
 	//in functions.h
 	void Set_Initial_Values (Population progenitors, Parameters info)
@@ -285,7 +271,9 @@ For each individual in the vector of the population we have to alloc their "inte
 	    free (first_genome);
 	}
 ```
-we generate the first genome with the following function:
+This function receives a Population, a Parametes structure and fills the information of the genome, copying the same one to each individual. Then, it sorts a spot for this individual. To generate this genome, we call the following function
+
+<a name="generate_genome"></a>
 ```c
 //in functions.h
 void Generate_Genome (int* first_genome, int genome_size)
@@ -299,7 +287,7 @@ void Generate_Genome (int* first_genome, int genome_size)
 	}
 }
 ```
-For each spot in the genome, it sorts a value between 0 and 1 with equal chance.
+Generate_genome recieves a vector, and an integer corresponding to the vector's size. The genome is allocated. For each spot in the genome, it sorts a value between 0 and 1 with equal chance.
 
 #### The graph <a name="graph"></a>
 Now we have one population with individuals, that have a genome, coordinates and a species (and it's useful list of bootycalls). We know, at first, the individuals are identical, so we have **genetic flow** between all individuals. But further in time, the individuals accumulate diffences, and we have to find out the genetic flow of this population. How?
@@ -366,27 +354,49 @@ return 0;
 
 ## Libraries <a name="libraries"></a>
 
-### functions.h <a name="functions"></a>
+### functions.h <a name="functionsh"></a>
 <a name="rand_upto"></a>
+
+The next function receives an integer and returns a random integer between 0 and n.
+
 ```c
-int rand_upto (int n)
-	{
+int rand_upto (int n) {
 		return (rand() / (RAND_MAX / n + 1));
 	}
-
 ```
 
-When we need a random number between 0 and 1, we use
+
+<a name="random_number"></a>
+
+The function random_number returns a random float between 0 and 1 when called. _Should I make it a double?_
 
 ```c
-//in functionsh
-float random_number()
-	{
+float random_number() {
 		return((float)rand() / ((float)RAND_MAX + 1));
 	}
 ```
 
+<a name="alloc_population"></a>
+The function Alloc_Population receives a Parameters structure and returns a Population. It generates space in memory for all the parts of each individual in the vector Population.
 
-### graph.h <a name="graph"></a>
+```c
+Population Alloc_Population (Parameters info)
+	{
+		Population individuals;
+		int i, j;
 
-### linkedlist.h <a name="linkedlist"></a>
+		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
+
+		for (i = 0; i < info->individual_vector_size; i++) {
+			individuals[i] = (Individual) malloc (sizeof (individual));
+			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
+			individuals[i]->neighborhood = CreateHeadedList ();
+		}
+
+		return individuals;
+	}
+```
+
+### graph.h <a name="graphh"></a>
+
+### linkedlist.h <a name="linkedlisth"></a>
