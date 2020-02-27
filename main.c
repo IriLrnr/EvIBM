@@ -37,8 +37,7 @@ int main()
   	}
 
     /* We end the simulation freeing the used memory */
-
-    DestroiGraph(G);
+    DestroyGraph(G);
     Free_Population (progenitors, info);
     Free_Population (offspring, info);
     free (info);

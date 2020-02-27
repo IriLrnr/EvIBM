@@ -124,9 +124,9 @@
 		else return 0;
 	}
 
-	int Verify_Neighborhood (Population progenitors, int focal)
+	int Verify_Neighborhood (List neighborhood)
 	{
-		return (-(progenitors[focal]->neighborhood->info + 1));
+		return (-(neighborhood->info + 1));
 	}
 
 	/* This function computes the neighbors an individual i can reproduce with and stores this info in a list */
@@ -336,6 +336,7 @@
 	{
 		int j, i, neighbors, radius_increase, radius, mate;
 		List p;
+		List bigger_neighborhood;
 
 		mate = -1;
 		radius_increase = 0;
@@ -346,7 +347,7 @@
 				progenitors[focal]->neighborhood = CreateHeadedList ();
 				neighborhood (G, progenitors, focal, info, radius_increase);
 			}
-			neighbors = Verify_Neighborhood (progenitors, focal);
+			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
 			if (neighbors) {
 				i = rand_upto(neighbors);
 			}
@@ -373,7 +374,7 @@
 
 		if (info->population_size < info->number_individuals) {
 			for (focal = 0; focal < info->population_size; focal++) {
-				if (Verify_Neighborhood (progenitors, focal) < info->neighbors) {
+				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
 					mate = Choose_Mate(G, focal, progenitors, info);
 					if (mate != -1) {
 						Create_Offspring (progenitors, offspring, i, focal, mate, info);
@@ -388,7 +389,7 @@
 			other = focal;
 			mate = -1;
 
-			if (random_number() < 0.63 && Verify_Neighborhood (progenitors, focal) > 2) {
+			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
 				mate = Choose_Mate(G, focal, progenitors, info);
 			}
 
