@@ -3,5 +3,5 @@ run : main
 	-rm *.o out
 
 main :
-	gcc -c main.c
+	gcc -c main.c -g
 	gcc -o out main.o
