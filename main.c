@@ -3,7 +3,6 @@
 int main()
 {
   int i, j, l, number_species;
-  int* first_genome;
   /* A vector for keeping all the individuals of the kth generation, and other for the
   /* (k+1)th generation */
   Population progenitors, offspring;
@@ -11,9 +10,6 @@ int main()
   Parameters info;
   char nome_arq[15] = "";
   char line[65] = "";
-  char x[20] = "";
-  char y[20] = "";
-  char sp[20] = "";
   FILE *output;
 
   /* This loop is used when more simulations are needed */
@@ -39,7 +35,7 @@ int main()
   		Reproduction (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
        /*This part is just for printing the result for making graphs in R later*/
-      if (i < 200) {
+      if (i < 40) {
         sprintf(nome_arq, "position/%04dgen.csv", i);
         output = fopen (nome_arq,"w");
         for (j = 0; j < info->population_size; ++j) {

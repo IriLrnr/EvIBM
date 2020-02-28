@@ -170,7 +170,7 @@
 		info->individual_vector_size = (int)(info->number_individuals * 1.2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 2000;
+		info->number_generations     = 20;
 		info->lattice_lenght         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -184,7 +184,7 @@
 	Population Alloc_Population (Parameters info)
 	{
 		Population individuals;
-		int i, j;
+		int i;
 
 		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
 
@@ -228,7 +228,7 @@
 	between genomes. */
 	void Stablish_Distances (Graph G, Population individuals, Parameters info)
 	{
-		int i, j, k, divergences, size_difference;
+		int i, j, k, divergences;
 
 		G->U = info->population_size;
 
@@ -396,7 +396,6 @@
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, i, n;
-		float rn;
 
 		i = 0;
 
