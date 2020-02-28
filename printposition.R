@@ -2,10 +2,9 @@ library(ggplot2)
 library(stringr)
 
 # Set directory to a folder that stores the output of the program (the folder must contain only .csv files) 
-setwd("/home/irinalerner/EvIBM/position") 
+setwd("./position") 
 file.names=dir()
 
-file.names
 ind.loc=data.frame()
 
 for (i in 1:length(file.names)){
@@ -14,10 +13,7 @@ for (i in 1:length(file.names)){
   ind.loc=rbind(ind.loc, data.loc)
 }
 
-data.loc
-
 colnames(ind.loc)=c("id","x","y","sp","time")
-ind.loc
 max.space=100
 
 for (i in 1:length(file.names)) {
@@ -42,10 +38,5 @@ for (i in 1:length(file.names)) {
   
   individuals.fig
   # Set here to a place to save the images
-  ggsave(paste("/home/irinalerner/EvIBM/plots/offsMove001_ind_location_aa-", str_pad(i, 4, pad="0"), ".png", sep = ""), individuals.fig,width=6, height=5)
+  ggsave(paste("../plots/ind_location_-", str_pad(i, 4, pad="0"), ".png", sep = ""), individuals.fig,width=6, height=5)
 }
-# Para fazer o gif, acesse a pasta das imagens pelo terminal, e digite
-# $ convert -monitor *.png out.gif
-# Para visualizar, baixe sxiv
-# $ sudo apt sxiv
-# $ sxiv out.gif
