@@ -6,9 +6,7 @@ bin-release/
 
 # Other files and folders
 .settings/
-.Tests/
-.plots/
-.position/
+Tests/
 
 # Executables
 *.swf
@@ -17,8 +15,10 @@ bin-release/
 *.apk
 *.o
 
+
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
-test
+out
 *.csv
+.Rhistory
