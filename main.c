@@ -9,6 +9,12 @@ int main()
   Population progenitors, offspring;
   Graph G;
   Parameters info;
+  char nome_arq[15] = "";
+  char line[65] = "";
+  char x[20] = "";
+  char y[20] = "";
+  char sp[20] = "";
+  FILE *output;
 
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
@@ -32,6 +38,23 @@ int main()
       Stablish_Distances (G, progenitors, info);
   		Reproduction (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
+       /*This part is just for printing the result for making graphs in R later*/
+      if (i == info->number_generations - 1) {
+        sprintf(nome_arq, "%d", i);
+        strcat (nome_arq, "gen.csv");
+        output = fopen (nome_arq,"w");
+        for (j = 0; j < info->population_size; ++j) {
+         sprintf(line, "%d;", i);
+         sprintf (x, "%f;", individualsk[j]->x);
+         sprintf(y, "%f;", individualsk[j]->y);
+         sprintf(sp, "%d\n", individualsk[j]->species);
+         strcat(line, x);
+         strcat(line, y);
+         strcat(line, sp);  
+         fputs (line, output);
+        }
+        fclose (output);
+      }
       Swap_Generations (&progenitors, &offspring);
       printf("NUMBER OF SPECIES = %d\n", number_species);
   	}

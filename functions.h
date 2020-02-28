@@ -22,6 +22,7 @@
 
 	/* Here we define a struct to keep all the fixed parameters wildely used in the simulation,
 	because this way they're easy to pass between functions */
+
 	typedef struct
 	{
 		int number_individuals;
@@ -40,9 +41,10 @@
 
 /* ======================================================================= */
 
+
 /* =======================  Used everywhere  ========================== */
 
-	/*Generates a random number between 0 and 1*/
+	/*Generates a random number between 0 and 1 */ /* TESTED OK */
 	float random_number()
 	{
 		return((float)rand() / ((float)RAND_MAX + 1));
@@ -68,8 +70,7 @@
 		return first_genome;
 	}
 
-	/* This function checks if an individual (j) is within the range of another individual (i) 
-	PROBLEMATIC */
+	/* This function checks if an individual (j) is within the range of another individual */
 	int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase)
 	{
 		int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
@@ -219,7 +220,7 @@
 
 /* ==================================================================== */
 
-
+/* This function is not ideal, but is not the problem either */
 /* =======================  Used for Creating the graph  ========================== */
 
 	/* This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
@@ -256,7 +257,7 @@
 
 /* =================================================================================== */
 
-
+/* THE PROBLEM IS HERE. I DON'T KNOW EXACLY WHERE, IF IT IS CONCEPTUAL OR A MODELING PROBLEM */
 /* =======================  Used for Reproduction  ========================== */
 
 	/* This function, called by Reproduction, defines the offspring position, that is, if it is going to move, how much,
@@ -297,7 +298,6 @@
 			else if (progenitors[focal]->y + movement_y < 0)
 				offspring[baby]->y = offspring[baby]->y + movement_y + info->lattice_lenght;
 		}
-		//printf("(%f, %f\n", offspring[baby]->x, offspring[baby]->y);
 	}
 
 	/* This function, called by Create_Offspring, allocates the mutation in the genome */
@@ -380,7 +380,6 @@
 			}
 
 			else mate = -1;
-
 			if (mate == -1) {
 				radius += 1;
 				radius_increase += 1;
@@ -393,10 +392,11 @@
 	}
 
 	/* This function, called by main, makes the reproduction happen, with creation of a new individual,
-	who is to be put in a paralel lattice, where the next generation will be */
+	who is to be put in a paralel lattice, where the next generation will be */ /* IS IT CONCEPTUALY OK? */
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, i, n;
+		float rn;
 
 		i = 0;
 
@@ -411,10 +411,10 @@
 					}
 				}
 			}
-		}
+		} 
 
 		for (focal = 0; focal < (G->U); focal++) {
-			other = focal;
+			other = focal; 
 			mate = -1;
 
 			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
