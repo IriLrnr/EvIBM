@@ -734,6 +734,84 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 With 99% chance, the baby will be in the exact same spot as the focal parent. But it can move with 1% chance. If it moves, the principle is the same as in "Verify_Distance", we have to check if the new position is inside the lattice.
 
 
+After reproduction, we have two populations, the progenitors and the offspring.
+
+### Count_Species <a name="count_species"></a>
+
+To count how many species we have on the progenitors population, we will use the graph, and analise how many **maximal connected components** there are. For this, we use **depth-first search**.
+
+```c
+//in functions.h
+int Count_Species (Graph G, Population individuals)
+{
+	int counter;
+
+	DepthFirstSearch (G, &counter, individuals);
+
+	return counter;
+}
+```
+It just calls the modified Depht-First Search
+
+```c
+//in functions.h
+void DepthFirstSearch (Graph G, int* counter_adress, Population individuals)
+{
+  int i;
+  int* parent;
+
+  parent = (int*) malloc ((G->U) * sizeof (int));
+  for (i = 0; i < (G->U); i++) {
+    parent[i] = -1;
+  }
+
+  (*counter_adress) = 0;
+
+  for (i = 0; i < (G->U); i++) {
+    if (parent[i] == -1) {
+      parent[i] = -2;
+      individuals[i]->species = (*counter_adress);
+      DSFvisit (G, i, parent, individuals, (*counter_adress));
+      (*counter_adress)++;
+    }
+  }
+  free (parent);
+}
+
+void DSFvisit (Graph G, Vertix v, int* parent, Population individuals, int species)
+{
+  int i;
+
+  for (i = 0; i < (G->U); i++) {
+    if (G->adj[v][i] != 0 && parent[i] == -1) {
+      parent[i] = v;
+      individuals[i]->species = species;
+      DSFvisit (G, i, parent, individuals, species);
+    }
+  }
+}
+```
+
+This pair of functions uses recursion to find maximal connected components on this graph. It also assigns the "species" item to the progenitors.
+
+### Swap_Generations <a name="swap_generations"></a>
+
+After all this, our progenitors will die, because that's the circle of life. On the bright side, the offspring will become progenitors! Computationaly, creating all the structures again would be costy. We recicle the vectors, just swaping the populations pointers. All the content of "offspring" will be overwritten in the next iteration.
+
+```c
+//in functions.h
+void Swap_Generations (Population* progenitors_pointer, Population* offspring_pointer)
+{
+	Population helper;
+
+	helper = (*progenitors_pointer);
+	(*progenitors_pointer) = (*offspring_pointer);
+	(*offspring_pointer) = helper;
+}
+```
+
+Then, [repeat](#simulation).
+
 ### Finnishing
 After finnishing all the simulation, we need to free the stack.
 ```c
@@ -748,6 +826,13 @@ There has to be the same numbers of alloc and free, and finnish the program.
 //in main
 return 0;
 ```
+
+## Final Considerations
+
+If you are still reading, ~~congratulations~~ thank you very much! The text and the code are in construction, so email me any tips, errors or doubts at irina.lerner@usp.br or iri.lerner@gmail.com. You can also clone this file, commit your suggestions and create a pull request!
+
+The following section is for documentation.
+
 
 ## Libraries <a name="libraries"></a>
 

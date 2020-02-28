@@ -32,27 +32,11 @@ To open the gif type
 $ sxiv out.gif
 ```
 
-## CHANGING PROBABILITY OF OFFSPRING MOVEMENT BEFORE MERGE
+## Where I stopped at 28/02/2020
 
-0% probability of moving:
-	VERY fast formation, with 58 species at the "end"
+What I've been doing is trying to fix de collapse problem. After a long time stuck, I found memory leaks errors in linkedlist.h and a problem of construction in Choose_Mate function. I fixed both. The individuals are still collapsing, less than before, I also finnished a first version of DETAILED.md. The next step is correcting the libraries, and analising what I have so far, to look for more problems to fix.
 
-1% probability of moving:
-	This is supposed to be the right one. In this case we have collapse, in ten generations, fast formation, and stabilization of the final number of species.
 
-10% probability of moving:
-	A little collapse in the beggining. Fast formation. Forms 25 species, doesn't stabilize in 1000 gen
-
-25% probability of moving:
-	Formation of species begin at 200, Forms 44 species, doesn't stabilize in 1000 gen.
-
-50% probability of moving:
-	Formation of species begin at 500, but forms 5 species.
-
-100% probability of moving:
-	In this case, there's no fast collapse, no species and THE FINAL PLOT IS SO SO SO SO WEIRD.
-
-Position
 ## References
 
 DE AGUIAR, Marcus Aloizo Martinez et al. Global patterns of speciation and diversity. **Nature**, v. 460, n. 7253, p. 384-387, 2009.
