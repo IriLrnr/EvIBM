@@ -39,18 +39,11 @@ int main()
   		Reproduction (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
        /*This part is just for printing the result for making graphs in R later*/
-      if (i == info->number_generations - 1) {
-        sprintf(nome_arq, "%d", i);
-        strcat (nome_arq, "gen.csv");
+      if (i < 200) {
+        sprintf(nome_arq, "position/%04dgen.csv", i);
         output = fopen (nome_arq,"w");
         for (j = 0; j < info->population_size; ++j) {
-         sprintf(line, "%d;", i);
-         sprintf (x, "%f;", individualsk[j]->x);
-         sprintf(y, "%f;", individualsk[j]->y);
-         sprintf(sp, "%d\n", individualsk[j]->species);
-         strcat(line, x);
-         strcat(line, y);
-         strcat(line, sp);  
+         sprintf(line, "%d;%f;%f;%d\n", i, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species); 
          fputs (line, output);
         }
         fclose (output);
