@@ -1,7 +1,7 @@
 run : main
-	./test
-	-rm *.o test
+	./out
+	-rm *.o out
 
 main :
-	gcc -c main.c
-	gcc -o test main.o
+	gcc -c main.c -g
+	gcc -o out main.o
