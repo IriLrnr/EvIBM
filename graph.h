@@ -72,25 +72,14 @@ void PrintGraph (Graph G)
   }
 }
 
-void DestroiGraph (Graph G)
+void DestroyGraph (Graph G)
 {
  int i;
 
-  for (i = 0; i < G->V; i++ )
+  for (i = 0; i < G->V; i++)
     free (G->adj[i]);
   free (G->adj);
 
   free(G);
 }
 
-Graph CreateCompleteGraph (int V, int U, int k)
-{
-  Vertix u, v;
-  Graph G = CreateGraph(V, U);
-
-  for (u = 0; u < G->U; u++)
-    for (v = 0; v < G->U; v++){
-      InsertArc (G, u, v, k);
-    }
-  return G;
-}

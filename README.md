@@ -1,5 +1,6 @@
 # EvIBM
-IC
+
+This program is a scientific iniciation project. It simulates an Individual Based Model created by Marcus Aguiar (Aguiar _et al_, 2009). The project is funded by FAPESP - Fundação de apoio a pesquisa do estado de São Paulo.
 
 ## How to compile
 ```bash
@@ -31,7 +32,7 @@ To open the gif type
 $ sxiv out.gif
 ```
 
-## CHANGING PROBABILITY OF OFFSPRING MOVEMENT
+## CHANGING PROBABILITY OF OFFSPRING MOVEMENT BEFORE MERGE
 
 0% probability of moving:
 	VERY fast formation, with 58 species at the "end"
@@ -51,14 +52,7 @@ $ sxiv out.gif
 100% probability of moving:
 	In this case, there's no fast collapse, no species and THE FINAL PLOT IS SO SO SO SO WEIRD.
 
+Position
+## References
 
-TO VISUALIZE WHAT IS HAPPENING I NEED GIFS OF THE FOLLOWING PROCESSES:
-
- - The collapse with different probabilities of movement
- - The final plot for those different simulations
- - Discover wich parameters change distribution and plot varying them
-
- To do that, I need to learn GNU plot. Of automatization of the R plot. But how??
-
- WHERE I STOPPED
- 	I was varying the probability of movement in "Offspring_position" and plotting in R the first 10 generations (to see if the collapse is early) and the last one. I found ont weird patterns for the final distribution, and some but not complete correlation with this value and the problem of the collapse.
+DE AGUIAR, Marcus Aloizo Martinez et al. Global patterns of speciation and diversity. **Nature**, v. 460, n. 7253, p. 384-387, 2009.

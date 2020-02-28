@@ -10,44 +10,50 @@ typedef Cell* List;
 /* Creates a headed list, where the head holds a value, wich is -(size of the list + 1) */
 List CreateHeadedList ()
 {
-  List p;
-  p = malloc (sizeof (Cell));
-  p->info = -1;
-  return p;
+  List head;
+
+  head = malloc (sizeof (Cell));  
+  head->info = -1;
+  head->next = NULL;
+
+  return head;
 }
 
 /* This function add a cell to the list, if and only if it is not on the list already, and in order
 it also updates the size of the list */
 void AddCellInOrder (List *list, int value)
 {
-  List new, p;
+  List add, p;
 
-  new = malloc (sizeof (Cell));
-  new->info = value;
+  add = malloc (sizeof (Cell));
+  add->info = value;
+  add->next = NULL;
 
   if (*list == NULL) {
-    new->next = NULL;
-    *list = new;
+    add->next = NULL;
+    *list = add;
   }
 
   else {
     if (value < (*list)->info) {
       p = (*list);
-      (*list) = new;
+      (*list) = add;
       (*list)->next = p;
     }
     else {
       for (p = *list; p->next != NULL && (p->next)->info < value; p = p->next);
       if (p->next == NULL) {
-        new->next = NULL;
-        p->next = new;
+        add->next = NULL;
+        p->next = add;
         (*list)->info --;
       }
-      if ((p->next)->info > value) {
-        new->next = p->next;
-        p->next = new;
+      else if ((p->next)->info > value) {
+        add->next = p->next;
+        p->next = add;
         (*list)->info --;
       }
+      else 
+        free (add);
     }
   }
 }
@@ -69,6 +75,8 @@ void RemoveCell (List *list, int value)
         p->next = discard->next;
         (*list)->info ++;
       }
+      else if ((p->next)->info > value)
+        return;
     }
   }
   free (discard);
@@ -115,5 +123,23 @@ void DestroyList (List *list)
     }
     if (p != NULL)
     free (p);
+  }
+}
+
+void RestartList (List *list)
+{
+  List p, discard;
+
+  if (*list != NULL) {
+    for (p = *list; p->next != NULL;) {
+      discard = p;
+      p = p->next;
+      free (discard);
+    }
+    free (p);
+
+    (*list) = malloc (sizeof (Cell));
+    (*list)->info = -1;
+    (*list)->next = NULL;
   }
 }
