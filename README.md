@@ -31,13 +31,13 @@ $ ./out
 
 ## Installation <a name="install"></a>
 
-If you need, here's how to install make
+Here's how to install make
 
 ```bash
 $ sudo apt install build.essentials
 ```
 
-To read the output, in Linux, you may have to download sxiv to open the gif, so if you need:
+To read the output, in Linux, you may have to download sxiv to open the gif:
 ```bash
 $ sudo apt install sxiv
 ```
