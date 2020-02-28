@@ -184,7 +184,7 @@
 	Population Alloc_Population (Parameters info)
 	{
 		Population individuals;
-		int i, j;
+		int i;
 
 		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
 
@@ -220,7 +220,7 @@
 
 /* ==================================================================== */
 
-/* This function is not ideal, but is not the problem either */
+
 /* =======================  Used for Creating the graph  ========================== */
 
 	/* This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
@@ -257,7 +257,7 @@
 
 /* =================================================================================== */
 
-/* THE PROBLEM IS HERE. I DON'T KNOW EXACLY WHERE, IF IT IS CONCEPTUAL OR A MODELING PROBLEM */
+
 /* =======================  Used for Reproduction  ========================== */
 
 	/* This function, called by Reproduction, defines the offspring position, that is, if it is going to move, how much,

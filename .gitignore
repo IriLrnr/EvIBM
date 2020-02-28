@@ -20,4 +20,5 @@ Tests/
 # information for Eclipse / Flash Builder.
 out
 *.csv
+*.png
 .Rhistory

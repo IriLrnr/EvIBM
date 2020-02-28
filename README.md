@@ -2,40 +2,36 @@
 
 This program is a scientific iniciation project. It simulates an Individual Based Model created by Marcus Aguiar (Aguiar _et al_, 2009). The project is funded by FAPESP - Fundação de apoio a pesquisa do estado de São Paulo.
 
+HELLO!
+
+Welcome to my developing code for this Evolutionary Model! If you are VERY interested in the code and the model behind it, please read the DETAILED.md file.
+
+This branch is used to test and analise the situation of the aglutination of individuals in the model. If you want to run the program and see the results, follow the instructions below
+
 ## How to compile
-```bash
-$ gcc main.c -o out
-$ ./out
-```
+
+To compile this code you may have to install some programs before. See [instalation](#install) for more information.
+
 ### With make
+Compiling like this will create a lot of files in the "position" folder and it will create numerous png files in the "plots" folder, and a final gif.
+
 After cloning the folder, go in it and compile with the command
 ```bash
 $ make
 ```
-If you need, here's how to install make
-```bash
-$ sudo apt install build.essentials
-```
-## Exploring the output
-The program's output is a list of numerated files, that contains a table of the individuals with their respective species and positions. To explore the output, first, save all the output files in a separated folder, open the script printposition.R, change the paths inside it and run it. In the plots folder, if you want to make a gif, type
-```bash
-$ convert *.png out.gif
-```
-This step may take a while.
 
-To read the output, in Linux, you may have to download sxiv to open the gif, so if you need:
+### Just compile with gcc
+
+If you don't have anything installed or time for it, just type on the terminal
+
 ```bash
-$ sudo apt install sxiv
-```
-To open the gif type
-```bash
-$ sxiv out.gif
+$ gcc main.c -o out
+$ ./out
 ```
 
-## Where I stopped at 28/02/2020
+## Installation <a name="install"></a>
 
-What I've been doing is trying to fix de collapse problem. After a long time stuck, I found memory leaks errors in linkedlist.h and a problem of construction in Choose_Mate function. I fixed both. The individuals are still collapsing, less than before, I also finnished a first version of DETAILED.md. The next step is correcting the libraries, and analising what I have so far, to look for more problems to fix.
-
+Here's how to install make
 
 ## References
 
