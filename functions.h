@@ -248,8 +248,7 @@
 				}	
 			}
 		}
-		for (i = 0; i < G->U; ++i)
-		{
+		for (i = 0; i < G->U; i++) {
 			RestartList (&individuals[i]->neighborhood);
 			neighborhood (G, individuals, i, info, 0);
 		}
@@ -364,7 +363,7 @@
 			expand = Verify_Neighborhood (bigger_neighborhood);
 
 			if (neighbors + expand) {
-				i = rand_upto(neighbors + expand); //add 1?
+				i = rand_upto(neighbors + expand);
 				
 				if (i <= neighbors) {
 					for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);

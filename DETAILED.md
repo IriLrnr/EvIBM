@@ -28,18 +28,24 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [Reproduction](#reproduction)
 		- [Count_Species](#count_species)
 		- [Swap_Generations](#swap_generations)
-	- [Libraries](#libraries)
-		- [functions.h](#functionsh)
-			- [rand_upto](#rand_upto)
-			- [random_number](#random_number)
-			- [Set_Parameters](#set_parameters)
-			- [Alloc_Population](#alloc_population)
-			- [Set_Initial_Values](#set_initial_values)
-			- [Generate_Genome](#generate_genome)
-		- [graph.h](#graphh)
-		- [linkedlist.h](#linkedlisth)
+- [Libraries](#libraries)
+	- [functions.h](#functionsh)
+		- [rand_upto](#rand_upto)
+		- [random_number](#random_number)
+		- [Set_Parameters](#set_parameters)
+		- [Alloc_Population](#alloc_population)
+		- [Set_Initial_Values](#set_initial_values)
+		- [Generate_Genome](#generate_genome)
+		- [Verify_Distance](#verify_distance)
+		- [Neighborhood](#neighborhood)
+		- [Expand_Neighborhood](#expand_neighborhood)
+		- [Mutation](#mutation)
+		- [Choose_Mate](#choose_mate)
+		- [Create_Offspring](#create_offspring)
+		- [Offspring_Position](#offspring_position)
 
 ## The model <a name="model"></a>
+
 The goal is to model evolution, that is, how do many species arise from only one?
 
 We know the answer. When the genetic flow between populations stop, as the time passes, those populations reproduce only within, they accumulate mutations until a point where the genetic pool is so far apart, no one from one population can reproduce with someone of the other.
@@ -47,6 +53,20 @@ We know the answer. When the genetic flow between populations stop, as the time 
 But it doesn't mean there are no questions to be answered. For example, how long this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
 
 Modeling simplified evolution can give insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in the long timescale, and removing the ones that we don't.
+
+A good question to ask is **what we expect from the model at this point?** Because the code is based on a model that has already been implemented before, we have some results to look for. With the used parameters, those are:
+
+- After 1000 generations, the formation of 20 to 30 species.
+
+	_In this version, we are obtaining 30 to 50 species_
+
+- The growth begins around generation 500
+
+	_The growth is beginning at generation 140_
+
+- The individuals continue homogeneously distributed
+
+	_Patterns and aglutination are observed_
 
 ### Overview <a name="overview"></a>
 
@@ -68,17 +88,30 @@ Any model needs simplifications and assumptions. The goal is to have simplificat
 Ours are those:
 
 1. The genomes are binary
+
+	_If we use four bases, the program would take a lot longer to process. But alternatively the genomes can be seen as if the 0 and 1 are indicators of absence or presence of a certain alele for a gene_
+
 2. The individuals are hermaphrodites (not asexual, because they reproduce sexually)
+
+	_There's not much "loss" here, as a lot of populations have hermaphrodites individuals who reproduce sexually. An example is the angiosperms plants_
+
 3. The generations don't overlap (there are only couples from the same generation)
+
+	_This is also not absurd to assume. Just consider the parents don't live enough to reproduce with the younger generation_
+
 4. There is no fitness, no one has advantage or disadvantage (it is a neutral model)
+
+ _This is not a simplification, but a view of biology. The Neutral Theory of Biodiversity states that the majority of the mutations that occur are not good of bad for the individual, but neutral. In larger timescales, that means fitness effects can be taken out of the equation_
+
 5. The population is stable, it doesn't grow or shrink much
+
+	_This simplification could be considered as the space limit_
+
 7. Two individuals can be in the same spot
 6. The space is a toroid, the margins touch. Like this
 
 <center>
-
-![](./figs/toroid.png)
-
+<img src="./figs/toroid.png" width="40%">
 </center>
 
 ## Code <a name="code"></a>
@@ -304,15 +337,29 @@ As the generations pass, species connect and desconnect, as shown bellow (it can
 
 </center>
 
-In the code, because of the included library graph.h, we can easily manipulate and set a graph for each population.
-
-```c
-G = CreateGraph (info->individual_vector_size, info->number_individuals);
-```
-
 In the image, each set of dots of the same color compose a species. As soon as genetic flow is stablished between a red and a yellow individual, they become the same species.
 
 In graph theory, a subgraph that is not connected to anyone else, is a _**maximal connected component**_, as are the collection of dots of the same color and their arcs in the image above. That is what we are going to call a **species**.
+
+In the code, because of the included library graph.h, we can easily manipulate and set a graph for each population.
+
+```c
+//in main
+G = CreateGraph (info->individual_vector_size, info->number_individuals);
+```
+The graph is dynamical, it is created once and modified along with the generations. To acomplish this, it's structure has three values
+```c
+//in graphs.h
+typedef struct {
+  int V;
+  int U;
+  int A;
+  int (**adj);
+} graph;
+
+typedef graph * Graph;
+```
+**A** is the number of arcs in the graph, **V** is the total of vertices available, and **U** is the number of used vertices. This way, the population can vary without having to create and destroy new graphs (because I tried implementing different graphs for different generations and I failed). In the next generation, if the population grows or shrinks, the U parameter will change and the graph also grows or shrinks.
 
 ### Simulating <a name="simulation"></a>
 After initializing the values and creating our structure, we are going to take a look at the ACTUAL program.
@@ -335,6 +382,356 @@ The "for" commant turn each generation i in a step of time in which those four f
 can be interpreted as the progenitors dying and the offspring growing up to have its own children.
 
 ### Stablish_Distances <a name="stablish_distances"></a>
+
+The function "Stablish_Distances" is redundant, and not at all at it's final state.
+
+```c
+//in functions.h
+void Stablish_Distances (Graph G, Population individuals, Parameters info)
+	{
+		int i, j, k, divergences, size_difference;
+
+		G->U = info->population_size;
+
+		for (i = 0; i < G->U; i++) {
+			for (j = i + 1; j < G->U; j++) {
+				divergences = 0;
+				for (k = 0; k < info->genome_size; k++) {
+					if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
+						divergences++;
+					}
+				}
+
+				if (divergences <= info->reproductive_distance) {
+					InsertArc (G, i, j, (info->genome_size - divergences));
+				}
+				else if (G->adj[i][j] != 0) {
+					RemoveArc (G, i, j);
+				}
+			}
+		}
+		for (i = 0; i < G->U; i++) {
+			RestartList (&individuals[i]->neighborhood);
+			neighborhood (G, individuals, i, info, 0);
+		}
+	}
+```
+The function receives a Graph G, a Population and the Parameters. It sets the number of needed vertices, setting G->U to the current population size. Then, it compares all the individuals in the population, looking for differences in their genome. If two individuals are sufficiently similar, an arc will be inserted between their vertices. If not, there will be no arc between them (if there were, in the previous population, this arc will be removed). Finally, it creates the list of possible partners in their range, freeing the previous list.
+
+With this function, we have created a graph that contains comparative information between individuals, to be used further in the simulation.
+
+_Even though this function is not perfect, It's there because it works, even if redundantly. We have bigger problems in the code, and optimizing this function comes after fixing those mistakes. The future plans for this part of the code is not to use a complete graph, because the only really important relations are the ones kept in the "neighborhood" list. To find out how many species can be used, we would implement an Union-Find algorithim, to find maximal connected components faster (explained further)._
+
+#### Subfunctions
+
+##### Neighborhood <a name="neighborhood"></a>
+
+The neighborhood function used here is not part of the graph (yet). It needs a little more information to be created, that is, the distance from the focal individual. In this list, we keep only the individuals who are in the range of the focal (that is what I called a bootycall list).
+
+```c
+//in functions.h
+void neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
+{
+	int mate;
+
+	for (mate = 0; mate < (G->U); mate++) {
+		if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)){
+			AddCellInOrder(&progenitors[focal]->neighborhood, mate);
+		}
+	}
+}
+
+```
+
+The neighborhood function looks for everybody who is in the range of the focal, that is, everybody who is the same species as the focal and who is inside their range. Those mate-candidates are kept in a linked list (the ->neighborhood part of the struct).
+
+**SUGESTION**
+_A friend gave me a suggestion: first, to use a linked list graph, instead of a adjacency matrix one, and sort the linked lists by distance from the focal. It would affect the time taken to find out if two individuals are the same species (maybe that is not a problem, because they have a "->species" identifier), but it would simplify this function. What do you think? Let me know!_
+
+##### Verify_Distance <a name="verify_distance"></a>
+
+To find out if two individuals are in the range of one another should be simple, just comparing coordinates, right? WRONG! The space is toroid! So that is important to check out.
+
+```c
+//in functions.h
+int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase)
+{
+	int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
+
+	y_compatible = 0;
+	x_compatible = 0;
+
+	x_out_left = 0;
+	x_out_right = 0;
+	y_out_up = 0;
+	y_out_down = 0;
+
+	/* If an individual ratio reaches an end of the lattice, it will look on the other side, because the lattice work as a toroid */
+	if (progenitors[mate]->x <= progenitors[focal]->x + info->radius + increase && progenitors[mate]->x >= progenitors[focal]->x - info->radius + increase) {
+		x_compatible = 1;
+	}
+	if (progenitors[mate]->y <= progenitors[focal]->y + info->radius + increase && progenitors[mate]->y >= progenitors[focal]->y - info->radius + increase) {
+		y_compatible = 1;
+	}
+
+	if (!x_compatible) {
+		if (progenitors[focal]->x + info->radius + increase > info->lattice_width) {
+			x_out_right = progenitors[focal]->x + info->radius + increase - info->lattice_width;
+			if (progenitors[mate]->x <= x_out_right) {
+				x_compatible = 1;
+			}
+		}
+		else if (progenitors[focal]->x - info->radius + increase < 0) {
+			x_out_left = progenitors[focal]->x - info->radius + increase + info->lattice_width;
+			if (progenitors[mate]->x >= x_out_left) {
+				x_compatible = 1;
+			}
+		}
+	}
+
+	if (!y_compatible) {
+		if (progenitors[focal]->y + info->radius + increase > info->lattice_lenght) {
+			y_out_up = progenitors[focal]->y + info->radius + increase - info->lattice_lenght;
+			if (progenitors[mate]->y <= y_out_up) {
+				y_compatible = 1;
+			}
+		}
+		else if (progenitors[focal]->y - info->radius + increase < 0) {
+			y_out_down = progenitors[focal]->y - info->radius + increase + info->lattice_lenght;
+			if (progenitors[mate]->y >= y_out_down) {
+				y_compatible = 1;
+			}
+		}
+	}
+
+	if (x_compatible && y_compatible) return 1;
+	else return 0;
+}
+
+```
+
+This is a boolean function, it returns 1 if the individuals are in the range of one another, and 0 if they're not. It receives the names of the individuals to compare, the population and the parameters, and returns 0 or 1. First, it checks if they are obviously neighbors. If not, it still needs to check if they could be on the "other side" of the torus (if the radius range is outside the 100x100 latice, it has to reach the other side, and check there). If both the y and the x are in the focal's range, then the function returns 1.
+
+### Reproduction <a name="reproduction"></a>
+
+Now that we know the relationship between all the progenitors (which species they are) and have the graph keeping it, they will reproduce, creating the offspring population. 
+
+```c
+ //in functions.h
+ void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
+	{ 	
+		int focal, mate, other, i, n;
+
+		i = 0;
+
+		if (info->population_size < info->number_individuals) {
+			for (focal = 0; focal < info->population_size; focal++) {
+				if (Verify_Neighborhood (progenitors, focal) < info->neighbors) {
+					mate = Choose_Mate(G, focal, progenitors, info);
+					if (mate != -1) {
+						Create_Offspring (progenitors, offspring, i, focal, mate, info);
+						i++;
+						info->population_size ++;
+					}
+				}
+			}
+		}
+
+		for (focal = 0; focal < (G->U); focal++) {
+			other = focal;
+			mate = -1;
+
+			if (random_number() < 0.63 && Verify_Neighborhood (progenitors, focal) > 2) {
+				mate = Choose_Mate(G, focal, progenitors, info);
+			}
+
+			for (n = 0; n < 2; n++) {
+				if (mate == -1) {
+					other = Choose_Mate (G, focal, progenitors, info);
+					if (other != -1)
+						mate = Choose_Mate(G, other, progenitors, info);
+				}
+			}
+
+			if (mate != -1 && other != -1) {
+				Create_Offspring (progenitors, offspring, i, other, mate, info);
+				i++;
+			}
+			else {
+				info->population_size --;
+			}
+		}
+	}
+```
+The function for Reproduction receives two population vectors and the information about them, that is, the graph, and the Parameters. First of all, it verifies if the population is below its carry capacity. If yes, it gives a chance for individuals with low density to reproduce first. That can be biologicaly interpreted as if they have more food available, and so they can reproduce again. Then, for every individual in the population, it will have a chance at reproduction, with some chance of death. If they die, the "mate" variable will have value -1, and then the chance to reproduce will be given to some neighbor of the deceased. Twice. The offspring will only be created if we have both parents chosen.
+
+_This function is terrible, and it's not functioning as it should be. Another solution will soon be given, where we use the poisson distribution to sort the number of children an individual will have, and keep the mean value of children 1. Theoreticaly, it makes more sense, and the results should be similar_
+
+The function "Verify_Neighborhood" just returns the number of possible partners in its range an individual has, because it is a headed linked list, and the head keeps the size of the list.
+
+#### Subfunctions
+
+##### Choose_Mate <a name="choose_mate"></a>
+
+The function "Choose_Mate" sorts one of those neighbors out:
+```c
+//in functions.h
+int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
+	{
+		int j, i, neighbors, expand, radius_increase, radius, mate;
+		List p;
+		List bigger_neighborhood;
+
+		mate = -1;
+		radius_increase = 0;
+
+		bigger_neighborhood = CreateHeadedList ();
+
+		while (radius_increase <= 3 && mate == -1) {
+			if (radius_increase > 0) {
+				expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
+			}
+
+			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
+			expand = Verify_Neighborhood (bigger_neighborhood);
+
+			if (neighbors + expand) {
+				i = rand_upto(neighbors + expand); //add 1?
+				
+				if (i <= neighbors) {
+					for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+				}
+				else {
+					i -= neighbors;
+					for (j = 0, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+				}
+
+				if (j == i && p != NULL) {
+					mate = p->info;
+				} 
+				else mate = -1;
+			}
+
+			else mate = -1;
+
+			if (mate == -1) {
+				radius += 1;
+				radius_increase += 1;
+			}
+
+		}
+		DestroyList (&bigger_neighborhood);
+		
+		return mate;
+	}
+
+```
+
+This function is long and it took me a while to figure it out. It receives the graph, the "name" of the focal individual that is looking for a mate, the population and the parameters. The focal first will look around him in his range, that is, in its "neighborhood" list, described in the previous section. If there are no neighbors in its range, it will look a little further: it expands it's range in 1 unit of space (reminder: the space is 100.000 square units of space). The extra neighbors are kept in another linked list, the "bigger_neighborhood" list. If there are still no possible partners, it will expand range again, and once more if necessary. Each time it expands neighborhood, the "bigger_neighborhood" list grows.
+
+Once it has the list of possible partners, it sorts a number from 0 to the number of possible partners, and a walk through the list chooses who is THE ONE. To finnish, the "bigger_neighborhood" is destroyed. 
+
+<a name="expand_neighborhood"></a>
+
+The function "expand_neighborhood" looks like the function "neighborhood"
+
+```c
+//in functions.h
+void expand_neighborhood (Graph G, List bigger_neighborhood, Population progenitors, int focal, Parameters info, int increase)
+{
+	int mate;
+
+	for (mate = 0; mate < (G->U); mate++) {
+		if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)) {
+			if (!Verify_Distance (progenitors, focal, mate, info, increase - 1)) {
+				AddCellInOrder(&bigger_neighborhood, mate);
+			}
+		}
+	}
+}
+```
+But it only adds a possible mate to the list if it wasn't previously added. We only want to know if this individual is in the "added" space, so if it was in the previous considered space, it is not addded. We could also check if it was already on the list.
+
+Back to the reproduction, after choosing a mate, we ...
+
+##### Create_Offspring <a name="create_offspring"></a>
+
+```c
+//in functions.h
+void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int mate, Parameters info)
+{
+  int i;
+	
+	Offspring_Position(progenitors, offspring, baby, focal, info);
+
+	for (i = 0; i < info->genome_size; i++) {
+		if (progenitors[focal]->genome[i] != progenitors[mate]->genome[i]) {
+			if (rand_upto(1) == 1) {
+				offspring[baby]->genome[i] = progenitors[mate]->genome[i];
+			}
+			else {
+				offspring[baby]->genome[i] = progenitors[focal]->genome[i];
+			}
+		}
+		else {
+			offspring[baby]->genome[i] = progenitors[mate]->genome[i];
+		}
+	}
+
+	for (i = 0; i < info->genome_size; i++) {
+		if (random_number() <= 0.00025) {
+			mutation (offspring, baby, i);
+		}
+	}
+}
+```
+This function recieves two populations, the progenitors and offspring, and the address (or name, whatever) to the focal, mate, and baby in the populations, and the parameters. It first decides where in the lattice the baby will be (again, reminder, it is a "paralel" lattice, the generations do not interact). Then, it fills out the structure of the new individual: the genome, choosing with 50/50 chance between the parents each loci, and then adding mutation. Each loci has 0,025% chance of being flipped (if its 1, it becomes 0, and vice versa). The rest of tge stucture will be filled with the graph.
+
+The last function I need to present is how I choose the position of the offspring
+
+##### Offspring_Position <a name="offspring_position"></a>
+
+```c
+//in functions.h
+void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info)
+{
+	float movement_x, movement_y;
+
+	movement_x = movement_y = 0;
+
+	offspring[baby]->x = progenitors[focal]->x;
+	offspring[baby]->y = progenitors[focal]->y;
+
+	if (random_number() <= 0.01) {
+		movement_y = random_number()*info->radius;
+		movement_x = random_number()*info->radius;
+		if (random_number() < 0.5) {
+			movement_x = -movement_x;
+			movement_y = -movement_y;
+		}
+
+		/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
+		if (offspring[baby]->x + movement_x <= info->lattice_width && progenitors[focal]->x + movement_x >= 0)
+	  		offspring[baby]->x += movement_x;
+
+		else if (progenitors[focal]->x + movement_x > info->lattice_width)
+			offspring[baby]->x = offspring[baby]->x + movement_x - info->lattice_width;
+
+		else if (progenitors[focal]->x + movement_x < 0)
+			offspring[baby]->x = offspring[baby]->x + movement_x + info->lattice_width;
+
+		if (progenitors[focal]->y + movement_y <= info->lattice_lenght && progenitors[focal]->y + movement_y >= 0)
+	  	offspring[baby]->y = offspring[baby]->y + movement_y;
+
+		else if (progenitors[focal]->y + movement_y > info->lattice_lenght)
+			offspring[baby]->y = offspring[baby]->y + movement_y - info->lattice_lenght;
+
+		else if (progenitors[focal]->y + movement_y < 0)
+			offspring[baby]->y = offspring[baby]->y + movement_y + info->lattice_lenght;
+	}
+}
+```
+With 99% chance, the baby will be in the exact same spot as the focal parent. But it can move with 1% chance. If it moves, the principle is the same as in "Verify_Distance", we have to check if the new position is inside the lattice.
 
 
 ### Finnishing
@@ -397,6 +794,28 @@ Population Alloc_Population (Parameters info)
 	}
 ```
 
-### graph.h <a name="graphh"></a>
+<a name="verify_neighborhood"></a>
 
-### linkedlist.h <a name="linkedlisth"></a>
+```c
+int Verify_Neighborhood (List neighborhood)
+	{
+		return (-(neighborhood->info + 1));
+	}
+```
+The head value of an empty list is -1. As the list grows, we subtract the number of items in the list. So if the list is empty, it returns 0, and if it has members, it returns the number of members. I've done it like this so I won't have to use another library for headed linked lists. It works because I'm adding to the list in order, and the only negative value (the head) will always appear first. 
+
+
+<a name="mutation"></a>
+
+```c
+void mutation (Population offspring, int baby, int mutation)
+	{
+		if (offspring[baby]->genome[mutation] == 1) {
+			offspring[baby]->genome[mutation] = 0;
+		}
+		else {
+			offspring[baby]->genome[mutation] = 1;
+		}
+	}
+```
+This function flips the bit at the "mutation" spot in the genome of the baby.
