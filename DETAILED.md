@@ -3,13 +3,13 @@
 
 #### Hello!
 
-Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows me and the work (or some of the theory behind it); but all the possible readers have different backgrounds, and I want the text to be clear to anyone, and the code as self-explanatory as possible, so I'm making an informal text, with bits of theory.
+Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows {~~me and the work (or some of the theory behind it)~>the research and me~~}; {~~but~>however,~~} {~~all the possible readers~>readers probably~~} have different backgrounds, and I want the text to be clear to {~~anyone~>everyone~~}, and the code {++to be ++}as self-explanatory as possible, so I'm making {~~an~>this~~} informal text, with bits of theory.
 
-My goal is the text to be complete, informative and helpfull on understanding the relation between what we **want** to model, and what we are **actually** modeling, because frankly, both you and me are here to help me fix some mistakes. So I'll be needing every little feedback you can give me, even if it's just a stylistic tip.
+My goal is {~~the text~>for this document ~~} to be complete, informative and helpful{--l--} on understanding the relation between what we **want** to model, and what we are **actually** modeling, because frankly, both you and {~~me~>I~~} are here to help me fix some mistakes. So I'll be needing every little feedback you can give me, even if it's just a stylistic tip.
 
 #### Let's begin!
 
-This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code correspondence at the same time, so it is also a documentation. If you have a specific doubt, you can look into function section through the table of contents, or in F.A.Q.
+This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code {~~correspondence~>that corresponds~~} at the same time, so it is also a documentation. If you have a specific doubt, you can look into function section through the table of contents, or in {++the ++}F.A.Q.
 
 ## Table of Contents
 - [The model](#model)
@@ -31,23 +31,23 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [rand_upto](#rand_upto)
 
 ## The model <a name="model"></a>
-The goal is to model evolution, that is, how do many species arise from only one?
+{~~The~>Our~~} goal is to model evolution{~~, t~>. T~~}hat is, how do many species arise from only one?
 
-We know the answer. When the genetic flow between populations stop, as the time passes, those populations reproduce only within, they accumulate mutations until a point where the genetic pool is so far apart, no one from one population can reproduce with someone of the other.
+We know the answer. When the genetic flow between populations stop, as the time passes, those populations reproduce only within{~~, t~>. T~~}hey accumulate mutations until {~~a~>the~~} point where the genetic pool is so far apart{--,--} no one {~~from~>in~~} one population can reproduce with {~~someone of~>anyone from~~} the other.
 
-But it doesn't mean there are no questions to be answered. For example, how long this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
+But it doesn't mean there are no questions to be answered. For example, how long {++does ++}this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
 
-Modeling simplified evolution can give insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in the long timescale, and removing the ones that we don't.
+Modeling simplified evolution can {~~give~>provide~~} insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in {~~the long~>evolutionary~~} timescale{++s++}{--, and removing the ones that we don't--}.
 
 ### Overview <a name="overview"></a>
 
-Our model begins with a single species, homogeneously distributed over a two-dimensional space, of identical individuals (genomically). This species is composed by individuals, who reproduce sexually (it is the only thing they do). They leave their children to do the same, and die :( .
+Our model begins with a single species, homogeneously distributed over a two-dimensional space, of {~~identical individuals (genomically)~>genomically identical individuals~~}. {~~This species is composed by individuals, who reproduce sexually~>Reproduction is sexual~~}{-- (it is the only thing they do)--}. {~~They~>Individuals~~} leave {--their --}children {~~to do the same~>who will -- hopefuly -- reproduce~~}, and die :({-- --}.
 
-As the generations pass, the individuals accumulate differences, and speciation occurs when there is no possible genetic flow between two individuals anymore.
+As the generations pass, the individuals accumulate differences{~~, and s~>. S~~}peciation occurs when there is no possible genetic flow between two {~~individuals~>populations~~} anymore.
 
 It looks like this, initially:
 <center>
-<img src="./figs/firstDistribution.png" width="60%">
+![](figs/firstDistribution.png)
 
 
 _it is not very homogeneus, and maybe that is a problem_
@@ -68,7 +68,7 @@ Ours are those:
 
 <center>
 
-![](./figs/toroid.png)
+![](figs/toroid.png)
 
 </center>
 
@@ -312,7 +312,7 @@ As the generations pass, species connect and desconnect, as shown bellow (it can
 
 <center>
 
-![](./figs/species.png)
+![](figs/species.png)
 
 </center>
 
