@@ -38,10 +38,8 @@ int main()
       if (i < 11) {
         sprintf(nome_arq, "../ProjetoFinalJB/data/position/%02dgen.csv", i);
         output = fopen (nome_arq,"w");
-        sprintf(line, "gen;ind;x;y;sp");
-        fputs (line, output);
         for (j = 0; j < info->population_size; ++j) {
-         sprintf(line, "%d;%d;%f;%f;%d\n", i, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species); 
+         sprintf(line, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
          fputs (line, output);
         }
         fclose (output);
