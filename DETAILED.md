@@ -72,7 +72,7 @@ A good question to ask is **what we expect from the model at this point?** Becau
 
 Our model begins with a single species, homogeneously distributed over a two-dimensional space, of identical individuals (genomically). This species is composed by individuals, who reproduce sexually (it is the only thing they do). They leave their children to do the same, and die :( .
 
-As the generations pass, the individuals accumulate differences, and speciation occurs when there is no possible genetic flow between two individuals anymore.
+As the generations pass, the individuals accumulate differences, and speciation occurs when there is no possible genetic flow between two groups of individuals anymore.
 
 It looks like this, initially:
 <center>
