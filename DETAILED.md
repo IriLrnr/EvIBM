@@ -3,13 +3,13 @@
 
 #### Hello!
 
-Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows me and the work (or some of the theory behind it); but all the possible readers have different backgrounds, and I want the text to be clear to anyone, and the code as self-explanatory as possible, so I'm making an informal text, with bits of theory.
+Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows the research and me; however,readers probably have different backgrounds, and I want the text to be clear to everyone, and the code to be as self-explanatory as possible, so I'm making this informal text, with bits of theory.
 
-My goal is the text to be complete, informative and helpfull on understanding the relation between what we **want** to model, and what we are **actually** modeling, because frankly, both you and me are here to help me fix some mistakes. So I'll be needing every little feedback you can give me, even if it's just a stylistic tip.
+My goal is for this document to be complete, informative and helpful on understanding the relation between what we **want** to model, and what we are **actually** modeling, because frankly, both you and I are here to help me fix some mistakes. So I'll be needing every little feedback you can give me, even if it's just a stylistic tip.
 
 #### Let's begin!
 
-This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code correspondence at the same time, so it is also a documentation. If you have a specific doubt, you can look into the table of contents.
+This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code that corresponds at the same time, so it is also a documentation. If you have a specific doubt, you can look into function section through the table of contents, or in the F.A.Q.
 
 ## Table of Contents
 - [The model](#model)
@@ -45,14 +45,13 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [Offspring_Position](#offspring_position)
 
 ## The model <a name="model"></a>
+Our goal is to model evolution. That is, how do many species arise from only one?
 
-The goal is to model evolution, that is, how do many species arise from only one?
+We know the answer. When the genetic flow between populations stop, as the time passes, those populations reproduce only within. They accumulate mutations until the point where the genetic pool is so far apart, no one in one population can reproduce with anyone from the other.
 
-We know the answer. When the genetic flow between populations stop, as the time passes, those populations reproduce only within, they accumulate mutations until a point where the genetic pool is so far apart, no one from one population can reproduce with someone of the other.
+But it doesn't mean there are no questions to be answered. For example, how long does this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
 
-But it doesn't mean there are no questions to be answered. For example, how long this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
-
-Modeling simplified evolution can give insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in the long timescale, and removing the ones that we don't.
+Modeling simplified evolution can provide insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in evolutionary timescales.
 
 A good question to ask is **what we expect from the model at this point?** Because the code is based on a model that has already been implemented before, we have some results to look for. With the used parameters, those are:
 
@@ -70,13 +69,13 @@ A good question to ask is **what we expect from the model at this point?** Becau
 
 ### Overview <a name="overview"></a>
 
-Our model begins with a single species, homogeneously distributed over a two-dimensional space, of identical individuals (genomically). This species is composed by individuals, who reproduce sexually (it is the only thing they do). They leave their children to do the same, and die :( .
+Our model begins with a single species, homogeneously distributed over a two-dimensional space, of genomically identical individuals. Reproduction is sexual. Individuals leave children who will hopefuly reproduce, and die :( .
 
-As the generations pass, the individuals accumulate differences, and speciation occurs when there is no possible genetic flow between two individuals anymore.
+As the generations pass, the individuals accumulate differences. Speciation occurs when there is no possible genetic flow between two populations anymore.
 
 It looks like this, initially:
 <center>
-<img src="./figs/firstDistribution.png" width="60%">
+![](figs/firstDistribution.png)
 
 
 _it is not very homogeneus, and maybe that is a problem_
@@ -85,37 +84,28 @@ _it is not very homogeneus, and maybe that is a problem_
 ### Simplifications <a name="simplifications"></a>
 Any model needs simplifications and assumptions. The goal is to have simplifications that maintain the model meaningful.
 
-Ours are those:
+Ours are these:
 
-1. The genomes are binary
-
-	_If we use four bases, the program would take a lot longer to process. But alternatively the genomes can be seen as if the 0 and 1 are indicators of absence or presence of a certain alele for a gene_
-
+1. The genomes are a binary string
 2. The individuals are hermaphrodites (not asexual, because they reproduce sexually)
-
-	_There's not much "loss" here, as a lot of populations have hermaphrodites individuals who reproduce sexually. An example is the angiosperms plants_
-
-3. The generations don't overlap (there are only couples from the same generation)
-
-	_This is also not absurd to assume. Just consider the parents don't live enough to reproduce with the younger generation_
-
-4. There is no fitness, no one has advantage or disadvantage (it is a neutral model)
-
- _This is not a simplification, but a view of biology. The Neutral Theory of Biodiversity states that the majority of the mutations that occur are not good of bad for the individual, but neutral. In larger timescales, that means fitness effects can be taken out of the equation_
-
+3. The generations don't overlap (mates come from the same generation)
+4. There is no fitness. No one has advantages or disadvantages (it is a neutral model)
 5. The population is stable, it doesn't grow or shrink much
 
 	_This simplification could be considered as the space limit_
 
 7. Two individuals can be in the same spot
-6. The space is a toroid, the margins touch. Like this
+6. The space is a toroid: the margins touch like this
 
 <center>
+  
 <img src="./figs/toroid.png" width="40%">
+
 </center>
 
 ## Code <a name="code"></a>
-The code is structured as this
+The code is structured as follows
+
 ```bash
 main.c
 	functions.h
@@ -123,7 +113,8 @@ main.c
 		linkedlist.h
 ```
 
-The "main" keeps the skeleton of the code, while the functions' library keep the stuffing. To make those stuffing parts, I built two libraries, one to work with graphs, and other one to use linked lists. They are included in functions.h.
+The `main` function keeps the skeleton of the code, while the `functions` library keeps the stuffing. To make that, I built two libraries: one to work with graphs, and {++an++}other one to word with linked lists. They are included in `functions.h`.
+
 ```c
 //in functions.h
 #include <stdio.h>
@@ -135,11 +126,12 @@ The "main" keeps the skeleton of the code, while the functions' library keep the
 //in main.c
 #include "functions.h"
 ```
-So that way, the libraries declared in functions.h can be used in main.c. I will not expose the full graph.h and linkedlist.h code here, but you can trust me it works, I tested it extensively.
 
- The main file will appear in order, so every code part beginning with "//main" in this file, is exactly in the same order as it appears in the main section. We cannot apply the same method for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
+So that way, the libraries declared in `functions.h` can be used in `main.c`. I will not expose the full `graph.h` and `linkedlist.h` code here, for brevity, but you are welcome to look at the source.
 
-To initialize the code, because c is a typed language, we need to declare the variables what we are using
+The main file will appear in order, so every code part beginning with "//main" in this file, is exactly in the same order as it appears in the main section. We cannot apply the same method for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
+{>>Se você usar aquele programa que eu te passei, você consegue incluir o número das linhas (e potêncialmente a função de que vieram<<}
+I will leave here the variables' declaration for reference.
 ```c
 //in main.c
 int main(){...}
@@ -150,39 +142,39 @@ int main(){...}
 	Parameters info;
 	...
 ```
-Those structures are explained in the sections bellow.
 
 ### Randomness <a name="random"></a>
-To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the c pseudo-random number generator, rand(). Beggining from one specific value, rand() returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value.(_Maybe it would be better using a more powerfull random number generator_)
+To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the `C` random number generator, `rand()`. Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value.
 ```c
 //in main, fixed seed
 srand (1);
 //other possibility, variable seed
 srand (time (NULL));
 ```
-The functions I am currently using to produce random numbers are one based on rand(), or rand() itself. It generates a integer between 0 and RAND_MAX (the maximum value an integer can have).
+The functions I am currently using to produce random numbers are one based on `rand()`, or `rand()` itself. It generates a integer between 0 and RAND_MAX (the maximum value an integer can have).
 
 To achieve an integer between 0 and a value, we can use this function that generates an integer up to n.
 ```c
 int rand_upto (int n){}
 
 ```
+{>>Acho que seria bom juntar essas “funções ajudantes” num apêndice<<}
 
 When we need a random number between 0 and 1, we use
 
 ```c
 float random_number(){}
 ```
-Just passing by to remember the functions are docummented in the last section.
+Maybe it would be better to use a more powerfull random number generator.
 
 ### Parameters <a name="parameters"></a>
-To begin the simulation, we have to tell the program what we want it to simulate, so in the main file we create an structure called Parameters, and set the initial values we want to
+To begin the simulation, we have to tell the program what we want it to simulate, so in the main file we create an structure called `Parameters`, and set the initial values we want to
 ```c
 //in main
 info = Set_Parameters();
 ```
 
- This structure "Parametes" is used to easily pass the values between functions. The names of the parameters are very instructive.
+This structure `Parametes`is used to easily pass the values between functions. The names of the parameters are very self-explanatory.
 
 ```c
 //in functions.h
@@ -229,14 +221,14 @@ Parameters Set_Parameters ()
 ```
 First, the structure info is allocated dynamically, and then the values are set. It returns a "Parameters" structure. The hideous calculation for the neighborhood corresponds to an integer representing 60% of the average density of the system. In this case, the value is 2.
 
-- **number_individuals**: system's carry capacity
-- **population_size**: keeps the actual size of the focal population
-- **individual_vector_size**: the size of the allocated population. It is bigger than the carry capacity so the population can float
-- **reproductive_distance**: the maximum number of differences between two genomes of different individuals so they can reproduce
-- **genome_size**: The size of their genetic code (fixed)
-- **number_generations**: how long will the simulation last, in steps of time
-- **lattice_lenght** and **lattice_width**: dimensions for the space
-- **radius**: the distance an individual can look for mates
+- `number_individuals`: system's carry capacity
+- `population_size`: keeps the actual size of the focal population
+- `individual_vector_size`: the size of the allocated population. It is bigger than the carry capacity so the population can float
+- `reproductive_distance`: the maximum number of differences between two genomes of different individuals so they can reproduce
+- `genome_size`: The size of their genetic code (fixed)
+- `number_generations`: how long will the simulation last, in steps of time
+- `lattice_lenght` and `lattice_width`: dimensions for the space
+- `radius`: the distance an individual can look for mates
 
 ### Structures <a name="structures"></a>
 
@@ -257,8 +249,7 @@ typedef struct
 
 	typedef individual * Individual;
 ```
-It has a binary genome, with the parameterized size, an indicatior of which species it belo//in functions.h
-ngs, it's coordinates in space and a list of possible mates, those who are geneticaly compatible AND inside it's range (the radius).
+It has a binary genome, with the parameterized size, an indicatior to which species it belongs, it's coordinates in space and a list of possible mates those who are geneticaly compatible *and* inside it's range (the radius).
 
 #### The population <a name="population"></a>
 A population is just a vector of individuals.
@@ -266,7 +257,7 @@ A population is just a vector of individuals.
 //in functions.h
 	typedef Individual * Population;
 ```
-Inside the model, there are only two populations at a time. In the following code, we declare and allocate this structures.
+Inside the model, there are only two populations {++held in memory ++}at a time. In the following code, we declare and allocate this structures.
 
 ```c
 //in main.c
@@ -278,9 +269,12 @@ offspring = Alloc_Population (info);
 ```
 
 #### Set first values<a name="alloc"></a>
-Now we have the population vectors, with empty individuals structures in it. For each individual in the vector of the population we have to alloc their "internal structures" and set values to the generation 0, that is allocated as the first "progenitors"
+Now we have the population vectors, with empty individuals structures in it. For each individual in the vector of the population we have to alloc their "internal structures" and set values to the generation 0, that is allocated as the first `progenitors`
+
+For each individual in the vector of the population we have to allocate their “internal structures” and set values to the generation 0, that is allocated as the first “progenitors”
 
 <a name="set_initial_values"></a>
+
 ```c
 	//in functions.h
 	void Set_Initial_Values (Population progenitors, Parameters info)
@@ -320,20 +314,20 @@ void Generate_Genome (int* first_genome, int genome_size)
 	}
 }
 ```
-Generate_genome recieves a vector, and an integer corresponding to the vector's size. The genome is allocated. For each spot in the genome, it sorts a value between 0 and 1 with equal chance.
+Generate_genome recieves a vector, and an integer corresponding to the vector's size. The genome is allocated.For each spot in the genome, it draws a value between 0 and 1 with equal chance.
 
 #### The graph <a name="graph"></a>
-Now we have one population with individuals, that have a genome, coordinates and a species (and it's useful list of bootycalls). We know, at first, the individuals are identical, so we have **genetic flow** between all individuals. But further in time, the individuals accumulate diffences, and we have to find out the genetic flow of this population. How?
+Now we have one population with individuals, that have a genome, coordinates and a species (and it's  helpful list of bootycalls. We know, at first, the individuals are identical, so we have **genetic flow** between all individuals. But further in time, the individuals accumulate diffences, and we have to find out the possible genetic flow in this population. How?
 
-We construct a **graph**, where the dots corespond to individuals, and an arc exist between two dots if the two individuals are genetically compatible (independently of geography).
+We construct a **graph**, where the vertices corespond to individuals, and an edge exists between two vertices if the two individuals are genetically compatible (independently of geography).
 
-To make the correspondence between the graph and the individual, each dot has an index that is the same as the Population vector index of its corresponding individual.
+To make the correspondence between the graph and the individual, each vertex has an index that is the same as the `Population` vector's index of its corresponding individual.
 
-As the generations pass, species connect and desconnect, as shown bellow (it can be seen forward or backward)
+As the generations pass, species connect and disconnect, as shown bellow (it can be seen forward or backwards)
 
 <center>
 
-![](./figs/species.png)
+![](figs/species.png)
 
 </center>
 
@@ -341,12 +335,13 @@ In the image, each set of dots of the same color compose a species. As soon as g
 
 In graph theory, a subgraph that is not connected to anyone else, is a _**maximal connected component**_, as are the collection of dots of the same color and their arcs in the image above. That is what we are going to call a **species**.
 
-In the code, because of the included library graph.h, we can easily manipulate and set a graph for each population.
+In the code, because of the included library `graph.h`, we can easily manipulate and set a graph for each population.
 
 ```c
 //in main
 G = CreateGraph (info->individual_vector_size, info->number_individuals);
 ```
+
 The graph is dynamical, it is created once and modified along with the generations. To acomplish this, it's structure has three values
 ```c
 //in graphs.h
@@ -362,7 +357,7 @@ typedef graph * Graph;
 **A** is the number of arcs in the graph, **V** is the total of vertices available, and **U** is the number of used vertices. This way, the population can vary without having to create and destroy new graphs (because I tried implementing different graphs for different generations and I failed). In the next generation, if the population grows or shrinks, the U parameter will change and the graph also grows or shrinks.
 
 ### Simulating <a name="simulation"></a>
-After initializing the values and creating our structure, we are going to take a look at the ACTUAL program.
+After initializing the values and creating our structure, we are going to take a look at the *actual* program.
 ```c
 //in main
 for (number_species = 0, i = 0; i < info->number_generations; i++) {
@@ -374,11 +369,11 @@ for (number_species = 0, i = 0; i < info->number_generations; i++) {
       printf("NUMBER OF SPECIES = %d\n", number_species);
   	}
 ```
-You may say "WOW, just that little? Just four functions?", but we still have at least 200 lines of code to explore! Now we have the intricate part of the model (giving me headaches).
+You may say "*Wow* just that little? Just four functions?", but we still have at least 200 more lines of code to explore! We still have to look at the more intricate part of the model ({++which is ++}giving me headaches).
 
-The prints keep track of the stage of the simulation, so we can see how it is going, but they make the program slower.
+The prints keep track of the stage of the simulation, so we can see how it is going.
 
-The "for" commant turn each generation i in a step of time in which those four functions will run. First, "Stablish_Distances" fills de graph with the progenitors's genetical relations. Then, the progenitors will reproduce among themselves, and their children will be put in the "offspring" population vector. We count how many species compose the progenitors population, and then swap the offspring and progenitors vectors, wich
+The `for` loop will iterate in the generations. First, `Stablish_Distances` fills the graph with the progenitors's genetical relations. Then, the progenitors will reproduce among themselves, and their children will be put in the "offspring" population vector. We count how many species compose the progenitors population, and then swap the offspring and progenitors vectors, which
 can be interpreted as the progenitors dying and the offspring growing up to have its own children.
 
 ### Stablish_Distances <a name="stablish_distances"></a>
@@ -443,7 +438,7 @@ void neighborhood (Graph G, Population progenitors, int focal, Parameters info, 
 
 ```
 
-The neighborhood function looks for everybody who is in the range of the focal, that is, everybody who is the same species as the focal and who is inside their range. Those mate-candidates are kept in a linked list (the ->neighborhood part of the struct).
+The neighborhood function looks for everybody who is in the range of the focal, that is, everybody who is the same species as the focal and who is inside their range. Those mate-candidates are kept in a linked list (the `->neighborhood` part of the struct).
 
 **SUGESTION**
 _A friend gave me a suggestion: first, to use a linked list graph, instead of a adjacency matrix one, and sort the linked lists by distance from the focal. It would affect the time taken to find out if two individuals are the same species (maybe that is not a problem, because they have a "->species" identifier), but it would simplify this function. What do you think? Let me know!_
@@ -814,6 +809,7 @@ Then, [repeat](#simulation).
 
 ### Finnishing
 After finnishing all the simulation, we need to free the stack.
+{>>Não sei se precisa mencionar isso.<<} 
 ```c
 //in main
 DestroiGraph(G);
@@ -821,7 +817,8 @@ Free_Population (progenitors);
 Free_Population (offspring);
 free (info);
 ```
-There has to be the same numbers of alloc and free, and finnish the program.
+There has to be the same numbers of {~~alloc~>`*alloc`s~~} and {~~free~>`free`s~~}, and fin{--n--}ish the program.
+{>>A *finnish* is a guy from Finland<<}
 ```c
 //in main
 return 0;
