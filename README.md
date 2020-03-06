@@ -2,33 +2,36 @@
 
 This program is a scientific iniciation project. It simulates an Individual Based Model created by Marcus Aguiar (Aguiar _et al_, 2009). The project is funded by FAPESP - Fundação de apoio a pesquisa do estado de São Paulo.
 
-## Notes by Juan
-Comments were added in the syntax of [CriticMarkup][critic]. You can find a
-reference for the syntax (it's very minimal) in the [Github page][github]. In
-there you'll also find plugins for the Sublime editor, though I'd highly suggest
-you use [the Vim plugin][vim] that, in addition, allows you to quickly accept or
-reject changes.
+HELLO!
 
-[critic]: http://criticmarkup.com/
-[github]: https://github.com/CriticMarkup/CriticMarkup-toolkit.git
-[vim]: https://github.com/vim-pandoc/vim-criticmarkup.git
+Welcome to my developing code for this Evolutionary Model! If you are VERY interested in the code and the model behind it, please read the DETAILED.md file.
+
+This branch is used to test and analise the situation of the aglutination of individuals in the model. If you want to run the program and see the results, follow the instructions below
 
 ## How to compile
-```bash
-$ gcc main.c -o out
-$ ./out
-```
+
+To compile this code you may have to install some programs before. See [instalation](#install) for more information.
+
 ### With make
+Compiling like this will create a lot of files in the "position" folder and it will create numerous png files in the "plots" folder, and a final gif.
+
 After cloning the folder, go in it and compile with the command
 ```bash
 $ make
 ```
-If you need, here's how to install make
+
+### Just compile with gcc
+
+If you don't have anything installed or time for it, just type on the terminal
+
 ```bash
-$ sudo apt install build.essentials
+$ gcc main.c -o out
+$ ./out
 ```
-## At this point
-I cannot make libraries. I have to test and tidy up the code, but I just don't know where to start this.  
+
+## Installation <a name="install"></a>
+
+Here's how to install make
 
 ## References
 
