@@ -151,14 +151,13 @@ srand (1);
 //other possibility, variable seed
 srand (time (NULL));
 ```
-The functions I am currently using to produce random numbers are one based on `rand()`, or `rand()` itself. It generates a integer between 0 and RAND_MAX (the maximum value an integer can have).
+The functions I am currently using to produce random numbers are one based on `rand()`, or `rand()` itself. It generates a integer between 0 and `RAND_MAX` (the maximum value an integer can have).
 
 To achieve an integer between 0 and a value, we can use this function that generates an integer up to n.
 ```c
 int rand_upto (int n){}
 
 ```
-{>>Acho que seria bom juntar essas “funções ajudantes” num apêndice<<}
 
 When we need a random number between 0 and 1, we use
 
@@ -369,7 +368,7 @@ for (number_species = 0, i = 0; i < info->number_generations; i++) {
       printf("NUMBER OF SPECIES = %d\n", number_species);
   	}
 ```
-You may say "*Wow* just that little? Just four functions?", but we still have at least 200 more lines of code to explore! We still have to look at the more intricate part of the model ({++which is ++}giving me headaches).
+You may say "*Wow* just that little? Just four functions?", but we still have at least 200 more lines of code to explore! We still have to look at the more intricate part of the model (which is giving me headaches).
 
 The prints keep track of the stage of the simulation, so we can see how it is going.
 
@@ -809,7 +808,7 @@ Then, [repeat](#simulation).
 
 ### Finnishing
 After finnishing all the simulation, we need to free the stack.
-{>>Não sei se precisa mencionar isso.<<} 
+
 ```c
 //in main
 DestroiGraph(G);
@@ -817,8 +816,7 @@ Free_Population (progenitors);
 Free_Population (offspring);
 free (info);
 ```
-There has to be the same numbers of {~~alloc~>`*alloc`s~~} and {~~free~>`free`s~~}, and fin{--n--}ish the program.
-{>>A *finnish* is a guy from Finland<<}
+There has to be the same numbers of `alloc`s~ and `free`s, and finish the program.
 ```c
 //in main
 return 0;
