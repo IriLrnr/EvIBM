@@ -29,6 +29,10 @@ int main()
 
     /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
+    sprintf(nome_arq, "../ProjetoFinalJB/data/position/indloc.csv", i);
+    output = fopen (nome_arq,"w");
+    sprintf(line, "id;x;y;sp;gen\n");
+    fputs(line, output);
   	for (number_species = 0, i = 0; i < 11; i++) {
       printf("GENERATION: %d\n", i);
       Stablish_Distances (G, progenitors, info);
@@ -36,17 +40,15 @@ int main()
       number_species = Count_Species (G, progenitors);
        /*This part is just for printing the result for making graphs in R later*/
       if (i < 11) {
-        sprintf(nome_arq, "../ProjetoFinalJB/data/position/%02dgen.csv", i);
-        output = fopen (nome_arq,"w");
         for (j = 0; j < info->population_size; ++j) {
          sprintf(line, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
          fputs (line, output);
         }
-        fclose (output);
       }
       Swap_Generations (&progenitors, &offspring);
       printf("NUMBER OF SPECIES = %d\n", number_species);
   	}
+    fclose (output);
 
     /* We end the simulation freeing the used memory */
     DestroyGraph(G);
