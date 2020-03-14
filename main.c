@@ -10,10 +10,13 @@ int main()
   Parameters info;
   char nome_arq_p[50] = "";
   char nome_arq_s[50] = "";
+  char nome_arq_f[50] = "";
   char linep[65] = "";
   char lines[65] = "";
+  char linef[65] = "";
   FILE *position;
   FILE *nspecies;
+  FILE *fluctuation;
 
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
@@ -32,14 +35,18 @@ int main()
 
     /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
-    sprintf(nome_arq_p, "../ProjetoFinalJB/data/position/indlocV1.csv");
-    sprintf(nome_arq_s, "../ProjetoFinalJB/data/species/numspV1.csv");
+    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocV1.csv");
+    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/indspV1.csv");
+    sprintf (nome_arq_f, "../ProjetoFinalJB/data/fluctuation/floatpopV1.csv");
     position = fopen (nome_arq_p, "w");
     nspecies = fopen (nome_arq_s, "w");
-    sprintf(linep, "id;x;y;sp;gen\n");
-    sprintf(lines, "gen;sp\n");
-    fputs(linep, position);
-    fputs(lines, nspecies);
+    fluctuation = fopen (nome_arq_f, "w");
+    sprintf (linep, "id;x;y;sp;gen\n");
+    sprintf (lines, "gen;sp\n");
+    sprintf (linef, "gen;size\n");
+    fputs (linep, position);
+    fputs (lines, nspecies);
+    fputs (linef, fluctuation);
 
   	for (number_species = 0, i = 0; i < info->number_generations; i++) {
       printf("GENERATION: %d\n", i);
@@ -47,8 +54,10 @@ int main()
   		Reproduction (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
        /*This part is just for printing the result for making graphs in R later*/
-      sprintf(lines, "%d;%d\n", i, number_species);
-      fputs(lines, nspecies);
+      sprintf (lines, "%d;%d\n", i, number_species);
+      sprintf (linef, "%d;%d\n", i, info->population_size);
+      fputs (lines, nspecies);
+      fputs (linef, fluctuation);
       if (i < info->number_generations) {
         for (j = 0; j < info->population_size; ++j) {
          sprintf(linep, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
@@ -60,6 +69,7 @@ int main()
   	}
     fclose (position);
     fclose (nspecies);
+    fclose (fluctuation);
 
     /* We end the simulation freeing the used memory */
     DestroyGraph(G);
