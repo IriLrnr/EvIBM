@@ -8,9 +8,12 @@ int main()
   Population progenitors, offspring;
   Graph G;
   Parameters info;
-  char nome_arq[15] = "";
-  char line[65] = "";
-  FILE *output;
+  char nome_arq_p[50] = "";
+  char nome_arq_s[50] = "";
+  char linep[65] = "";
+  char lines[65] = "";
+  FILE *position;
+  FILE *nspecies;
 
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
@@ -29,26 +32,34 @@ int main()
 
     /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
-    sprintf(nome_arq, "../ProjetoFinalJB/data/position/indloc.csv", i);
-    output = fopen (nome_arq,"w");
-    sprintf(line, "id;x;y;sp;gen\n");
-    fputs(line, output);
-  	for (number_species = 0, i = 0; i < 11; i++) {
+    sprintf(nome_arq_p, "../ProjetoFinalJB/data/position/indlocV1.csv");
+    sprintf(nome_arq_s, "../ProjetoFinalJB/data/species/numspV1.csv");
+    position = fopen (nome_arq_p, "w");
+    nspecies = fopen (nome_arq_s, "w");
+    sprintf(linep, "id;x;y;sp;gen\n");
+    sprintf(lines, "gen;sp\n");
+    fputs(linep, position);
+    fputs(lines, nspecies);
+
+  	for (number_species = 0, i = 0; i < info->number_generations; i++) {
       printf("GENERATION: %d\n", i);
       Stablish_Distances (G, progenitors, info);
   		Reproduction (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
        /*This part is just for printing the result for making graphs in R later*/
-      if (i < 11) {
+      sprintf(lines, "%d;%d\n", i, number_species);
+      fputs(lines, nspecies);
+      if (i < info->number_generations) {
         for (j = 0; j < info->population_size; ++j) {
-         sprintf(line, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
-         fputs (line, output);
+         sprintf(linep, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
+         fputs (linep, position);
         }
       }
       Swap_Generations (&progenitors, &offspring);
       printf("NUMBER OF SPECIES = %d\n", number_species);
   	}
-    fclose (output);
+    fclose (position);
+    fclose (nspecies);
 
     /* We end the simulation freeing the used memory */
     DestroyGraph(G);
