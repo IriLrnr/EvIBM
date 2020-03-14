@@ -35,9 +35,9 @@ int main()
 
     /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
-    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocV1.csv");
-    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/indspV1.csv");
-    sprintf (nome_arq_f, "../ProjetoFinalJB/data/fluctuation/floatpopV1.csv");
+    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocVX.csv");
+    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/numspVX.csv");
+    sprintf (nome_arq_f, "../ProjetoFinalJB/data/fluctuation/floatpopVX.csv");
     position = fopen (nome_arq_p, "w");
     nspecies = fopen (nome_arq_s, "w");
     fluctuation = fopen (nome_arq_f, "w");

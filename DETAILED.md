@@ -703,12 +703,8 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 	offspring[baby]->y = progenitors[focal]->y;
 
 	if (random_number() <= 0.01) {
-		movement_y = random_number()*info->radius;
-		movement_x = random_number()*info->radius;
-		if (random_number() < 0.5) {
-			movement_x = -movement_x;
-			movement_y = -movement_y;
-		}
+		movement_y = (random_number()*2 - 1) * info->radius;
+		movement_x = (random_number()*2 - 1) * info->radius;
 
 		/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
 		if (offspring[baby]->x + movement_x <= info->lattice_width && progenitors[focal]->x + movement_x >= 0)
