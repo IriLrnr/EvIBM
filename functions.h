@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <gsl_randist.h>
+#include <gsl_rng.h>
 #include "graph.h"
 #include "linkedlist.h"
+/* State-keeper of the random number generator*/
+const gsl_rng *GLOBAL_RNG;
 
 /* =======================  Definitions ========================== */
 	/* Here we define and individual as a struct with genome, species and location, and
@@ -54,6 +58,10 @@
 		return (rand() / (RAND_MAX / n + 1));
 	}
 
+	float poisson (float mu) 
+	{
+		return (gsl_ran_poisson(GLOBAL_RNG, mu));
+	}
 
 	/*This is a binary genome generator. It generates the first genome.*/
 	int* Generate_Genome (int genome_size)
@@ -389,42 +397,26 @@
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, i, n;
+		double mu;
+		unsigned int number_children; 
+		int parent_population_size;
 
 		i = 0;
+		parent_population_size = info->population_size;
 
-		if (info->population_size < info->number_individuals) {
-			for (focal = 0; focal < info->population_size; focal++) {
-				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
-					mate = Choose_Mate(G, focal, progenitors, info);
-					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, i, focal, mate, info);
-						i++;
-						info->population_size ++;
-					}
-				}
-			}
-		} 
+		mu = ((double) info->number_individuals) / (parent_population_size);
 
 		for (focal = 0; focal < (G->U); focal++) {
-			other = focal; 
-			mate = -1;
-
-			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
-				mate = Choose_Mate(G, focal, progenitors, info);
-			}
-
-			for (n = 0; n < 2; n++) {
-				if (mate == -1) {
-					other = Choose_Mate (G, focal, progenitors, info);
-					if (other != -1)
-						mate = Choose_Mate(G, other, progenitors, info);
+			number_children = poisson(mu);
+			for (n = 0; n < number_children; n++) {
+				mate = Choose_Mate (G, focal, progenitors, info);
+				if (mate != -1) {
+					Create_Offspring (progenitors, offspring, i, focal, mate, info);
+					i++;
 				}
 			}
-
-			if (mate != -1 && other != -1) {
-				Create_Offspring (progenitors, offspring, i, other, mate, info);
-				i++;
-			}
+			if (number_children > 0) 
+				info->population_size += (number_children - 1);
 			else {
 				info->population_size --;
 			}

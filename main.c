@@ -17,6 +17,9 @@ int main()
   FILE *position;
   FILE *nspecies;
   FILE *fluctuation;
+  unsigned int sample;
+
+  GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
@@ -35,9 +38,9 @@ int main()
 
     /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
-    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocVX.csv");
-    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/numspVX.csv");
-    sprintf (nome_arq_f, "../ProjetoFinalJB/data/fluctuation/floatpopVX.csv");
+    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocV3.csv");
+    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/numspV3.csv");
+    sprintf (nome_arq_f, "../ProjetoFinalJB/data/fluctuation/floatpopV3.csv");
     position = fopen (nome_arq_p, "w");
     nspecies = fopen (nome_arq_s, "w");
     fluctuation = fopen (nome_arq_f, "w");
@@ -53,7 +56,7 @@ int main()
       Stablish_Distances (G, progenitors, info);
   		Reproduction (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
-       /*This part is just for printing the result for making graphs in R later*/
+      /*This part is just for printing the result for making graphs in R later*/
       sprintf (lines, "%d;%d\n", i, number_species);
       sprintf (linef, "%d;%d\n", i, info->population_size);
       fputs (lines, nspecies);

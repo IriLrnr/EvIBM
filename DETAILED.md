@@ -131,24 +131,36 @@ The "main" keeps the skeleton of the code, while the functions' library keep the
 #include <time.h>
 #include "graph.h"
 #include "linkedlist.h"
+#include <gsl_randist.h>
+#include <gsl_rng.h>
 
 //in main.c
 #include "functions.h"
 ```
-So that way, the libraries declared in functions.h can be used in main.c. I will not expose the full graph.h and linkedlist.h code here, but you can trust me it works, I tested it extensively.
+So that way, the libraries declared in functions.h can be used in main.c. I will not expose the full graph.h and linkedlist.h code here, but I tested them.
+
+It is also necessary to initialize a global variable to use with the gsl library.
+
+```c
+//in functions.h
+const gsl_rng *GLOBAL_RNG;
+```
 
  The main file will appear in order, so every code part beginning with "//main" in this file, is exactly in the same order as it appears in the main section. We cannot apply the same method for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
 
 To initialize the code, because c is a typed language, we need to declare the variables what we are using
 ```c
 //in main.c
-int main(){...}
+int main(){...
 //...
 	int i, j, l, number_species;
 	Population progenitors, offspring;
 	Graph G;
 	Parameters info;
-	...
+	unsigned int sample;
+
+  GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
+	...}
 ```
 Those structures are explained in the sections bellow.
 
@@ -165,7 +177,6 @@ The functions I am currently using to produce random numbers are one based on ra
 To achieve an integer between 0 and a value, we can use this function that generates an integer up to n.
 ```c
 int rand_upto (int n){}
-
 ```
 
 When we need a random number between 0 and 1, we use
@@ -173,6 +184,16 @@ When we need a random number between 0 and 1, we use
 ```c
 float random_number(){}
 ```
+
+In this version, in reproduction, we need the result of a poisson distribution. To get this value, we use the poisson function of the GNU Scientific Library.
+
+```c
+float poisson (float mu) 
+{
+	return (gsl_ran_poisson(GLOBAL_RNG, mu));
+}
+```
+
 Just passing by to remember the functions are docummented in the last section.
 
 ### Parameters <a name="parameters"></a>
@@ -388,33 +409,33 @@ The function "Stablish_Distances" is redundant, and not at all at it's final sta
 ```c
 //in functions.h
 void Stablish_Distances (Graph G, Population individuals, Parameters info)
-	{
-		int i, j, k, divergences, size_difference;
+{
+	int i, j, k, divergences, size_difference;
 
-		G->U = info->population_size;
+	G->U = info->population_size;
 
-		for (i = 0; i < G->U; i++) {
-			for (j = i + 1; j < G->U; j++) {
-				divergences = 0;
-				for (k = 0; k < info->genome_size; k++) {
-					if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
-						divergences++;
-					}
-				}
-
-				if (divergences <= info->reproductive_distance) {
-					InsertArc (G, i, j, (info->genome_size - divergences));
-				}
-				else if (G->adj[i][j] != 0) {
-					RemoveArc (G, i, j);
+	for (i = 0; i < G->U; i++) {
+		for (j = i + 1; j < G->U; j++) {
+			divergences = 0;
+			for (k = 0; k < info->genome_size; k++) {
+				if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
+					divergences++;
 				}
 			}
-		}
-		for (i = 0; i < G->U; i++) {
-			RestartList (&individuals[i]->neighborhood);
-			neighborhood (G, individuals, i, info, 0);
+
+			if (divergences <= info->reproductive_distance) {
+				InsertArc (G, i, j, (info->genome_size - divergences));
+			}
+			else if (G->adj[i][j] != 0) {
+				RemoveArc (G, i, j);
+			}
 		}
 	}
+	for (i = 0; i < G->U; i++) {
+		RestartList (&individuals[i]->neighborhood);
+		neighborhood (G, individuals, i, info, 0);
+	}
+}
 ```
 The function receives a Graph G, a Population and the Parameters. It sets the number of needed vertices, setting G->U to the current population size. Then, it compares all the individuals in the population, looking for differences in their genome. If two individuals are sufficiently similar, an arc will be inserted between their vertices. If not, there will be no arc between them (if there were, in the previous population, this arc will be removed). Finally, it creates the list of possible partners in their range, freeing the previous list.
 
@@ -507,7 +528,6 @@ int Verify_Distance (Population progenitors, int focal, int mate, Parameters inf
 	if (x_compatible && y_compatible) return 1;
 	else return 0;
 }
-
 ```
 
 This is a boolean function, it returns 1 if the individuals are in the range of one another, and 0 if they're not. It receives the names of the individuals to compare, the population and the parameters, and returns 0 or 1. First, it checks if they are obviously neighbors. If not, it still needs to check if they could be on the "other side" of the torus (if the radius range is outside the 100x100 latice, it has to reach the other side, and check there). If both the y and the x are in the focal's range, then the function returns 1.
@@ -518,50 +538,34 @@ Now that we know the relationship between all the progenitors (which species the
 
 ```c
  //in functions.h
- void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
-	{ 	
-		int focal, mate, other, i, n;
+void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
+{ 	
+	int focal, mate, other, i, n;
+	double mu;
+	unsigned int number_children; 
+	int parent_population_size;
 
-		i = 0;
+	i = 0;
+	parent_population_size = info->population_size;
 
-		if (info->population_size < info->number_individuals) {
-			for (focal = 0; focal < info->population_size; focal++) {
-				if (Verify_Neighborhood (progenitors, focal) < info->neighbors) {
-					mate = Choose_Mate(G, focal, progenitors, info);
-					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, i, focal, mate, info);
-						i++;
-						info->population_size ++;
-					}
-				}
-			}
-		}
+	mu = ((double) info->number_individuals) / (parent_population_size);
 
-		for (focal = 0; focal < (G->U); focal++) {
-			other = focal;
-			mate = -1;
-
-			if (random_number() < 0.63 && Verify_Neighborhood (progenitors, focal) > 2) {
-				mate = Choose_Mate(G, focal, progenitors, info);
-			}
-
-			for (n = 0; n < 2; n++) {
-				if (mate == -1) {
-					other = Choose_Mate (G, focal, progenitors, info);
-					if (other != -1)
-						mate = Choose_Mate(G, other, progenitors, info);
-				}
-			}
-
-			if (mate != -1 && other != -1) {
-				Create_Offspring (progenitors, offspring, i, other, mate, info);
+	for (focal = 0; focal < (G->U); focal++) {
+		number_children = poisson(mu);
+		for (n = 0; n < number_children; n++) {
+			mate = Choose_Mate (G, focal, progenitors, info);
+			if (mate != -1) {
+				Create_Offspring (progenitors, offspring, i, focal, mate, info);
 				i++;
 			}
-			else {
-				info->population_size --;
-			}
+		}
+		if (number_children > 0) 
+			info->population_size += (number_children - 1);
+		else {
+			info->population_size --;
 		}
 	}
+}
 ```
 The function for Reproduction receives two population vectors and the information about them, that is, the graph, and the Parameters. First of all, it verifies if the population is below its carry capacity. If yes, it gives a chance for individuals with low density to reproduce first. That can be biologicaly interpreted as if they have more food available, and so they can reproduce again. Then, for every individual in the population, it will have a chance at reproduction, with some chance of death. If they die, the "mate" variable will have value -1, and then the chance to reproduce will be given to some neighbor of the deceased. Twice. The offspring will only be created if we have both parents chosen.
 
@@ -577,54 +581,53 @@ The function "Choose_Mate" sorts one of those neighbors out:
 ```c
 //in functions.h
 int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
-	{
-		int j, i, neighbors, expand, radius_increase, radius, mate;
-		List p;
-		List bigger_neighborhood;
+{
+	int j, i, neighbors, expand, radius_increase, radius, mate;
+	List p;
+	List bigger_neighborhood;
 
-		mate = -1;
-		radius_increase = 0;
+	mate = -1;
+	radius_increase = 0;
 
-		bigger_neighborhood = CreateHeadedList ();
+	bigger_neighborhood = CreateHeadedList ();
 
-		while (radius_increase <= 3 && mate == -1) {
-			if (radius_increase > 0) {
-				expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
-			}
-
-			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
-			expand = Verify_Neighborhood (bigger_neighborhood);
-
-			if (neighbors + expand) {
-				i = rand_upto(neighbors + expand); //add 1?
-				
-				if (i <= neighbors) {
-					for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
-				}
-				else {
-					i -= neighbors;
-					for (j = 0, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
-				}
-
-				if (j == i && p != NULL) {
-					mate = p->info;
-				} 
-				else mate = -1;
-			}
-
-			else mate = -1;
-
-			if (mate == -1) {
-				radius += 1;
-				radius_increase += 1;
-			}
-
+	while (radius_increase <= 3 && mate == -1) {
+		if (radius_increase > 0) {
+			expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
 		}
-		DestroyList (&bigger_neighborhood);
-		
-		return mate;
-	}
 
+		neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
+		expand = Verify_Neighborhood (bigger_neighborhood);
+
+		if (neighbors + expand) {
+			i = rand_upto(neighbors + expand); //add 1?
+			
+			if (i <= neighbors) {
+				for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+			}
+			else {
+				i -= neighbors;
+				for (j = 0, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+			}
+
+			if (j == i && p != NULL) {
+				mate = p->info;
+			} 
+			else mate = -1;
+		}
+
+		else mate = -1;
+
+		if (mate == -1) {
+			radius += 1;
+			radius_increase += 1;
+		}
+
+	}
+	DestroyList (&bigger_neighborhood);
+	
+	return mate;
+}
 ```
 
 This function is long and it took me a while to figure it out. It receives the graph, the "name" of the focal individual that is looking for a mate, the population and the parameters. The focal first will look around him in his range, that is, in its "neighborhood" list, described in the previous section. If there are no neighbors in its range, it will look a little further: it expands it's range in 1 unit of space (reminder: the space is 100.000 square units of space). The extra neighbors are kept in another linked list, the "bigger_neighborhood" list. If there are still no possible partners, it will expand range again, and once more if necessary. Each time it expands neighborhood, the "bigger_neighborhood" list grows.
@@ -858,29 +861,29 @@ The function Alloc_Population receives a Parameters structure and returns a Popu
 
 ```c
 Population Alloc_Population (Parameters info)
-	{
-		Population individuals;
-		int i, j;
+{
+	Population individuals;
+	int i, j;
 
-		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
+	individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
 
-		for (i = 0; i < info->individual_vector_size; i++) {
-			individuals[i] = (Individual) malloc (sizeof (individual));
-			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
-			individuals[i]->neighborhood = CreateHeadedList ();
-		}
-
-		return individuals;
+	for (i = 0; i < info->individual_vector_size; i++) {
+		individuals[i] = (Individual) malloc (sizeof (individual));
+		individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
+		individuals[i]->neighborhood = CreateHeadedList ();
 	}
+
+	return individuals;
+}
 ```
 
 <a name="verify_neighborhood"></a>
 
 ```c
 int Verify_Neighborhood (List neighborhood)
-	{
-		return (-(neighborhood->info + 1));
-	}
+{
+	return (-(neighborhood->info + 1));
+}
 ```
 The head value of an empty list is -1. As the list grows, we subtract the number of items in the list. So if the list is empty, it returns 0, and if it has members, it returns the number of members. I've done it like this so I won't have to use another library for headed linked lists. It works because I'm adding to the list in order, and the only negative value (the head) will always appear first. 
 
@@ -889,13 +892,13 @@ The head value of an empty list is -1. As the list grows, we subtract the number
 
 ```c
 void mutation (Population offspring, int baby, int mutation)
-	{
-		if (offspring[baby]->genome[mutation] == 1) {
-			offspring[baby]->genome[mutation] = 0;
-		}
-		else {
-			offspring[baby]->genome[mutation] = 1;
-		}
+{
+	if (offspring[baby]->genome[mutation] == 1) {
+		offspring[baby]->genome[mutation] = 0;
 	}
+	else {
+		offspring[baby]->genome[mutation] = 1;
+	}
+}
 ```
 This function flips the bit at the "mutation" spot in the genome of the baby.
