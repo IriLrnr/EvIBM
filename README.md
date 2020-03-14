@@ -6,23 +6,26 @@ HELLO!
 
 Welcome to my developing code for this Evolutionary Model! If you are VERY interested in the code and the model behind it, please read the DETAILED.md file.
 
-This branch is used to test and analise the situation of the aglutination of individuals in the model. If you want to run the program and see the results, follow the instructions below
+This branch is used to test and analise the situation of the agglutination of individuals in the model. If you want to run the program and see the results, follow the instructions below
 
 ## How to compile
 
 To compile this code you may have to install some programs before. See [instalation](#install) for more information.
 
 ### With make
-Compiling like this will create a lot of files in the "position" folder and it will create numerous png files in the "plots" folder, and a final gif.
+To compile like this first go to my [JB repository](https://github.com/IriLrnr/ProjetoFinalJB) and download it, and keep both repositories in your home directory.
 
-After cloning the folder, go in it and compile with the command
+Compiling like this will send files from this simulation to the JB repo, to make gifs and images of what is happening.
+
+After cloning this repository, go in it and compile with the command
+
 ```bash
 $ make
 ```
 
 ### Just compile with gcc
 
-This won't create the cvs, png and gifs, just print out the generation and number of species.
+Compiling like this just print out the generation and number of species.
 
 ```bash
 $ gcc main.c -o out
@@ -38,6 +41,7 @@ $ sudo apt install build.essentials
 ```
 
 To read the output, in Linux, you may have to download sxiv to open the gif:
+
 ```bash
 $ sudo apt install sxiv
 ```
