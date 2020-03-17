@@ -84,10 +84,10 @@
 		y_out_down = 0;
 
 		/* If an individual ratio reaches an end of the lattice, it will look on the other side, because the lattice work as a toroid */
-		if (progenitors[mate]->x <= progenitors[focal]->x + info->radius + increase && progenitors[mate]->x >= progenitors[focal]->x - info->radius + increase) {
+		if (progenitors[mate]->x <= progenitors[focal]->x + info->radius + increase && progenitors[mate]->x >= progenitors[focal]->x - (info->radius + increase)) {
 			x_compatible = 1;
 		}
-		if (progenitors[mate]->y <= progenitors[focal]->y + info->radius + increase && progenitors[mate]->y >= progenitors[focal]->y - info->radius + increase) {
+		if (progenitors[mate]->y <= progenitors[focal]->y + info->radius + increase && progenitors[mate]->y >= progenitors[focal]->y - (info->radius + increase)) {
 			y_compatible = 1;
 		}
 
