@@ -6,7 +6,6 @@ bin-release/
 
 # Other files and folders
 .settings/
-Tests/
 
 # Executables
 *.swf
@@ -22,3 +21,4 @@ out
 *.csv
 *.png
 .Rhistory
+.Rproj.user
