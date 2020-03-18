@@ -74,6 +74,7 @@
 	int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase)
 	{
 		int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
+		int radius = info->radius + increase;
 
 		y_compatible = 0;
 		x_compatible = 0;
@@ -84,38 +85,38 @@
 		y_out_down = 0;
 
 		/* If an individual ratio reaches an end of the lattice, it will look on the other side, because the lattice work as a toroid */
-		if (progenitors[mate]->x <= progenitors[focal]->x + info->radius + increase && progenitors[mate]->x >= progenitors[focal]->x - (info->radius + increase)) {
+		if (progenitors[mate]->x <= progenitors[focal]->x + radius && progenitors[mate]->x >= progenitors[focal]->x - radius) {
 			x_compatible = 1;
 		}
-		if (progenitors[mate]->y <= progenitors[focal]->y + info->radius + increase && progenitors[mate]->y >= progenitors[focal]->y - (info->radius + increase)) {
+		if (progenitors[mate]->y <= progenitors[focal]->y + radius && progenitors[mate]->y >= progenitors[focal]->y - radius) {
 			y_compatible = 1;
 		}
 
 		if (!x_compatible) {
-			if (progenitors[focal]->x + info->radius + increase > info->lattice_width) {
-				x_out_right = progenitors[focal]->x + info->radius + increase - info->lattice_width;
-				if (progenitors[mate]->x <= x_out_right) {
+			if (progenitors[focal]->x + radius > info->lattice_width) {
+				x_out_right = progenitors[focal]->x + radius - info->lattice_width;
+				if (progenitors[mate]->x <= x_out_right && progenitors[mate]->x >= 0) {
 					x_compatible = 1;
 				}
 			}
-			else if (progenitors[focal]->x - info->radius + increase < 0) {
-				x_out_left = progenitors[focal]->x - info->radius + increase + info->lattice_width;
-				if (progenitors[mate]->x >= x_out_left) {
+			else if (progenitors[focal]->x - radius < 0) {
+				x_out_left = progenitors[focal]->x - radius + info->lattice_width;
+				if (progenitors[mate]->x >= x_out_left && progenitors[mate]->x <= info->lattice_width) {
 					x_compatible = 1;
 				}
 			}
 		}
 
 		if (!y_compatible) {
-			if (progenitors[focal]->y + info->radius + increase > info->lattice_lenght) {
-				y_out_up = progenitors[focal]->y + info->radius + increase - info->lattice_lenght;
-				if (progenitors[mate]->y <= y_out_up) {
+			if (progenitors[focal]->y + radius > info->lattice_lenght) {
+				y_out_up = progenitors[focal]->y + radius - info->lattice_lenght;
+				if (progenitors[mate]->y <= y_out_up && progenitors[mate]->y >= 0) {
 					y_compatible = 1;
 				}
 			}
-			else if (progenitors[focal]->y - info->radius + increase < 0) {
-				y_out_down = progenitors[focal]->y - info->radius + increase + info->lattice_lenght;
-				if (progenitors[mate]->y >= y_out_down) {
+			else if (progenitors[focal]->y - radius < 0) {
+				y_out_down = progenitors[focal]->y - radius + info->lattice_lenght;
+				if (progenitors[mate]->y >= y_out_down && progenitors[mate]->y <= info->lattice_lenght) {
 					y_compatible = 1;
 				}
 			}
