@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include <gsl_randist.h>
 #include <gsl_rng.h>
 #include "graph.h"
@@ -47,18 +48,18 @@ const gsl_rng *GLOBAL_RNG;
 
 /* =======================  Used everywhere  ========================== */
 
-	/*Generates a random number between 0 and 1 */ /* TESTED OK */
-	float random_number()
+	/*Generates a random number between 0 and 1 */
+	double random_number()
 	{
-		return((float)rand() / ((float)RAND_MAX + 1));
+		return (gsl_rng_uniform_pos (GLOBAL_RNG));
 	}
 
 	int rand_upto (int n)
 	{
-		return (rand() / (RAND_MAX / n + 1));
+		return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
 	}
 
-	float poisson (float mu) 
+	double poisson (double mu) 
 	{
 		return (gsl_ran_poisson(GLOBAL_RNG, mu));
 	}
@@ -80,56 +81,31 @@ const gsl_rng *GLOBAL_RNG;
 	/* This function checks if an individual (j) is within the range of another individual */
 	int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase)
 	{
-		int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
+		double x, x0, y, y0, r;
+		
+		r = info->radius + increase;
 
-		y_compatible = 0;
-		x_compatible = 0;
+		x0 = progenitors[focal]->x;
+		y0 = progenitors[focal]->y;
+		x = progenitors[mate]->x;
+		y = progenitors[mate]->y;
 
-		x_out_left = 0;
-		x_out_right = 0;
-		y_out_up = 0;
-		y_out_down = 0;
+		if (y0 >= info->lattice_lenght - r && y <= r)
+			y = y + info->lattice_lenght;
 
-		/* If an individual ratio reaches an end of the lattice, it will look on the other side, because the lattice work as a toroid */
-		if (progenitors[mate]->x <= progenitors[focal]->x + info->radius + increase && progenitors[mate]->x >= progenitors[focal]->x - info->radius + increase) {
-			x_compatible = 1;
-		}
-		if (progenitors[mate]->y <= progenitors[focal]->y + info->radius + increase && progenitors[mate]->y >= progenitors[focal]->y - info->radius + increase) {
-			y_compatible = 1;
-		}
+		if (y0 <= r && y >= info->lattice_lenght - r)
+			y = y - info->lattice_lenght;
 
-		if (!x_compatible) {
-			if (progenitors[focal]->x + info->radius + increase > info->lattice_width) {
-				x_out_right = progenitors[focal]->x + info->radius + increase - info->lattice_width;
-				if (progenitors[mate]->x <= x_out_right) {
-					x_compatible = 1;
-				}
-			}
-			else if (progenitors[focal]->x - info->radius + increase < 0) {
-				x_out_left = progenitors[focal]->x - info->radius + increase + info->lattice_width;
-				if (progenitors[mate]->x >= x_out_left) {
-					x_compatible = 1;
-				}
-			}
-		}
+		if (x0 >= info->lattice_width - r && x <= r)
+			x = x + info->lattice_width;
 
-		if (!y_compatible) {
-			if (progenitors[focal]->y + info->radius + increase > info->lattice_lenght) {
-				y_out_up = progenitors[focal]->y + info->radius + increase - info->lattice_lenght;
-				if (progenitors[mate]->y <= y_out_up) {
-					y_compatible = 1;
-				}
-			}
-			else if (progenitors[focal]->y - info->radius + increase < 0) {
-				y_out_down = progenitors[focal]->y - info->radius + increase + info->lattice_lenght;
-				if (progenitors[mate]->y >= y_out_down) {
-					y_compatible = 1;
-				}
-			}
-		}
+		if (x0 <= r && x >= info->lattice_width - r)
+			x = x - info->lattice_lenght;
 
-		if (x_compatible && y_compatible) return 1;
-		else return 0;
+		if ((x - x0) * (x - x0) + (y - y0) * (y - y0) <= r * r)
+			return 1;
+		else 
+			return 0;
 	}
 
 	int Verify_Neighborhood (List neighborhood)
@@ -269,7 +245,8 @@ const gsl_rng *GLOBAL_RNG;
 	and in which direction. It can move in it's focal parent range, with 1% chance*/
 	void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info)
 	{
-		float movement_x, movement_y;
+		double movement_x, movement_y;
+		double r, theta;
 
 		movement_x = movement_y = 0;
 
@@ -277,8 +254,11 @@ const gsl_rng *GLOBAL_RNG;
 		offspring[baby]->y = progenitors[focal]->y;
 
 		if (random_number() <= 0.01) {
-			movement_y = (random_number()*2 - 1) * info->radius;
-			movement_x = (random_number()*2 - 1) * info->radius;
+			r = random_number() * info->radius;
+			theta = rand_upto(360) + random_number();
+
+			movement_y = sin(theta) * r;
+			movement_x = cos(theta) * r;
 
 			/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
 			if (offspring[baby]->x + movement_x <= info->lattice_width && progenitors[focal]->x + movement_x >= 0)
@@ -397,26 +377,42 @@ const gsl_rng *GLOBAL_RNG;
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, i, n;
-		double mu;
-		unsigned int number_children; 
-		int parent_population_size;
 
 		i = 0;
-		parent_population_size = info->population_size;
 
-		mu = ((double) info->number_individuals) / (parent_population_size);
-
-		for (focal = 0; focal < (G->U); focal++) {
-			number_children = poisson(mu);
-			for (n = 0; n < number_children; n++) {
-				mate = Choose_Mate (G, focal, progenitors, info);
-				if (mate != -1) {
-					Create_Offspring (progenitors, offspring, i, focal, mate, info);
-					i++;
+		if (info->population_size < info->number_individuals) {
+			for (focal = 0; focal < info->population_size; focal++) {
+				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
+					mate = Choose_Mate(G, focal, progenitors, info);
+					if (mate != -1) {
+						Create_Offspring (progenitors, offspring, i, focal, mate, info);
+						i++;
+						info->population_size ++;
+					}
 				}
 			}
-			if (number_children > 0) 
-				info->population_size += (number_children - 1);
+		} 
+
+		for (focal = 0; focal < (G->U); focal++) {
+			other = focal; 
+			mate = -1;
+
+			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
+				mate = Choose_Mate(G, focal, progenitors, info);
+			}
+
+			for (n = 0; n < 2; n++) {
+				if (mate == -1) {
+					other = Choose_Mate (G, focal, progenitors, info);
+					if (other != -1)
+						mate = Choose_Mate(G, other, progenitors, info);
+				}
+			}
+
+			if (mate != -1 && other != -1) {
+				Create_Offspring (progenitors, offspring, i, other, mate, info);
+				i++;
+			}
 			else {
 				info->population_size --;
 			}

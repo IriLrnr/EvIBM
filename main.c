@@ -8,9 +8,9 @@ int main()
   Population progenitors, offspring;
   Graph G;
   Parameters info;
-  char nome_arq_p[50] = "";
-  char nome_arq_s[50] = "";
-  char nome_arq_f[50] = "";
+  char nome_arq_p[80] = "";
+  char nome_arq_s[80] = "";
+  char nome_arq_f[80] = "";
   char linep[65] = "";
   char lines[65] = "";
   char linef[65] = "";
@@ -38,9 +38,9 @@ int main()
 
     /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
-    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocV3.csv");
-    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/numspV3.csv");
-    sprintf (nome_arq_f, "../ProjetoFinalJB/data/fluctuation/floatpopV3.csv");
+    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocV2_2_r.csv");
+    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/numspV2_2_r.csv");
+    sprintf (nome_arq_f, "../ProjetoFinalJB/data/fluctuation/floatpopV2_2_r.csv");
     position = fopen (nome_arq_p, "w");
     nspecies = fopen (nome_arq_s, "w");
     fluctuation = fopen (nome_arq_f, "w");
@@ -79,6 +79,7 @@ int main()
     Free_Population (progenitors, info);
     Free_Population (offspring, info);
     free (info);
+    gsl_rng_free (GLOBAL_RNG);
   }
 
 return 0;
