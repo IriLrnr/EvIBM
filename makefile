@@ -5,4 +5,4 @@ run : main
 
 main :
 	gcc -c main.c -I /usr/include/gsl/
-	gcc main.o -l gsl -o out -g -lm
+	gcc main.o -lgsl -lgslcblas -lm -o out -g 

@@ -31,7 +31,7 @@ $ make
 This won't create the cvs, png and gifs, just print out the generation and number of species.
 
 ```bash
-$ gcc main.c -I /usr/include/gsl/ -o out
+$ gcc main.c -I /usr/include/gsl/ -o -lm out
 $ ./out
 ```
 
@@ -55,6 +55,11 @@ To read the output, in Linux, you may have to download sxiv to open the gif:
 $ sudo apt install sxiv
 ```
 To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/
+
+## 21/03/2020
+
+The code is a mess, because I'm testing the function Reproduction with poisson
+
 
 ## References
 

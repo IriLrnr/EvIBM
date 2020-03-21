@@ -6,10 +6,11 @@
 #include <gsl_rng.h>
 #include "graph.h"
 #include "linkedlist.h"
-/* State-keeper of the random number generator*/
-const gsl_rng *GLOBAL_RNG;
 
-/* =======================  Definitions ========================== */
+/* State-keeper of the random number generator*/
+gsl_rng *GLOBAL_RNG;
+
+/* ===========================  Definitions ========================== */
 	/* Here we define and individual as a struct with genome, species and location, and
 	a population as a vector of individuals*/
 	typedef struct
@@ -44,22 +45,34 @@ const gsl_rng *GLOBAL_RNG;
 
 	typedef parameters * Parameters;
 
-/* ======================================================================= */
+/* ==================================================================== */
 
-/* =======================  Used everywhere  ========================== */
 
-	/*Generates a random number between 0 and 1 */
-	double random_number()
+/* =========================  Used everywhere  ========================== */
+
+	/*Generates a random number between 0 and 1 */ /* TESTED OK */
+	float random_number()
 	{
-		return (gsl_rng_uniform_pos (GLOBAL_RNG));
+		return((float)rand() / ((float)RAND_MAX + 1));
 	}
 
 	int rand_upto (int n)
 	{
-		return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
+		return (rand() / (RAND_MAX / n + 1));
 	}
 
-	double poisson (double mu) 
+	/*Generates a random number between 0 and 1 
+	double random_numberP ()
+	{
+		return (gsl_rng_uniform_pos (GLOBAL_RNG));
+	}
+
+	int rand_uptoP (int n)
+	{
+		return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
+	} */
+
+	unsigned int poisson (double mu) 
 	{
 		return (gsl_ran_poisson(GLOBAL_RNG, mu));
 	}
@@ -140,6 +153,7 @@ const gsl_rng *GLOBAL_RNG;
 
 /* ====================================================================== */
 
+
 /* ========================== Initializing ============================== */
 	Parameters Set_Parameters () 
 	{
@@ -153,7 +167,7 @@ const gsl_rng *GLOBAL_RNG;
 		info->individual_vector_size = (int)(info->number_individuals * 1.5);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 1000;
+		info->number_generations     = 300;
 		info->lattice_lenght         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -189,7 +203,7 @@ const gsl_rng *GLOBAL_RNG;
 
     	for (i = 0; i < info->individual_vector_size; i++) {
     		for (j = 0; j < info->genome_size; j++) {
-	        progenitors[i]->genome[j] = first_genome[j];
+	        	progenitors[i]->genome[j] = first_genome[j];
 	    	}
     	}
 	 
@@ -201,9 +215,10 @@ const gsl_rng *GLOBAL_RNG;
 	    free (first_genome);
 	}
 
-/* ==================================================================== */
+/* ====================================================================== */
 
-/* =======================  Used for Creating the graph  ========================== */
+
+/* ===================  Used for Creating the graph  ====================== */
 
 	/* This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
 	arches means they can reproduce (similar genomes). The weight of the arch is the distance
@@ -237,7 +252,8 @@ const gsl_rng *GLOBAL_RNG;
 		}
 	}
 
-/* =================================================================================== */
+/* ========================================================================= */
+
 
 /* =======================  Used for Reproduction  ========================== */
 
@@ -255,7 +271,7 @@ const gsl_rng *GLOBAL_RNG;
 
 		if (random_number() <= 0.01) {
 			r = random_number() * info->radius;
-			theta = rand_upto(360) + random_number();
+			theta = random_number() * 2 * 3.14159265359;
 
 			movement_y = sin(theta) * r;
 			movement_x = cos(theta) * r;
@@ -359,14 +375,14 @@ const gsl_rng *GLOBAL_RNG;
 				} 
 				else mate = -1;
 			}
-
 			else mate = -1;
+
 			if (mate == -1) {
 				radius += 1;
 				radius_increase += 1;
 			}
-
 		}
+		
 		DestroyList (&bigger_neighborhood);
 		
 		return mate;
@@ -374,31 +390,71 @@ const gsl_rng *GLOBAL_RNG;
 
 	/* This function, called by main, makes the reproduction happen, with creation of a new individual,
 	who is to be put in a paralel lattice, where the next generation will be */ /* IS IT CONCEPTUALY OK? */
-	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
+	void ReproductionP (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
-		int focal, mate, other, i, n;
+		int focal, mate, other, n, baby;
+		double mu;
+		unsigned int number_children; 
 
-		i = 0;
+		baby = 0;
+
+		mu = ((double) info->number_individuals) / (G->U);
+
+		if (baby < info->number_individuals) {
+			for (focal = 0; focal < info->population_size; focal++) {
+				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
+					mate = Choose_Mate (G, focal, progenitors, info);
+					if (mate != -1) {
+						Create_Offspring (progenitors, offspring, baby, focal, mate, info);
+						baby ++;
+					}
+				}
+			}
+		}
+
+		for (focal = 0; focal < (G->U); focal++) {
+			if (Verify_Neighborhood (progenitors[focal]->neighborhood) > 2){
+				number_children = poisson (mu);
+				for (n = 0; n < number_children; n++) {
+					mate = Choose_Mate (G, focal, progenitors, info);
+					if (mate != -1) {
+						Create_Offspring (progenitors, offspring, baby, focal, mate, info);
+						baby ++;
+					}
+				}
+			}
+		}
+
+		info->population_size = baby;
+		printf("pop size: %d\n", info->population_size);
+	}
+
+
+	void ReproductionF (Graph G, Population progenitors, Population offspring, Parameters info)
+	{ 	
+		int focal, mate, other, baby, n;
+
+		baby = 0;
 
 		if (info->population_size < info->number_individuals) {
 			for (focal = 0; focal < info->population_size; focal++) {
 				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
-					mate = Choose_Mate(G, focal, progenitors, info);
+					mate = Choose_Mate (G, focal, progenitors, info);
 					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, i, focal, mate, info);
-						i++;
+						Create_Offspring (progenitors, offspring, baby, focal, mate, info);
+						baby++;
 						info->population_size ++;
 					}
 				}
 			}
-		} 
+		}
 
 		for (focal = 0; focal < (G->U); focal++) {
 			other = focal; 
 			mate = -1;
 
 			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
-				mate = Choose_Mate(G, focal, progenitors, info);
+				mate = Choose_Mate (G, focal, progenitors, info);
 			}
 
 			for (n = 0; n < 2; n++) {
@@ -410,8 +466,8 @@ const gsl_rng *GLOBAL_RNG;
 			}
 
 			if (mate != -1 && other != -1) {
-				Create_Offspring (progenitors, offspring, i, other, mate, info);
-				i++;
+				Create_Offspring (progenitors, offspring, baby, other, mate, info);
+				baby++;
 			}
 			else {
 				info->population_size --;
@@ -435,10 +491,10 @@ const gsl_rng *GLOBAL_RNG;
 		(*offspring_pointer) = helper;
 	}
 
-/* ============================================================================ */
+/* ========================================================================= */
 
 
-/* =======================  Used for Counting species  ========================== */
+/* ====================  Used for Counting species  ======================== */
 
 	void DSFvisit (Graph G, Vertix v, int* parent, Population individuals, int species)
 	{
@@ -488,7 +544,8 @@ const gsl_rng *GLOBAL_RNG;
 
 /* ========================================================================== */
 
-/* ============================== freeing =====================================*/
+
+/* ============================== Freeing =====================================*/
 
 	void Free_Population (Population individuals, Parameters info)
 	{
