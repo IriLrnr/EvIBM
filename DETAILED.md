@@ -75,12 +75,10 @@ Our model begins with a single species, homogeneously distributed over a two-dim
 As the generations pass, the individuals accumulate differences, and speciation occurs when there is no possible genetic flow between two groups of individuals anymore.
 
 It looks like this, initially:
-<center>
+
 <img src="./figs/firstDistribution.png" width="60%">
 
-
 _it is not very homogeneus, and maybe that is a problem_
-</center>
 
 ### Simplifications <a name="simplifications"></a>
 Any model needs simplifications and assumptions. The goal is to have simplifications that maintain the model meaningful.
@@ -110,9 +108,7 @@ Ours are those:
 7. Two individuals can be in the same spot
 6. The space is a toroid, the margins touch. Like this
 
-<center>
 <img src="./figs/toroid.png" width="40%">
-</center>
 
 ## Code <a name="code"></a>
 The code is structured as this
@@ -129,6 +125,7 @@ The "main" keeps the skeleton of the code, while the functions' library keep the
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "graph.h"
 #include "linkedlist.h"
 #include <gsl_randist.h>
@@ -139,11 +136,11 @@ The "main" keeps the skeleton of the code, while the functions' library keep the
 ```
 So that way, the libraries declared in functions.h can be used in main.c. I will not expose the full graph.h and linkedlist.h code here, but I tested them.
 
-It is also necessary to initialize a global variable to use with the gsl library.
+It is also necessary to initialize a global variable to use with the gsl library. It is the "state keeper" of the random number generator.
 
 ```c
 //in functions.h
-const gsl_rng *GLOBAL_RNG;
+gsl_rng *GLOBAL_RNG;
 ```
 
  The main file will appear in order, so every code part beginning with "//main" in this file, is exactly in the same order as it appears in the main section. We cannot apply the same method for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
@@ -167,28 +164,38 @@ Those structures are explained in the sections bellow.
 ### Randomness <a name="random"></a>
 To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the c pseudo-random number generator, rand(). Beggining from one specific value, rand() returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value.(_Maybe it would be better using a more powerfull random number generator_)
 ```c
-//in main, fixed seed
-srand (1);
-//other possibility, variable seed
-srand (time (NULL));
+//in main
+gsl_rng_set (GLOBAL_RNG, 1);
 ```
+where 1 is the seed.
+
 The functions I am currently using to produce random numbers are one based on rand(), or rand() itself. It generates a integer between 0 and RAND_MAX (the maximum value an integer can have).
+
+<a name="rand_upto"></a>
 
 To achieve an integer between 0 and a value, we can use this function that generates an integer up to n.
 ```c
-int rand_upto (int n){}
+int rand_upto (int n) 
+{
+	return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
+}
 ```
 
-When we need a random number between 0 and 1, we use
+<a name="random_number"></a>
+
+When we need a random number between 0 and 1, excluding both 0 and 1, we use
 
 ```c
-float random_number(){}
+double random_number() 
+{
+	return (gsl_rng_uniform_pos (GLOBAL_RNG));
+}
 ```
 
 In this version, in reproduction, we need the result of a poisson distribution. To get this value, we use the poisson function of the GNU Scientific Library.
 
 ```c
-float poisson (float mu) 
+unsigned int poisson (double mu) 
 {
 	return (gsl_ran_poisson(GLOBAL_RNG, mu));
 }
@@ -216,9 +223,9 @@ typedef struct
 		int reproductive_distance;
 		int number_generations;
 		int neighbors;
-		float lattice_width;
-		float lattice_lenght;
-		float radius;
+		double lattice_width;
+		double lattice_lenght;
+		double radius;
 	} parameters;
 
 	typedef parameters * Parameters;
@@ -242,8 +249,8 @@ Parameters Set_Parameters ()
 	info->lattice_lenght         = 100;
 	info->lattice_width          = 100;
 	info->radius                 = 5;
-	info->individual_vector_size = (int)(info->number_individuals * 1.2);;
-	info->neighbors              = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_lenght * info->lattice_width);;
+	info->individual_vector_size = (int)(info->number_individuals * 1.2);
+	info->neighbors              = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_lenght * info->lattice_width);
 
 	return info;
 }
@@ -252,7 +259,7 @@ First, the structure info is allocated dynamically, and then the values are set.
 
 - **number_individuals**: system's carry capacity
 - **population_size**: keeps the actual size of the focal population
-- **individual_vector_size**: the size of the allocated population. It is bigger than the carry capacity so the population can float
+- **individual_vector_size**: the size of the allocated population. It is bigger than the carry capacity so the population can double
 - **reproductive_distance**: the maximum number of differences between two genomes of different individuals so they can reproduce
 - **genome_size**: The size of their genetic code (fixed)
 - **number_generations**: how long will the simulation last, in steps of time
@@ -268,15 +275,15 @@ An individual has the following structure.
 ```c
 //in functions.h
 typedef struct
-	{
-		int* genome;
-		int species;
-		float x;
-		float y;
-		List neighborhood;
-	} individual;
+{
+	int* genome;
+	int species;
+	double x;
+	double y;
+	List neighborhood;
+} individual;
 
-	typedef individual * Individual;
+typedef individual * Individual;
 ```
 It has a binary genome, with the parameterized size, an indicatior of which species it belo//in functions.h
 ngs, it's coordinates in space and a list of possible mates, those who are geneticaly compatible AND inside it's range (the radius).
@@ -285,7 +292,7 @@ ngs, it's coordinates in space and a list of possible mates, those who are genet
 A population is just a vector of individuals.
 ```c
 //in functions.h
-	typedef Individual * Population;
+typedef Individual * Population;
 ```
 Inside the model, there are only two populations at a time. In the following code, we declare and allocate this structures.
 
@@ -303,42 +310,44 @@ Now we have the population vectors, with empty individuals structures in it. For
 
 <a name="set_initial_values"></a>
 ```c
-	//in functions.h
-	void Set_Initial_Values (Population progenitors, Parameters info)
-	{
-		int i, j;
-		int* first_genome;
+//in functions.h
+void Set_Initial_Values (Population progenitors, Parameters info)
+{
+	int i, j;
+	int* first_genome;
 
-    	first_genome = Generate_Genome(info->genome_size);
+	first_genome = Generate_Genome(info->genome_size);
 
-    	for (i = 0; i < info->individual_vector_size; i++) {
-    		for (j = 0; j < info->genome_size; j++) {
-	        progenitors[i]->genome[j] = first_genome[j];
-	    	}
+	for (i = 0; i < info->individual_vector_size; i++) {
+		for (j = 0; j < info->genome_size; j++) {
+        	progenitors[i]->genome[j] = first_genome[j];
     	}
-
-    	for (i = 0; i < info->number_individuals; i++) {
-	      progenitors[i]->x = random_number() * info->lattice_width;
-	      progenitors[i]->y = random_number() * info->lattice_lenght;
-	    }
-
-	    free (first_genome);
 	}
+
+	for (i = 0; i < info->number_individuals; i++) {
+      progenitors[i]->x = random_number() * info->lattice_width;
+      progenitors[i]->y = random_number() * info->lattice_lenght;
+    }
+
+    free (first_genome);
+}
 ```
 This function receives a Population, a Parametes structure and fills the information of the genome, copying the same one to each individual. Then, it sorts a spot for this individual. To generate this genome, we call the following function
 
 <a name="generate_genome"></a>
 ```c
 //in functions.h
-void Generate_Genome (int* first_genome, int genome_size)
+int* Generate_Genome (int genome_size)
 {
 	int i;
+	int* first_genome;
 
 	first_genome = (int*) malloc (genome_size * sizeof(int));
 
 	for (i = 0; i < genome_size; i++) {
 		first_genome[i] = rand_upto(1);
 	}
+	return first_genome;
 }
 ```
 Generate_genome recieves a vector, and an integer corresponding to the vector's size. The genome is allocated. For each spot in the genome, it sorts a value between 0 and 1 with equal chance.
@@ -352,11 +361,7 @@ To make the correspondence between the graph and the individual, each dot has an
 
 As the generations pass, species connect and desconnect, as shown bellow (it can be seen forward or backward)
 
-<center>
-
 ![](./figs/species.png)
-
-</center>
 
 In the image, each set of dots of the same color compose a species. As soon as genetic flow is stablished between a red and a yellow individual, they become the same species.
 
@@ -477,60 +482,35 @@ To find out if two individuals are in the range of one another should be simple,
 //in functions.h
 int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase)
 {
-	int x_compatible, y_compatible, x_out_left, x_out_right, y_out_up, y_out_down;
+	double x, x0, y, y0, r;
+	
+	r = info->radius + increase;
 
-	y_compatible = 0;
-	x_compatible = 0;
+	x0 = progenitors[focal]->x;
+	y0 = progenitors[focal]->y;
+	x = progenitors[mate]->x;
+	y = progenitors[mate]->y;
 
-	x_out_left = 0;
-	x_out_right = 0;
-	y_out_up = 0;
-	y_out_down = 0;
+	if (y0 >= info->lattice_lenght - r && y <= r)
+		y = y + info->lattice_lenght;
 
-	/* If an individual ratio reaches an end of the lattice, it will look on the other side, because the lattice work as a toroid */
-	if (progenitors[mate]->x <= progenitors[focal]->x + info->radius + increase && progenitors[mate]->x >= progenitors[focal]->x - info->radius + increase) {
-		x_compatible = 1;
-	}
-	if (progenitors[mate]->y <= progenitors[focal]->y + info->radius + increase && progenitors[mate]->y >= progenitors[focal]->y - info->radius + increase) {
-		y_compatible = 1;
-	}
+	if (y0 <= r && y >= info->lattice_lenght - r)
+		y = y - info->lattice_lenght;
 
-	if (!x_compatible) {
-		if (progenitors[focal]->x + info->radius + increase > info->lattice_width) {
-			x_out_right = progenitors[focal]->x + info->radius + increase - info->lattice_width;
-			if (progenitors[mate]->x <= x_out_right) {
-				x_compatible = 1;
-			}
-		}
-		else if (progenitors[focal]->x - info->radius + increase < 0) {
-			x_out_left = progenitors[focal]->x - info->radius + increase + info->lattice_width;
-			if (progenitors[mate]->x >= x_out_left) {
-				x_compatible = 1;
-			}
-		}
-	}
+	if (x0 >= info->lattice_width - r && x <= r)
+		x = x + info->lattice_width;
 
-	if (!y_compatible) {
-		if (progenitors[focal]->y + info->radius + increase > info->lattice_lenght) {
-			y_out_up = progenitors[focal]->y + info->radius + increase - info->lattice_lenght;
-			if (progenitors[mate]->y <= y_out_up) {
-				y_compatible = 1;
-			}
-		}
-		else if (progenitors[focal]->y - info->radius + increase < 0) {
-			y_out_down = progenitors[focal]->y - info->radius + increase + info->lattice_lenght;
-			if (progenitors[mate]->y >= y_out_down) {
-				y_compatible = 1;
-			}
-		}
-	}
+	if (x0 <= r && x >= info->lattice_width - r)
+		x = x - info->lattice_lenght;
 
-	if (x_compatible && y_compatible) return 1;
-	else return 0;
+	if ((x - x0) * (x - x0) + (y - y0) * (y - y0) <= r * r)
+		return 1;
+	else 
+		return 0;
 }
 ```
 
-This is a boolean function, it returns 1 if the individuals are in the range of one another, and 0 if they're not. It receives the names of the individuals to compare, the population and the parameters, and returns 0 or 1. First, it checks if they are obviously neighbors. If not, it still needs to check if they could be on the "other side" of the torus (if the radius range is outside the 100x100 latice, it has to reach the other side, and check there). If both the y and the x are in the focal's range, then the function returns 1.
+This is a boolean function, it returns 1 if the individuals are in the range of one another, and 0 if they're not. It receives the names of the individuals to compare, the population and the parameters, and returns 0 or 1. Because the lattice is a toroid, it one individual could be in range of the other, but in the other side of the lattice, it needs to be checked. With a simple circle equation, we can, at the end, determine if one individual is in range of the other. The focal's coordinates are `x0` and `y0`, and the mate's are `x` and `y`.
 
 ### Reproduction <a name="reproduction"></a>
 
@@ -622,8 +602,8 @@ int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
 			radius += 1;
 			radius_increase += 1;
 		}
-
 	}
+	
 	DestroyList (&bigger_neighborhood);
 	
 	return mate;
@@ -698,7 +678,8 @@ The last function I need to present is how I choose the position of the offsprin
 //in functions.h
 void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info)
 {
-	float movement_x, movement_y;
+	double movement_x, movement_y;
+	double r, theta;
 
 	movement_x = movement_y = 0;
 
@@ -706,8 +687,11 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 	offspring[baby]->y = progenitors[focal]->y;
 
 	if (random_number() <= 0.01) {
-		movement_y = (random_number()*2 - 1) * info->radius;
-		movement_x = (random_number()*2 - 1) * info->radius;
+		r = random_number() * info->radius;
+		theta = rand_upto(360) + random_number();
+
+		movement_y = sin(theta) * r;
+		movement_x = cos(theta) * r;
 
 		/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
 		if (offspring[baby]->x + movement_x <= info->lattice_width && progenitors[focal]->x + movement_x >= 0)
@@ -730,7 +714,9 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 	}
 }
 ```
-With 99% chance, the baby will be in the exact same spot as the focal parent. But it can move with 1% chance. If it moves, the principle is the same as in "Verify_Distance", we have to check if the new position is inside the lattice.
+With 99% chance, the baby will be in the exact same spot as the focal parent. But it can move with 1% chance. If it moves, it sorts a radius `r` and an angle `theta`, so the whole area of the circle around the focal is covered. 
+
+note: I don't know if sorting `theta` like this is the best option, if all the distribuitions are equally possible.
 
 After reproduction, we have two populations, the progenitors and the offspring.
 
@@ -819,6 +805,7 @@ DestroiGraph(G);
 Free_Population (progenitors);
 Free_Population (offspring);
 free (info);
+gsl_rng_free (GLOBAL_RNG);
 ```
 There has to be the same numbers of alloc and free, and finnish the program.
 ```c
@@ -835,26 +822,6 @@ The following section is for documentation.
 ## Libraries <a name="libraries"></a>
 
 ### functions.h <a name="functionsh"></a>
-<a name="rand_upto"></a>
-
-The next function receives an integer and returns a random integer between 0 and n.
-
-```c
-int rand_upto (int n) {
-		return (rand() / (RAND_MAX / n + 1));
-	}
-```
-
-
-<a name="random_number"></a>
-
-The function random_number returns a random float between 0 and 1 when called. _Should I make it a double?_
-
-```c
-float random_number() {
-		return((float)rand() / ((float)RAND_MAX + 1));
-	}
-```
 
 <a name="alloc_population"></a>
 The function Alloc_Population receives a Parameters structure and returns a Population. It generates space in memory for all the parts of each individual in the vector Population.
@@ -901,4 +868,5 @@ void mutation (Population offspring, int baby, int mutation)
 	}
 }
 ```
+
 This function flips the bit at the "mutation" spot in the genome of the baby.
