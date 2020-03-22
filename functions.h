@@ -17,8 +17,8 @@ gsl_rng *GLOBAL_RNG;
 	{
 		int* genome;
 		int species;
-		float x;
-		float y;
+		double x;
+		double y;
 		List neighborhood;
 	} individual;
 
@@ -38,9 +38,9 @@ gsl_rng *GLOBAL_RNG;
 		int reproductive_distance;
 		int number_generations;
 		int neighbors;
-		float lattice_width;
-		float lattice_lenght;
-		float radius;
+		double lattice_width;
+		double lattice_lenght;
+		double radius;
 	} parameters;
 
 	typedef parameters * Parameters;
@@ -50,15 +50,15 @@ gsl_rng *GLOBAL_RNG;
 
 /* =========================  Used everywhere  ========================== */
 
-	/*Generates a random number between 0 and 1 */ /* TESTED OK */
-	float random_number()
+	/*Generates a random number between 0 and 1 */
+	double random_number()
 	{
-		return((float)rand() / ((float)RAND_MAX + 1));
+		return((double) rand() / ((double) RAND_MAX + 1));
 	}
 
 	int rand_upto (int n)
 	{
-		return (rand() / (RAND_MAX / n + 1));
+		return (rand() / (RAND_MAX / (n + 1)));
 	}
 
 	/*Generates a random number between 0 and 1 
