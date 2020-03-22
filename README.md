@@ -31,7 +31,7 @@ $ make
 This won't create the cvs, png and gifs, just print out the generation and number of species.
 
 ```bash
-$ gcc main.c -I /usr/include/gsl/ -o -lm out
+$ gcc main.c -I /usr/include/gsl/ -o -lgsl -lgslcblas -lm out
 $ ./out
 ```
 
