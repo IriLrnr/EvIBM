@@ -38,8 +38,8 @@ int main()
 
     /* The actual program is here. In each generation, we make the kth population's graph
      the individuls reproduce, creating a new population, and we count the number of species. */
-    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocV3_t2.csv");
-    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/numspV3_t2.csv");
+    sprintf (nome_arq_p, "../ProjetoFinalJB/data/position/indlocV3_t.csv");
+    sprintf (nome_arq_s, "../ProjetoFinalJB/data/species/numspV3_t.csv");
     //sprintf (nome_arq_f, "./data/fluctuation/floatpopV3_t.csv");
     position = fopen (nome_arq_p, "w");
     nspecies = fopen (nome_arq_s, "w");
@@ -54,7 +54,7 @@ int main()
   	for (number_species = 0, i = 0; i < info->number_generations; i++) {
       printf("GENERATION: %d\n", i);
       Stablish_Distances (G, progenitors, info);
-  		ReproductionP (G, progenitors, offspring, info);
+  		ReproductionP  (G, progenitors, offspring, info);
       number_species = Count_Species (G, progenitors);
       /*This part is just for printing the result for making graphs in R later*/
       sprintf (lines, "%d;%d\n", i, number_species);
