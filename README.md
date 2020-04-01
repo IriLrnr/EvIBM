@@ -19,6 +19,7 @@ After cloning the folder, go in it and compile with the command
 ```bash
 $ make
 ```
+<<<<<<< HEAD
 
 ### Just compile with gcc
 
@@ -32,6 +33,36 @@ $ ./out
 ## Installation <a name="install"></a>
 
 Here's how to install make
+
+### Just compile with gcc
+
+This won't create the cvs, png and gifs, just print out the generation and number of species.
+
+```bash
+$ gcc main.c -I /usr/include/gsl/ -o -lgsl -lgslcblas -lm out
+$ ./out
+```
+
+## Installation <a name="install"></a>
+
+First, install GLS
+
+~~~bash
+$ sudo apt update
+$ sudo apt install libgsl-dev
+~~~
+
+Here's how to install make
+
+```bash
+$ sudo apt install build.essentials
+```
+
+To read the output, in Linux, you may have to download sxiv to open the gif:
+```bash
+$ sudo apt install sxiv
+```
+To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/
 
 ## References
 

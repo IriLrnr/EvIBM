@@ -13,12 +13,10 @@ bin-release/
 *.ipa
 *.apk
 *.o
+*.Rhistory
 
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
-out
-*.csv
-*.png
-.Rhistory
 .Rproj.user
+.Rproj.user/
