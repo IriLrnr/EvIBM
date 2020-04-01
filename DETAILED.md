@@ -54,20 +54,6 @@ But it doesn't mean there are no questions to be answered. For example, how long
 
 Modeling simplified evolution can give insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in the long timescale, and removing the ones that we don't.
 
-A good question to ask is **what we expect from the model at this point?** Because the code is based on a model that has already been implemented before, we have some results to look for. With the used parameters, those are:
-
-- After 1000 generations, the formation of 20 to 30 species.
-
-	_In this version, we are obtaining 30 to 50 species_
-
-- The growth begins around generation 500
-
-	_The growth is beginning at generation 140_
-
-- The individuals continue homogeneously distributed
-
-	_Patterns and aglutination are observed_
-
 ### Overview <a name="overview"></a>
 
 Our model begins with a single species, homogeneously distributed over a two-dimensional space, of identical individuals (genomically). This species is composed by individuals, who reproduce sexually (it is the only thing they do). They leave their children to do the same, and die :( .
@@ -177,7 +163,7 @@ To achieve an integer between 0 and a value, we can use this function that gener
 ```c
 int rand_upto (int n) 
 {
-	return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
+	return (rand() / (RAND_MAX / (n + 1)));
 }
 ```
 
@@ -188,16 +174,7 @@ When we need a random number between 0 and 1, excluding both 0 and 1, we use
 ```c
 double random_number() 
 {
-	return (gsl_rng_uniform_pos (GLOBAL_RNG));
-}
-```
-
-In this version, in reproduction, we need the result of a poisson distribution. To get this value, we use the poisson function of the GNU Scientific Library.
-
-```c
-unsigned int poisson (double mu) 
-{
-	return (gsl_ran_poisson(GLOBAL_RNG, mu));
+	return((double) rand() / ((double) RAND_MAX + 1));
 }
 ```
 
@@ -517,39 +494,53 @@ This is a boolean function, it returns 1 if the individuals are in the range of 
 Now that we know the relationship between all the progenitors (which species they are) and have the graph keeping it, they will reproduce, creating the offspring population. 
 
 ```c
- //in functions.h
 void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 { 	
-	int focal, mate, other, i, n;
-	double mu;
-	unsigned int number_children; 
-	int parent_population_size;
+	int focal, mate, other, baby, n;
 
-	i = 0;
-	parent_population_size = info->population_size;
+	baby = 0;
 
-	mu = ((double) info->number_individuals) / (parent_population_size);
-
-	for (focal = 0; focal < (G->U); focal++) {
-		number_children = poisson(mu);
-		for (n = 0; n < number_children; n++) {
-			mate = Choose_Mate (G, focal, progenitors, info);
-			if (mate != -1) {
-				Create_Offspring (progenitors, offspring, i, focal, mate, info);
-				i++;
+	if (info->population_size < info->number_individuals) {
+		for (focal = 0; focal < info->population_size; focal++) {
+			if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
+				mate = Choose_Mate (G, focal, progenitors, info);
+				if (mate != -1) {
+					Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
+					baby++;
+					info->population_size ++;
+				}
 			}
 		}
-		if (number_children > 0) 
-			info->population_size += (number_children - 1);
+	}
+
+	for (focal = 0; focal < (G->U); focal++) {
+		other = focal; 
+		mate = -1;
+
+		if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
+			mate = Choose_Mate (G, focal, progenitors, info);
+		}
+
+		for (n = 0; n < 2; n++) {
+			if (mate == -1) {
+				other = Choose_Mate (G, focal, progenitors, info);
+				if (other != -1)
+					mate = Choose_Mate(G, other, progenitors, info);
+			}
+		}
+
+		if (mate != -1 && other != -1) {
+			Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+			baby++;
+		}
 		else {
 			info->population_size --;
 		}
 	}
+	printf("pop size: %d\n", info->population_size);
 }
 ```
 The function for Reproduction receives two population vectors and the information about them, that is, the graph, and the Parameters. First of all, it verifies if the population is below its carry capacity. If yes, it gives a chance for individuals with low density to reproduce first. That can be biologicaly interpreted as if they have more food available, and so they can reproduce again. Then, for every individual in the population, it will have a chance at reproduction, with some chance of death. If they die, the "mate" variable will have value -1, and then the chance to reproduce will be given to some neighbor of the deceased. Twice. The offspring will only be created if we have both parents chosen.
-
-_This function is terrible, and it's not functioning as it should be. Another solution will soon be given, where we use the poisson distribution to sort the number of children an individual will have, and keep the mean value of children 1. Theoreticaly, it makes more sense, and the results should be similar_
 
 The function "Verify_Neighborhood" just returns the number of possible partners in its range an individual has, because it is a headed linked list, and the head keeps the size of the list.
 
@@ -641,19 +632,19 @@ Back to the reproduction, after choosing a mate, we ...
 
 ```c
 //in functions.h
-void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int mate, Parameters info)
+void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int other, int mate, Parameters info)
 {
   int i;
 	
 	Offspring_Position(progenitors, offspring, baby, focal, info);
 
 	for (i = 0; i < info->genome_size; i++) {
-		if (progenitors[focal]->genome[i] != progenitors[mate]->genome[i]) {
+		if (progenitors[other]->genome[i] != progenitors[mate]->genome[i]) {
 			if (rand_upto(1) == 1) {
 				offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 			}
 			else {
-				offspring[baby]->genome[i] = progenitors[focal]->genome[i];
+				offspring[baby]->genome[i] = progenitors[other]->genome[i];
 			}
 		}
 		else {

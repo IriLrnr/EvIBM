@@ -167,7 +167,7 @@ gsl_rng *GLOBAL_RNG;
 		info->individual_vector_size = (int)(info->number_individuals * 1.5);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 300;
+		info->number_generations     = 1000;
 		info->lattice_lenght         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -311,19 +311,19 @@ gsl_rng *GLOBAL_RNG;
 	/* This function, called by Reproduction, determines the characteristics of the offspring, based on the parent's.
 	The new offspring will have the position of the focal individual (i). The genome of the offspring has, for
 	each loci, 50% chance of coming from either of his parents */
-	void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int mate, Parameters info)
+	void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int other, int mate, Parameters info)
 	{
 	  int i;
 		
 		Offspring_Position(progenitors, offspring, baby, focal, info);
 
 		for (i = 0; i < info->genome_size; i++) {
-			if (progenitors[focal]->genome[i] != progenitors[mate]->genome[i]) {
+			if (progenitors[other]->genome[i] != progenitors[mate]->genome[i]) {
 				if (rand_upto(1) == 1) {
 					offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 				}
 				else {
-					offspring[baby]->genome[i] = progenitors[focal]->genome[i];
+					offspring[baby]->genome[i] = progenitors[other]->genome[i];
 				}
 			}
 			else {
@@ -388,49 +388,7 @@ gsl_rng *GLOBAL_RNG;
 		return mate;
 	}
 
-	/* This function, called by main, makes the reproduction happen, with creation of a new individual,
-	who is to be put in a paralel lattice, where the next generation will be */ /* IS IT CONCEPTUALY OK? */
-	void ReproductionP (Graph G, Population progenitors, Population offspring, Parameters info)
-	{ 	
-		int focal, mate, other, n, baby;
-		double mu;
-		unsigned int number_children; 
-
-		baby = 0;
-
-		mu = ((double) info->number_individuals) / (G->U);
-
-		if (baby < info->number_individuals) {
-			for (focal = 0; focal < info->population_size; focal++) {
-				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
-					mate = Choose_Mate (G, focal, progenitors, info);
-					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, baby, focal, mate, info);
-						baby ++;
-					}
-				}
-			}
-		}
-
-		for (focal = 0; focal < (G->U); focal++) {
-			if (Verify_Neighborhood (progenitors[focal]->neighborhood) > 2){
-				number_children = poisson (mu);
-				for (n = 0; n < number_children; n++) {
-					mate = Choose_Mate (G, focal, progenitors, info);
-					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, baby, focal, mate, info);
-						baby ++;
-					}
-				}
-			}
-		}
-
-		info->population_size = baby;
-		printf("pop size: %d\n", info->population_size);
-	}
-
-
-	void ReproductionF (Graph G, Population progenitors, Population offspring, Parameters info)
+	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, baby, n;
 
@@ -441,7 +399,7 @@ gsl_rng *GLOBAL_RNG;
 				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
 					mate = Choose_Mate (G, focal, progenitors, info);
 					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, baby, focal, mate, info);
+						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
 						baby++;
 						info->population_size ++;
 					}
@@ -466,7 +424,7 @@ gsl_rng *GLOBAL_RNG;
 			}
 
 			if (mate != -1 && other != -1) {
-				Create_Offspring (progenitors, offspring, baby, other, mate, info);
+				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
 				baby++;
 			}
 			else {
