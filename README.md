@@ -56,10 +56,6 @@ $ sudo apt install sxiv
 ```
 To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/
 
-## 21/03/2020
-
-The code is a mess, because I'm testing the function Reproduction with poisson
-
 
 ## References
 
