@@ -64,6 +64,13 @@ $ sudo apt install sxiv
 ```
 To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/
 
+## 04/04/2020
+Mudanças:
+
+- Troquei um info->population_size por um G->U na reprodução (Espero com isso eliminar os pontos outliars de num de espécies)
+- Coloquei a contagem de espécies antes da reprodução na main.c
+
+
 ## References
 
 DE AGUIAR, Marcus Aloizo Martinez et al. Global patterns of speciation and diversity. **Nature**, v. 460, n. 7253, p. 384-387, 2009.

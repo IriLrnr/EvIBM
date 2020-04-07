@@ -190,7 +190,7 @@ typedef struct
 	int number_generations;
 	int neighbors;
 	float lattice_width;
-	float lattice_lenght;
+	float lattice_length;
 	float radius;
 } parameters;
 
@@ -212,11 +212,11 @@ Parameters Set_Parameters ()
 	info->reproductive_distance  = 7;
 	info->genome_size            = 150;
 	info->number_generations     = 1000;
-	info->lattice_lenght         = 100;
+	info->lattice_length         = 100;
 	info->lattice_width          = 100;
 	info->radius                 = 5;
 	info->individual_vector_size = (int)(info->number_individuals * 1.2);
-	info->neighbors              = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_lenght * info->lattice_width);
+	info->neighbors              = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
 
 	return info;
 }
@@ -229,7 +229,7 @@ First, the structure info is allocated dynamically, and then the values are set.
 - `reproductive_distance`: the maximum number of differences between two genomes of different individuals so they can reproduce
 - `genome_size`: The size of their genetic code (fixed)
 - `number_generations`: how long will the simulation last, in steps of time
-- `lattice_lenght` and `lattice_width`: dimensions for the space
+- `lattice_length` and `lattice_width`: dimensions for the space
 - `radius`: the distance an individual can look for mates
 
 ### Structures <a name="structures"></a>
@@ -294,7 +294,7 @@ void Set_Initial_Values (Population progenitors, Parameters info)
 
 	for (i = 0; i < info->number_individuals; i++) {
       progenitors[i]->x = random_number() * info->lattice_width;
-      progenitors[i]->y = random_number() * info->lattice_lenght;
+      progenitors[i]->y = random_number() * info->lattice_length;
     }
 
     free (first_genome);
@@ -459,17 +459,17 @@ int Verify_Distance (Population progenitors, int focal, int mate, Parameters inf
 	x = progenitors[mate]->x;
 	y = progenitors[mate]->y;
 
-	if (y0 >= info->lattice_lenght - r && y <= r)
-		y = y + info->lattice_lenght;
+	if (y0 >= info->lattice_length - r && y <= r)
+		y = y + info->lattice_length;
 
-	if (y0 <= r && y >= info->lattice_lenght - r)
-		y = y - info->lattice_lenght;
+	if (y0 <= r && y >= info->lattice_length - r)
+		y = y - info->lattice_length;
 
 	if (x0 >= info->lattice_width - r && x <= r)
 		x = x + info->lattice_width;
 
 	if (x0 <= r && x >= info->lattice_width - r)
-		x = x - info->lattice_lenght;
+		x = x - info->lattice_length;
 
 	if ((x - x0) * (x - x0) + (y - y0) * (y - y0) <= r * r)
 		return 1;
@@ -686,14 +686,14 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 		else if (progenitors[focal]->x + movement_x < 0)
 			offspring[baby]->x = offspring[baby]->x + movement_x + info->lattice_width;
 
-		if (progenitors[focal]->y + movement_y <= info->lattice_lenght && progenitors[focal]->y + movement_y >= 0)
+		if (progenitors[focal]->y + movement_y <= info->lattice_length && progenitors[focal]->y + movement_y >= 0)
 	 	 	offspring[baby]->y = offspring[baby]->y + movement_y;
 
-		else if (progenitors[focal]->y + movement_y > info->lattice_lenght)
-			offspring[baby]->y = offspring[baby]->y + movement_y - info->lattice_lenght;
+		else if (progenitors[focal]->y + movement_y > info->lattice_length)
+			offspring[baby]->y = offspring[baby]->y + movement_y - info->lattice_length;
 
 		else if (progenitors[focal]->y + movement_y < 0)
-			offspring[baby]->y = offspring[baby]->y + movement_y + info->lattice_lenght;
+			offspring[baby]->y = offspring[baby]->y + movement_y + info->lattice_length;
 	}
 }
 ```

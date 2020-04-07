@@ -1,145 +1,21 @@
+/* Libraries */
 #include <stdio.h>
 #include <stdlib.h>
 
+/* Structures used */
 typedef struct cell {
   int info;
   struct cell* next;
 } Cell;
 typedef Cell* List;
 
-/* Creates a headed list, where the head holds a value, wich is -(size of the list + 1) */
-List CreateHeadedList ()
-{
-  List head;
+/* functions from linkedlist.h */
 
-  head = malloc (sizeof (Cell));  
-  head->info = -1;
-  head->next = NULL;
-
-  return head;
-}
-
-/* This function add a cell to the list, if and only if it is not on the list already, and in order
-it also updates the size of the list */
-void AddCellInOrder (List *list, int value)
-{
-  List add, p;
-
-  add = malloc (sizeof (Cell));
-  add->info = value;
-  add->next = NULL;
-
-  if (*list == NULL) {
-    add->next = NULL;
-    *list = add;
-  }
-
-  else {
-    if (value < (*list)->info) {
-      p = (*list);
-      (*list) = add;
-      (*list)->next = p;
-    }
-    else {
-      for (p = *list; p->next != NULL && (p->next)->info < value; p = p->next);
-      if (p->next == NULL) {
-        add->next = NULL;
-        p->next = add;
-        (*list)->info --;
-      }
-      else if ((p->next)->info > value) {
-        add->next = p->next;
-        p->next = add;
-        (*list)->info --;
-      }
-      else 
-        free (add);
-    }
-  }
-}
-
-/* This function removes a cell with a certain value from the list, and updates the list size */
-void RemoveCell (List *list, int value)
-{
-  List p, discard;
-
-  if ((*list)->info == value) {
-    discard = (*list);
-    (*list) = (*list)->next;
-  }
-  else {
-    for (p = *list; p->next != NULL && (p->next)->info < value; p = p->next);
-    if ((p->next) != NULL) {
-      if ((p->next)->info == value) {
-        discard = p->next;
-        p->next = discard->next;
-        (*list)->info ++;
-      }
-      else if ((p->next)->info > value)
-        return;
-    }
-  }
-  free (discard);
-}
-
-List FindValue (int value, List *list)
-{
-  List p;
-
-  for (p = *list; p != NULL && p->info < value; p = p->next);
-  if (p->info == value) return p;
-  else return NULL;
-}
-
-void PrintList (List cell)
-{
-  if (cell) {
-    printf ("%d -> ", cell->info);
-    PrintList (cell->next);
-  }
-  else
-  printf(".\n");
-}
-
-void AlterList (int value, List *list)
-{
-  if (FindValue (value, list) == NULL) {
-    AddCellInOrder (list, value);
-  }
-  else {
-    RemoveCell (list, value);
-  }
-}
-
-void DestroyList (List *list)
-{
-  List p, discard;
-
-  if (*list != NULL) {
-    for (p = *list; p->next != NULL;) {
-      discard = p;
-      p = p->next;
-      free (discard);
-    }
-    if (p != NULL)
-    free (p);
-  }
-}
-
-void RestartList (List *list)
-{
-  List p, discard;
-
-  if (*list != NULL) {
-    for (p = *list; p->next != NULL;) {
-      discard = p;
-      p = p->next;
-      free (discard);
-    }
-    free (p);
-
-    (*list) = malloc (sizeof (Cell));
-    (*list)->info = -1;
-    (*list)->next = NULL;
-  }
-}
+List CreateHeadedList ();
+void AddCellInOrder (List*, int);
+void RemoveCell (List*, int);
+List FindValue (int, List*);
+void PrintList (List);
+void AlterList (int, List*);
+void DestroyList (List*);
+void RestartList (List*);
