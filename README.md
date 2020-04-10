@@ -12,10 +12,6 @@ This branch is used to test and analise the situation of the aglutination of ind
 
 To compile this code you may have to install some programs before. See [instalation](#install) for more information.
 
-## Installation <a name="install"></a>
-
-Here's how to install make
-
 ### Just compile with gcc
 
 This won't create the cvs, png and gifs, just print out the generation and number of species.
