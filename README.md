@@ -12,15 +12,6 @@ This branch is used to test and analise the situation of the aglutination of ind
 
 To compile this code you may have to install some programs before. See [instalation](#install) for more information.
 
-### With make
-Compiling like this will create a lot of files in the "position" folder and it will create numerous png files in the "plots" folder, and a final gif.
-
-After cloning the folder, go in it and compile with the command
-```bash
-$ make
-```
-<<<<<<< HEAD
-
 ### Just compile with gcc
 
 If you don't have anything installed or time for it, just type on the terminal
