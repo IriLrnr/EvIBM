@@ -12,15 +12,6 @@ This branch is used to test and analise the situation of the aglutination of ind
 
 To compile this code you may have to install some programs before. See [instalation](#install) for more information.
 
-### Just compile with gcc
-
-If you don't have anything installed or time for it, just type on the terminal
-
-```bash
-$ gcc main.c -o out
-$ ./out
-```
-
 ## Installation <a name="install"></a>
 
 Here's how to install make
@@ -32,6 +23,11 @@ This won't create the cvs, png and gifs, just print out the generation and numbe
 ```bash
 $ gcc main.c -I /usr/include/gsl/ -o -lgsl -lgslcblas -lm out
 $ ./out
+```
+
+The best way to compile is with `make`:
+```bash
+$ make
 ```
 
 ## Installation <a name="install"></a>
@@ -49,18 +45,7 @@ Here's how to install make
 $ sudo apt install build.essentials
 ```
 
-To read the output, in Linux, you may have to download sxiv to open the gif:
-```bash
-$ sudo apt install sxiv
-```
 To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/
-
-## 04/04/2020
-Mudanças:
-
-- Troquei um info->population_size por um G->U na reprodução (Espero com isso eliminar os pontos outliars de num de espécies)
-- Coloquei a contagem de espécies antes da reprodução na main.c
-
 
 ## References
 
