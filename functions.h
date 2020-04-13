@@ -35,6 +35,8 @@ typedef struct
 	double lattice_width;
 	double lattice_length;
 	double radius;
+	double mutation;
+	double dispersion;
 } parameters;
 
 typedef parameters * Parameters;

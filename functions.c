@@ -119,10 +119,12 @@
 		info->individual_vector_size = (int)(info->number_individuals * 2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 1000;
+		info->number_generations     = 1500;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
+		info-> mutation              = 0.00025;
+		info->dispersion             = 0.01;
 		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 		individuals that mark the density limit (60% of the original density) */
 		info->neighbors = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
@@ -221,7 +223,7 @@
 		offspring[baby]->x = progenitors[focal]->x;
 		offspring[baby]->y = progenitors[focal]->y;
 
-		if (random_number() <= 0.01) {
+		if (random_number() <= info->dispersion) {
 			r = random_number() * info->radius;
 			theta = random_number() * 2 * 3.14159265359;
 
@@ -281,7 +283,7 @@
 			else {
 				offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 			}
-			if (random_number() <= 0.00025) {
+			if (random_number() <= info->mutation) {
 				mutation (offspring, baby, i);
 			}
 		}
