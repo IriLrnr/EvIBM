@@ -189,9 +189,11 @@ typedef struct
 	int reproductive_distance;
 	int number_generations;
 	int neighbors;
-	float lattice_width;
-	float lattice_length;
-	float radius;
+	double lattice_width;
+	double lattice_length;
+	double radius;
+	double mutation;
+	double dispersion;
 } parameters;
 
 typedef parameters * Parameters;
@@ -217,6 +219,8 @@ Parameters Set_Parameters ()
 	info->radius                 = 5;
 	info->individual_vector_size = (int)(info->number_individuals * 1.2);
 	info->neighbors              = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
+	info-> mutation              = 0.00025;
+	info->dispersion             = 0.01;
 
 	return info;
 }
@@ -225,12 +229,14 @@ First, the structure info is allocated dynamically, and then the values are set.
 
 - `number_individuals`: system's carry capacity
 - `population_size`: keeps the actual size of the focal population
-- `individual_vector_size`: the size of the allocated population. It is bigger than the carry capacity so the population can float
+- `individual_vector_size`: the size of the allocated population. It is bigger than the carry capacity so the population can double
 - `reproductive_distance`: the maximum number of differences between two genomes of different individuals so they can reproduce
 - `genome_size`: The size of their genetic code (fixed)
 - `number_generations`: how long will the simulation last, in steps of time
 - `lattice_length` and `lattice_width`: dimensions for the space
 - `radius`: the distance an individual can look for mates
+- `dispersion`: the chance of the offspring dispersing
+- `mutation`: the tax of genomic mutation
 
 ### Structures <a name="structures"></a>
 
@@ -645,7 +651,7 @@ void Create_Offspring (Population progenitors, Population offspring, int baby, i
 	}
 
 	for (i = 0; i < info->genome_size; i++) {
-		if (random_number() <= 0.00025) {
+		if (random_number() <= info->mutation) {
 			mutation (offspring, baby, i);
 		}
 	}
@@ -669,7 +675,7 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 	offspring[baby]->x = progenitors[focal]->x;
 	offspring[baby]->y = progenitors[focal]->y;
 
-	if (random_number() <= 0.01) {
+	if (random_number() <= info->dispersion) {
 		r = random_number() * info->radius;
 		theta = rand_upto(360) + random_number();
 
