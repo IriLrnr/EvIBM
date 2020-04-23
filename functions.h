@@ -66,3 +66,4 @@ void DSFvisit (Graph, Vertix, int*, Population, int);
 void DepthFirstSearch (Graph, int*, Population);
 int Count_Species (Graph, Population);
 void Free_Population (Population, Parameters);
+int CheckSpecies (Graph, Population, Parameters);

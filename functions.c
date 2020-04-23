@@ -119,11 +119,11 @@
 		info->individual_vector_size = (int)(info->number_individuals * 2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 1500;
+		info->number_generations     = 7000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
-		info-> mutation              = 0.00025;
+		info->mutation               = 0.00025;
 		info->dispersion             = 0.01;
 		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 		individuals that mark the density limit (60% of the original density) */
@@ -172,7 +172,7 @@
 /* ====================================================================== */
 
 
-/* ===================  Used for Cindividualreating the graph  ====================== */
+/* ===================  Used for Creating the graph  ====================== */
 
 	/* This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
 	arches means they can reproduce (similar genomes). The weight of the arch is the distance
@@ -193,13 +193,14 @@
 				}
 
 				if (divergences <= info->reproductive_distance) {
-					InsertArc (G, i, j, (info->genome_size - divergences));
+					InsertArc (G, i, j, 1);
 				}
 				else if (G->adj[i][j] != 0) {
 					RemoveArc (G, i, j);
 				}	
 			}
 		}
+
 		for (i = 0; i < G->U; i++) {
 			RestartList (&individuals[i]->neighborhood);
 			neighborhood (G, individuals, i, info, 0);
@@ -283,7 +284,7 @@
 			else {
 				offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 			}
-			if (random_number() <= info->mutation) {
+			if (random_number() < info->mutation) {
 				mutation (offspring, baby, i);
 			}
 		}
@@ -361,7 +362,6 @@
 		for (focal = 0; focal < (G->U); focal++) {
 			other = focal; 
 			mate = -1;
-			if (progenitors[focal]->neighborhood == NULL) printf("focal = %d\n", focal);
 			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
 				mate = Choose_Mate (G, focal, progenitors, info);
 			}
@@ -420,7 +420,7 @@
 	void DepthFirstSearch (Graph G, int* counter_adress, Population individuals)
 	{
 	  int i;
-	  int* parent;
+	  int *parent, *comp;
 
 	  parent = (int*) malloc ((G->U) * sizeof (int));
 	  for (i = 0; i < (G->U); i++) {
@@ -437,6 +437,7 @@
 	      (*counter_adress)++;
 	    }
 	  }
+
 	  free (parent);
 	}
 
@@ -470,3 +471,31 @@
 	}
 
 /* ========================================================================== */
+
+
+	int CheckSpecies (Graph G, Population individuals, Parameters info) {
+		int i, j;
+
+		for (i = 0; i < G->U; ++i) {
+			for (j = i + 1; j < G->U; ++j) {
+				if (G->adj[i][j] == 1) {
+					if (G->adj[j][i] != G->adj[i][j]) {
+						printf("ERRO NA CONSTRUÇÃO DAS ARESTAS +\n");
+						return 0;
+					} 
+					if (individuals[i]->species != individuals[j]->species) {
+						printf("ERRO NA BUCCA DE ESPECIES 1\n");
+						return 0;
+					}
+				}
+				else {
+					if (G->adj[j][i] != G->adj[i][j]) {
+						printf("G->A: %d\n", G->A);
+						printf("ERRO NA CONSTRUÇÃO DAS ARESTAS -\n");
+						return 0;
+					}
+				}
+			}
+		}
+		return 1;
+	}

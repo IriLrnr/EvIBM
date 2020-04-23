@@ -6,7 +6,7 @@ int main()
   /* A vector for keeping all the individuals of the kth generation, and other for the
   /* (k+1)th generation */
   Population progenitors, offspring;
-  Graph G;
+  Graph G, H;
   Parameters info;
   char nome_arq_p[80] = "";
   char nome_arq_s[80] = "";
@@ -19,7 +19,7 @@ int main()
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
     /* Using a fixed seed gives same results at every simulation. */
-    srand (time (NULL));
+    srand (1);
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
     sprintf (nome_arq_p, "./data/position/indlocV0_t.csv");
@@ -47,6 +47,7 @@ int main()
     for (number_species = 0, i = 0; i <= info->number_generations; i++) {
       Stablish_Distances (G, progenitors, info);
       number_species = Count_Species (G, progenitors);
+      if (i > 0) CheckSpecies(G, progenitors, info);
   		Reproduction  (G, progenitors, offspring, info);
       /*This part is just for printing the result for making graphs in R later*/
       if (l == 0 && (i%100 == 0)) {
