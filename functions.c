@@ -119,7 +119,7 @@
 		info->individual_vector_size = (int)(info->number_individuals * 2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 7000;
+		info->number_generations     = 3000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -311,8 +311,9 @@
 			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
 			expand = Verify_Neighborhood (bigger_neighborhood);
 
+			i = 0;
 			if (neighbors + expand) {
-				i = rand_upto(neighbors + expand);
+				while (i == 0) i = rand_upto(neighbors + expand);
 				
 				if (i <= neighbors) {
 					for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);

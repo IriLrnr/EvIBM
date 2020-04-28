@@ -17,20 +17,23 @@ int main()
   unsigned int sample;
 
   /* This loop is used when more simulations are needed */
-  for (l = 0; l < 1; l++) {
+
+  sprintf (nome_arq_s, "./data/species/numspV0_1.csv");
+  nspecies = fopen (nome_arq_s, "w");
+  sprintf (lines, "gen;sp;sim\n");
+  fputs (lines, nspecies);
+
+  for (l = 0; l < 20; l++) {
     /* Using a fixed seed gives same results at every simulation. */
-    srand (1);
+    srand (time(NULL));
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
-    sprintf (nome_arq_p, "./data/position/indlocV0_t.csv");
-    sprintf (nome_arq_s, "./data/species/numspV0_t.csv");
-    nspecies = fopen (nome_arq_s, "w");
-    position = fopen (nome_arq_p, "w");
-
-    sprintf (lines, "gen;sp;sim\n");
-    sprintf (linep, "id;x;y;sp;gen\n");
-    fputs (lines, nspecies);
-    fputs (linep, position);
+    if (l == 0) {
+      sprintf (nome_arq_p, "./data/position/indlocV0_1.csv");
+      position = fopen (nome_arq_p, "w");
+      sprintf (linep, "id;x;y;sp;gen\n");
+      fputs (linep, position);
+    }
 
     info = Set_Parameters();
 
@@ -50,7 +53,7 @@ int main()
       if (i > 0) CheckSpecies(G, progenitors, info);
   		Reproduction  (G, progenitors, offspring, info);
       /*This part is just for printing the result for making graphs in R later*/
-      if (l == 0 && (i%100 == 0)) {
+      if (l == 0 && (i%25 == 0)) {
         sprintf (lines, "%d;%d;%d\n", i, number_species, l);
         fputs (lines, nspecies);
         for (j = 0; j < (G->U); ++j) {
@@ -58,7 +61,7 @@ int main()
           fputs (linep, position);
         }
       }
-      if (i%100 == 0) {
+      if (i%1000 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);
@@ -72,9 +75,10 @@ int main()
     Free_Population (offspring, info);
     free (info);
     fclose (position);
-    fclose (nspecies);
     gsl_rng_free (GLOBAL_RNG);
   }
+
+fclose (nspecies);
 
 return 0;
 }
