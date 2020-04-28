@@ -316,11 +316,11 @@
 				while (i == 0) i = rand_upto(neighbors + expand);
 				
 				if (i <= neighbors) {
-					for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+					for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
 				}
 				else {
 					i -= neighbors;
-					for (j = 0, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+					for (j = 1, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
 				}
 
 				if (j == i && p != NULL) {
