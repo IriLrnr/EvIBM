@@ -367,7 +367,7 @@
 				if (mate == -1) {
 					other = Choose_Mate (G, focal, progenitors, info);
 					if (other != -1)
-						mate = Choose_Mate(G, focal, progenitors, info);
+						mate = Choose_Mate(G, other, progenitors, info);
 				}
 			}
 
