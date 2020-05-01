@@ -308,16 +308,15 @@
 			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
 			expand = Verify_Neighborhood (bigger_neighborhood);
 
-			i = 0;
 			if (neighbors + expand) {
-				while (i == 0) i = rand_upto(neighbors + expand);
+				i = rand_upto(neighbors + expand - 1);
 				
 				if (i <= neighbors) {
-					for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+					for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
 				}
 				else {
 					i -= neighbors;
-					for (j = 1, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+					for (j = 0, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
 				}
 
 				if (j == i && p != NULL) {
