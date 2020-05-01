@@ -119,7 +119,7 @@
 		info->individual_vector_size = (int)(info->number_individuals * 2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 3000;
+		info->number_generations     = 5000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -199,13 +199,10 @@
 					RemoveArc (G, i, j);
 				}	
 			}
-		}
-
-		for (i = 0; i < G->U; i++) {
 			RestartList (&individuals[i]->neighborhood);
 			neighborhood (G, individuals, i, info, 0);
 		}
-	}
+	} 
 
 /* ========================================================================= */
 
@@ -274,7 +271,7 @@
 
 		for (i = 0; i < info->genome_size; i++) {
 			if (progenitors[other]->genome[i] != progenitors[mate]->genome[i]) {
-				if (rand_upto(1) == 1) {
+				if (rand()%2 == 1) {
 					offspring[baby]->genome[i] = progenitors[mate]->genome[i];
 				}
 				else {
@@ -375,7 +372,7 @@
 				}
 			}
 
-			if (mate != -1) {
+			if (mate != -1 && Verify_Neighborhood (progenitors[other]->neighborhood) > 2) {
 				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
 				baby ++;
 			}

@@ -366,7 +366,7 @@ typedef graph * Graph;
 After initializing the values and creating our structure, we are going to take a look at the *actual* program.
 ```c
 //in main
-for (number_species = 0, i = 0; i < info->number_generations; i++) {
+for (i = 0; i < info->number_generations; i++) {
 	printf("GENERATION: %d\n", i);
 	Stablish_Distances (G, progenitors, info);
 	Reproduction (G, progenitors, offspring, info);
@@ -390,7 +390,7 @@ The function "Stablish_Distances" is redundant, and not at all at it's final sta
 //in functions.h
 void Stablish_Distances (Graph G, Population individuals, Parameters info)
 {
-	int i, j, k, divergences, size_difference;
+	int i, j, k, divergences;
 
 	G->U = info->population_size;
 
@@ -404,18 +404,16 @@ void Stablish_Distances (Graph G, Population individuals, Parameters info)
 			}
 
 			if (divergences <= info->reproductive_distance) {
-				InsertArc (G, i, j, (info->genome_size - divergences));
+				InsertArc (G, i, j, 1);
 			}
 			else if (G->adj[i][j] != 0) {
 				RemoveArc (G, i, j);
-			}
+			}	
 		}
-	}
-	for (i = 0; i < G->U; i++) {
 		RestartList (&individuals[i]->neighborhood);
 		neighborhood (G, individuals, i, info, 0);
 	}
-}
+} 
 ```
 The function receives a Graph G, a Population and the Parameters. It sets the number of needed vertices, setting G->U to the current population size. Then, it compares all the individuals in the population, looking for differences in their genome. If two individuals are sufficiently similar, an arc will be inserted between their vertices. If not, there will be no arc between them (if there were, in the previous population, this arc will be removed). Finally, it creates the list of possible partners in their range, freeing the previous list.
 
@@ -573,11 +571,11 @@ int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
 			while (i == 0) i = rand_upto(neighbors + expand);
 			
 			if (i <= neighbors) {
-				for (j = 0, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+				for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
 			}
 			else {
 				i -= neighbors;
-				for (j = 0, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+				for (j = 1, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
 			}
 
 			if (j == i && p != NULL) {

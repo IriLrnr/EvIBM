@@ -20,7 +20,7 @@ nuber.spp <- as.numeric(c(1, 2, 3))
 max.spp <- max(number.spp[,2])
 max.time <- max(number.spp[,1])
 
-write.csv2(number.spp, file="./numspV0_7000.csv", row.names = FALSE)
+write.csv2(number.spp, file="./numspV0_1.csv", row.names = FALSE)
 
 number.data <- aggregate( . ~ gen, FUN=function(x) c(mn=mean(x), sd=sd(x)), data=number.spp)
 sumario <- do.call (data.frame, number.data)
@@ -48,4 +48,4 @@ number.fig <-
 
 number.fig
 
-ggsave("../../figs/species/number_spp_v0_7000.png")
+ggsave("../../figs/species/number_spp_v0_1.png")
