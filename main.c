@@ -18,7 +18,7 @@ int main()
 
   /* This loop is used when more simulations are needed */
 
-  for (l = 0; l < 20; l++) {
+  for (l = 1; l < 20; l++) {
     /* Using a fixed seed gives same results at every simulation. */
     srand (time(NULL));
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
@@ -52,9 +52,9 @@ int main()
       if (i > 0) CheckSpecies(G, progenitors, info);
   		Reproduction  (G, progenitors, offspring, info);
       /*This part is just for printing the result for making graphs in R later*/
-      if (l == 0 && (i%25 == 0)) {
+      if (i%25 == 0) {
         fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
-        for (j = 0; j < (G->U); ++j) {
+        for (j = 0; j < (G->U) && l == 0; ++j) {
           fprintf(position, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
         }
       }
