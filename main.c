@@ -18,7 +18,7 @@ int main()
 
   /* This loop is used when more simulations are needed */
 
-  for (l = 1; l < 20; l++) {
+  for (l = 0; l < 20; l++) {
     /* Using a fixed seed gives same results at every simulation. */
     srand (time(NULL));
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
