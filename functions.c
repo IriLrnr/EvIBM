@@ -119,15 +119,17 @@
 		info->individual_vector_size = (int)(info->number_individuals * 2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 5000;
+		info->number_generations     = 7000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
 		info->mutation               = 0.00025;
 		info->dispersion             = 0.01;
+		info->min_neighboors         = 2;
+		info->max_increase           = 3;
 		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 		individuals that mark the density limit (60% of the original density) */
-		info->neighbors = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
+		info->density = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
 		
 		return info;
 	}
@@ -300,7 +302,7 @@
 
 		bigger_neighborhood = CreateHeadedList ();
 
-		while (radius_increase <= 3 && mate == -1) {
+		while (radius_increase < info->max_increase && mate == -1) {
 			if (radius_increase > 0) {
 				expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
 			}
@@ -340,13 +342,14 @@
 
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
-		int focal, mate, other, baby, n;
+		int focal, mate, other, baby, n, neighborhood;
 
 		baby = 0;
 
 		if ((G->U) < info->number_individuals) {
 			for (focal = 0; focal < (G->U); focal++) {
-				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
+				neighborhood <- Verify_Neighborhood (progenitors[focal]->neighborhood);
+				if (neighborhood < info->density && neighborhood > 2) {
 					mate = Choose_Mate (G, focal, progenitors, info);
 					if (mate != -1) {
 						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
@@ -367,12 +370,12 @@
 			for (n = 0; n < 2; n++) {
 				if (mate == -1) {
 					other = Choose_Mate (G, focal, progenitors, info);
-					if (other != -1)
+					if (other != -1 && Verify_Neighborhood (progenitors[other]->neighborhood) > 2)
 						mate = Choose_Mate(G, other, progenitors, info);
 				}
 			}
 
-			if (mate != -1 && Verify_Neighborhood (progenitors[other]->neighborhood) > 2) {
+			if (mate != -1) {
 				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
 				baby ++;
 			}

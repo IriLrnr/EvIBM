@@ -1,8 +1,8 @@
 # Load the libraries'
 library(ggplot2)
 
-setwd("./data/species")
-file.names=dir()
+setwd("./data/species/v0_1")
+file.names <- dir()
 
 number.spp=data.frame()
 
@@ -39,13 +39,13 @@ number.fig <-
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(), 
         legend.title=element_blank(),
         legend.position = c(1.12,0.365), 
-        legend.background = element_rect(fill="transparent",size=0.01, linetype="solid",colour ="orange"),
-        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        #legend.background = element_rect(fill="transparent",size=0.01, linetype="solid",colour ="orange"),
+        #legend.key = element_rect(fill = "transparent", colour = "transparent"),
         legend.text=element_text(size=5),
         legend.box.background = element_rect(),
         legend.margin = margin(-4, 4, -1, -1),
         plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
-number.fig
+setwd("../../../")
+ggsave("./figs/species/nspp_v0_1_8mai2020.png")
 
-ggsave("../../figs/species/number_spp_v0_1.png")

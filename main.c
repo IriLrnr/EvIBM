@@ -40,25 +40,23 @@ int main()
 
     Set_Initial_Values (progenitors, info);
 
-    /* The graph is created with the population's original size*/
     G = CreateGraph (info->individual_vector_size, info->number_individuals);
 
-    /* The actual program is here. In each generation, we make the kth population's graph
-     the individuls reproduce, creating a new population, and we count the number of species. */
     printf("SIMULATION %d\n", l);
     for (i = 0; i <= info->number_generations; i++) {
       Stablish_Distances (G, progenitors, info);
       number_species = Count_Species (G, progenitors);
       if (i > 0) CheckSpecies(G, progenitors, info);
   		Reproduction  (G, progenitors, offspring, info);
-      /*This part is just for printing the result for making graphs in R later*/
-      if (i%25 == 0) {
+      if (1) {
         fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
-        for (j = 0; j < (G->U) && l == 0; ++j) {
-          fprintf(position, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
+        if (l == 0) {
+          for (j = 0; j < (G->U); j++) {
+            fprintf(position, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
+          }
         }
       }
-      if (i%50 == 0) {
+      if (i%1000 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);
@@ -66,7 +64,6 @@ int main()
       Swap_Generations (&progenitors, &offspring);
     }
 
-    /* We end the simulation freeing the used memory */
     DestroyGraph(G);
     Free_Population (progenitors, info);
     Free_Population (offspring, info);
