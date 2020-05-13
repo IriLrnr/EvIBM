@@ -69,3 +69,5 @@ void DepthFirstSearch (Graph, int*, Population);
 int Count_Species (Graph, Population);
 void Free_Population (Population, Parameters);
 int CheckSpecies (Graph, Population, Parameters);
+int Count_Singletons (Graph, Population, int, Parameters);
+

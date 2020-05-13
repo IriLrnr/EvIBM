@@ -13,6 +13,11 @@
 		return (rand() / (RAND_MAX / (n + 1)));
 	}
 
+	int rand_1ton (int n)
+	{
+		return (rand() / (RAND_MAX / (n)) + 1);
+	}
+
 	/*Generates a random number between 0 and 1 
 	double random_numberP ()
 	{
@@ -22,12 +27,12 @@
 	int rand_uptoP (int n)
 	{
 		return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
-	} */
+	} 
 
 	unsigned int poisson (double mu) 
 	{
 		return (gsl_ran_poisson(GLOBAL_RNG, mu));
-	}
+	} */
 
 	/*This is a binary genome generator. It generates the first genome.*/
 	int* Generate_Genome (int genome_size)
@@ -224,11 +229,13 @@
 		offspring[baby]->y = progenitors[focal]->y;
 
 		if (random_number() <= info->dispersion) {
-			r = random_number() * info->radius;
-			theta = random_number() * 2 * 3.14159265359;
+			while (movement_x == 0 && movement_y == 0) {
+				r = random_number() * info->radius;
+				theta = random_number() * 2 * 3.14159265359;
 
-			movement_y = sin(theta) * r;
-			movement_x = cos(theta) * r;
+				movement_y = sin(theta) * r;
+				movement_x = cos(theta) * r;
+			}
 
 			/* If an individual moves out of the lattice, it will reapear in the other side, because the lattice work as a toroid */
 			if (offspring[baby]->x + movement_x <= info->lattice_width && progenitors[focal]->x + movement_x >= 0)
@@ -310,9 +317,9 @@
 			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
 			expand = Verify_Neighborhood (bigger_neighborhood);
 
-			i = 0;
+			
 			if (neighbors + expand) {
-				while (i == 0) i = rand_upto(neighbors + expand);
+				i = rand_1ton(neighbors + expand);
 				
 				if (i <= neighbors) {
 					for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
@@ -348,7 +355,7 @@
 
 		if ((G->U) < info->number_individuals) {
 			for (focal = 0; focal < (G->U); focal++) {
-				neighborhood <- Verify_Neighborhood (progenitors[focal]->neighborhood);
+				neighborhood = Verify_Neighborhood (progenitors[focal]->neighborhood);
 				if (neighborhood < info->density && neighborhood > 2) {
 					mate = Choose_Mate (G, focal, progenitors, info);
 					if (mate != -1) {
@@ -499,4 +506,31 @@
 			}
 		}
 		return 1;
+	}
+
+	int Count_Singletons (Graph G, Population individuals, int total, Parameters info) 
+	{
+		int i, singles = 0;
+		int sizes[total+1];
+
+		for (i = 0; i <= total; ++i) {
+			sizes[i] = 0;
+		}
+
+		for (i = 0; i < G->U; ++i) {
+			sizes[individuals[i]->species]++;
+			if (individuals[i]->species > total || individuals[i]->species < 0) {
+				printf("species error\n");
+			}
+		}
+
+		//printf("sizes\n");
+		for (i = 0; i < total; ++i) {
+		//	printf("%d ", sizes[i]);
+			if (sizes[i] == 1){
+				singles++;
+			}
+		}
+		//printf("\n");
+		return singles;
 	}

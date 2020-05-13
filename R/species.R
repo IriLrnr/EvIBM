@@ -1,7 +1,7 @@
 # Load the libraries'
 library(ggplot2)
 
-setwd("./data/species/v0_1")
+setwd("./data/species/v0_2")
 file.names <- dir()
 
 number.spp=data.frame()
@@ -19,8 +19,6 @@ nuber.spp <- as.numeric(c(1, 2, 3))
 # Define limits for the graph
 max.spp <- max(number.spp[,2])
 max.time <- max(number.spp[,1])
-
-write.csv2(number.spp, file="./numspV0_1.csv", row.names = FALSE)
 
 number.data <- aggregate( . ~ gen, FUN=function(x) c(mn=mean(x), sd=sd(x)), data=number.spp)
 sumario <- do.call (data.frame, number.data)
@@ -47,5 +45,7 @@ number.fig <-
         plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
 setwd("../../../")
+
+number.fig
 ggsave("./figs/species/nspp_v0_1_8mai2020.png")
 

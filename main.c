@@ -2,7 +2,7 @@
 
 int main()
 {
-  int i, j, l, number_species;
+  int i, j, l, number_species, singles;
   /* A vector for keeping all the individuals of the kth generation, and other for the
   /* (k+1)th generation */
   Population progenitors, offspring;
@@ -23,12 +23,12 @@ int main()
     srand (time(NULL));
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
-    sprintf (nome_arq_s, "./data/species/numspV0_1_%02d.csv", l);
+    sprintf (nome_arq_s, "./data/species/numspV0_2_%02d.csv", l);
     nspecies = fopen (nome_arq_s, "w");
-    fprintf (nspecies, "gen;sp;sim\n");
+    fprintf (nspecies, "gen;sp;singles;sim\n");
 
     if (l == 0) {
-      sprintf (nome_arq_p, "./data/position/indlocV0_1.csv");
+      sprintf (nome_arq_p, "./data/position/indlocV0_2.csv");
       position = fopen (nome_arq_p, "w");
       fprintf (position, "id;x;y;sp;gen\n");
     }
@@ -46,17 +46,18 @@ int main()
     for (i = 0; i <= info->number_generations; i++) {
       Stablish_Distances (G, progenitors, info);
       number_species = Count_Species (G, progenitors);
+      singles = Count_Singletons (G, progenitors, number_species, info);
       if (i > 0) CheckSpecies(G, progenitors, info);
   		Reproduction  (G, progenitors, offspring, info);
       if (1) {
-        fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
+        fprintf (nspecies, "%d;%d;%d;%d\n", i, number_species, singles, l);
         if (l == 0) {
           for (j = 0; j < (G->U); j++) {
             fprintf(position, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
           }
         }
       }
-      if (i%1000 == 0) {
+      if (i%100 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);
