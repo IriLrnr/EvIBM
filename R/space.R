@@ -4,13 +4,11 @@ library(gridExtra)
 library(RColorBrewer)
 
 # Read data
-ind.loc <- read.csv(file = "./data/position/indlocV0_2.csv", head = TRUE, sep = ";")
+ind.loc <- read.csv(file = "./data/position/indlocV0_ratio.csv", head = TRUE, sep = ";")
 
 
 loc.data <- data.frame()
 max.space=100
-
-head(ind.loc)
 
 fig1 <- ggplot() +
   geom_point(data = subset(ind.loc, gen == 0), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -126,5 +124,5 @@ fig9 <- ggplot() +
 position <- grid.arrange(fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9, ncol = 3)
 
 
-ggsave("./figs/position/position_v0_2.png", position)
-    
+ggsave("./figs/position/position_v0_rep.png", position)
+      

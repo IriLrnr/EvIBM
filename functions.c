@@ -124,7 +124,7 @@
 		info->individual_vector_size = (int)(info->number_individuals * 2);
 		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 7000;
+		info->number_generations     = 5000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -319,7 +319,7 @@
 
 			
 			if (neighbors + expand) {
-				i = rand_1ton(neighbors + expand);
+				i = rand_1ton (neighbors + expand);
 				
 				if (i <= neighbors) {
 					for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
@@ -347,7 +347,56 @@
 		return mate;
 	}
 
-	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
+
+
+	void Reproduction2 (Graph G, Population progenitors, Population offspring, Parameters info)
+	{ 	
+		int focal, mate, other, baby, n, neighborhood;
+
+		baby = 0;
+
+		for (focal = 0; focal < (G->U); focal++) {
+			mate = -1;
+			if ((G->U) < info->number_individuals) {
+				neighborhood = Verify_Neighborhood (progenitors[focal]->neighborhood);
+				if (neighborhood < info->density && neighborhood > 2) {
+					mate = Choose_Mate (G, focal, progenitors, info);
+					if (mate == -1) printf("erro na choosemate\n");
+					//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
+					if (mate != -1){
+						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
+						baby ++;
+						info->population_size ++;
+					}
+				}
+			}
+			other = focal; 
+			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
+				if (mate == -1)
+					mate = Choose_Mate (G, focal, progenitors, info);
+			}
+			else {
+				mate = -1;
+				for (n = 0; n < 2; n++) {
+					if (mate == -1) {
+						other = Choose_Mate (G, focal, progenitors, info);
+						if (other != -1 && Verify_Neighborhood (progenitors[other]->neighborhood) > 2)
+							mate = Choose_Mate(G, other, progenitors, info);
+					}
+				}
+			}
+
+			if (mate != -1) {
+				//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
+				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+				baby ++;
+			}
+			else info->population_size --;
+		}
+	}
+
+
+	void Reproduction2 (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, baby, n, neighborhood;
 
@@ -358,6 +407,7 @@
 				neighborhood = Verify_Neighborhood (progenitors[focal]->neighborhood);
 				if (neighborhood < info->density && neighborhood > 2) {
 					mate = Choose_Mate (G, focal, progenitors, info);
+					if (mate == -1) printf("erro na choosemate\n");
 					if (mate != -1) {
 						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
 						baby ++;
