@@ -132,6 +132,7 @@
 		info->dispersion             = 0.01;
 		info->min_neighboors         = 2;
 		info->max_increase           = 3;
+		info->max_spot_occupation    = 5;
 		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 		individuals that mark the density limit (60% of the original density) */
 		info->density = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
@@ -347,9 +348,101 @@
 		return mate;
 	}
 
+	int Choose_MateVD (Graph G, int focal, Population progenitors, Parameters info)
+	{
+		int j, i, neighbors, expand, radius_increase, radius, mate;
+		List p;
+		List bigger_neighborhood;
 
 
-	void Reproduction2 (Graph G, Population progenitors, Population offspring, Parameters info)
+		mate = -1;
+		radius_increase = 0;
+
+		bigger_neighborhood = CreateHeadedList ();
+
+		neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
+		expand = 0;
+
+		//printf("neighbors + expand = %d\n", neighbors + expand);
+		while (radius_increase <= info->max_increase && (neighbors + expand) < info->min_neighboors) {
+			radius_increase ++;
+			expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
+			expand = Verify_Neighborhood (bigger_neighborhood);
+		}
+
+		if ((neighbors + expand) >= info->min_neighboors ) {
+			i = rand_1ton (neighbors + expand);			
+			if (i <= neighbors) {
+				for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+			}
+			else {
+				i -= neighbors;
+				for (j = 1, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+			}
+			if (j == i && p != NULL) {
+				mate = p->info;
+			} 
+			else {
+				printf("ERRO\n");
+				mate = -1;
+			}
+		}
+		else mate = -1;
+
+		DestroyList (&bigger_neighborhood);
+		
+		return mate;
+	}
+
+
+
+	void ReproductionWVD (Graph G, Population progenitors, Population offspring, Parameters info)
+	{ 	
+		int focal, mate, other, baby, n, neighborhood;
+
+		baby = 0;
+
+		for (focal = 0; focal < (G->U); focal++) {
+			mate = -1;
+			if ((G->U) < info->number_individuals) {
+				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->density) {
+					mate = Choose_Mate (G, focal, progenitors, info);
+					//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
+					if (mate != -1){
+						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
+						baby ++;
+						info->population_size ++;
+					}
+				}
+			}
+			other = focal; 
+			if (random_number() < 0.63) {
+				if (mate == -1){
+					mate = Choose_Mate (G, focal, progenitors, info);
+				}
+
+			}
+			else {
+				mate = -1;
+				for (n = 0; n < 2; n++) {
+					if (mate == -1) {
+						other = Choose_Mate (G, focal, progenitors, info);
+						if (other != -1)
+							mate = Choose_Mate(G, other, progenitors, info);
+					}
+				}
+			}
+
+			if (mate != -1 && other != -1) {
+				//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
+				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+				baby ++;
+			}
+			else info->population_size --;
+		}
+	}
+
+	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, baby, n, neighborhood;
 
@@ -396,7 +489,7 @@
 	}
 
 
-	void Reproduction2 (Graph G, Population progenitors, Population offspring, Parameters info)
+	void ReproductionIRI (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, baby, n, neighborhood;
 

@@ -7,11 +7,12 @@ library(gifski)
 library(png)
 
 # Catch table with location values
-ind.loc <- read.csv(file = "./data/position/indlocV0_2.csv", sep = ";")
+ind.loc <- read.csv(file = "./data/position/indlocV0_pmates.csv", sep = ";")
 
 # Find the needed number of frames, the last value of the data frame
 x <- ind.loc[,1]
 ngen <- ind.loc[length(x), 5]
+ngen
 
 # Set the space size
 max.space=100
@@ -36,4 +37,4 @@ anim <- individuals.fig +
 anim
 
 # save gif
-anim_save("complete_position_V2_4.gif", animate(anim, nframes=ngen, height=450, width=550), path = "./gifs")
+anim_save("complete_position_pmates.gif", animate(anim, nframes=ngen, height=450, width=550), path = "./gifs")

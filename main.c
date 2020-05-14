@@ -23,12 +23,12 @@ int main()
     srand (time(NULL));
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
-    sprintf (nome_arq_s, "./data/species/numsp_ratio_%02d.csv", l);
+    sprintf (nome_arq_s, "./data/species/numsp_pmates_%02d.csv", l);
     nspecies = fopen (nome_arq_s, "w");
     fprintf (nspecies, "gen;sp;singles;sim\n");
 
     if (l == 0) {
-      sprintf (nome_arq_p, "./data/position/indlocV0_ratio.csv");
+      sprintf (nome_arq_p, "./data/position/indlocV0_pmates.csv");
       position = fopen (nome_arq_p, "w");
       fprintf (position, "id;x;y;sp;gen\n");
     }
@@ -57,7 +57,7 @@ int main()
           }
         }
       }
-      if (i%1 == 0) {
+      if (i%10 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);

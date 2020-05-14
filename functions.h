@@ -34,6 +34,7 @@ typedef struct
 	int density;
 	int min_neighboors;
 	int max_increase;
+	int max_spot_occupation;
 	double lattice_width;
 	double lattice_length;
 	double radius;
