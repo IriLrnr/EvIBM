@@ -20,7 +20,8 @@ int main()
 
   for (l = 0; l < 1; l++) {
     /* Using a fixed seed gives same results at every simulation. */
-    srand (time(NULL));
+    //srand (time(NULL));
+    srand(1);
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
     sprintf (nome_arq_s, "./data/species/numsp_pmates_%02d.csv", l);
