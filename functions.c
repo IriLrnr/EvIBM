@@ -394,8 +394,6 @@
 		return mate;
 	}
 
-
-
 	void ReproductionWVD (Graph G, Population progenitors, Population offspring, Parameters info)
 	{ 	
 		int focal, mate, other, baby, n, neighborhood;
@@ -454,8 +452,6 @@
 				neighborhood = Verify_Neighborhood (progenitors[focal]->neighborhood);
 				if (neighborhood < info->density && neighborhood > 2) {
 					mate = Choose_Mate (G, focal, progenitors, info);
-					if (mate == -1) printf("erro na choosemate\n");
-					//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
 					if (mate != -1){
 						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
 						baby ++;
@@ -479,59 +475,11 @@
 				}
 			}
 
-			if (mate != -1) {
-				//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
+			if (mate != -1 && other != -1) {
 				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
 				baby ++;
 			}
 			else info->population_size --;
-		}
-	}
-
-
-	void ReproductionIRI (Graph G, Population progenitors, Population offspring, Parameters info)
-	{ 	
-		int focal, mate, other, baby, n, neighborhood;
-
-		baby = 0;
-
-		if ((G->U) < info->number_individuals) {
-			for (focal = 0; focal < (G->U); focal++) {
-				neighborhood = Verify_Neighborhood (progenitors[focal]->neighborhood);
-				if (neighborhood < info->density && neighborhood > 2) {
-					mate = Choose_Mate (G, focal, progenitors, info);
-					if (mate == -1) printf("erro na choosemate\n");
-					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
-						baby ++;
-						info->population_size ++;
-					}
-				}
-			}
-		}
-
-		for (focal = 0; focal < (G->U); focal++) {
-			other = focal; 
-			mate = -1;
-			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
-				mate = Choose_Mate (G, focal, progenitors, info);
-			}
-
-			for (n = 0; n < 2; n++) {
-				if (mate == -1) {
-					other = Choose_Mate (G, focal, progenitors, info);
-					if (other != -1 && Verify_Neighborhood (progenitors[other]->neighborhood) > 2)
-						mate = Choose_Mate(G, other, progenitors, info);
-				}
-			}
-
-			if (mate != -1) {
-				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-				baby ++;
-			}
-			else {
-				info->population_size --;
-			}
 		}
 	}
 

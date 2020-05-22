@@ -4,7 +4,7 @@ library(gridExtra)
 library(RColorBrewer)
 
 # Read data
-ind.loc <- read.csv(file = "./data/position/indlocV0_ratio.csv", head = TRUE, sep = ";")
+ind.loc <- read.csv(file = "./data/position/indlocV0_pmates.csv", head = TRUE, sep = ";")
 
 
 loc.data <- data.frame()
@@ -122,7 +122,6 @@ fig9 <- ggplot() +
   ggtitle("generation 4000")
 
 position <- grid.arrange(fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9, ncol = 3)
-
 
 ggsave("./figs/position/position_v0_rep.png", position)
       
