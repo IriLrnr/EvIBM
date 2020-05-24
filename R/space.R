@@ -4,8 +4,7 @@ library(gridExtra)
 library(RColorBrewer)
 
 # Read data
-ind.loc <- read.csv(file = "./data/position/indlocV0_pmates.csv", head = TRUE, sep = ";")
-
+ind.loc <- read.csv(file = "./data/position/indloc_v1.csv", head = TRUE, sep = ";")
 
 loc.data <- data.frame()
 max.space=100
