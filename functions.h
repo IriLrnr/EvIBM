@@ -16,7 +16,8 @@ typedef struct
 	int species;
 	double x;
 	double y;
-	List neighborhood;
+	List compatible_neighbors;
+	List spatial_neighbors;
 } individual;
 
 typedef individual * Individual;
@@ -34,7 +35,7 @@ typedef struct
 	int density;
 	int min_neighboors;
 	int max_increase;
-	int max_spot_occupation;
+	int max_spot_density;
 	double lattice_width;
 	double lattice_length;
 	double radius;
@@ -53,8 +54,10 @@ unsigned int poisson (double);
 int* Generate_Genome (int);
 int Verify_Distance (Population, int, int, Parameters, int);
 int Verify_Neighborhood (List);
-void neighborhood (Graph, Population, int, Parameters, int);
-void expand_neighborhood (Graph, List, Population, int, Parameters, int);
+void Compatible_Neighborhood (Graph, Population, int, Parameters, int);
+void Spatial_Neighborhood (Graph, Population, int, Parameters, int);
+void Expand_Compatible_Neighborhood (Graph, List, Population, int, Parameters, int);
+int Site_Occupation (Graph, Population, int, Parameters); 
 Parameters Set_Parameters ();
 Population Alloc_Population (Parameters);
 void Set_Initial_Values (Population, Parameters);

@@ -123,5 +123,5 @@ fig9 <- ggplot() +
 
 position <- grid.arrange(fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9, ncol = 3)
 
-ggsave("./figs/position/position_v0_rep.png", position)
+ggsave("./figs/position/position_v1.png", position)
       

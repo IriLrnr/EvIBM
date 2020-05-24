@@ -19,19 +19,19 @@
 	}
 
 	/*Generates a random number between 0 and 1 
-	double random_numberP ()
-	{
-		return (gsl_rng_uniform_pos (GLOBAL_RNG));
-	}
+		double random_numberP ()
+		{
+			return (gsl_rng_uniform_pos (GLOBAL_RNG));
+		}
 
-	int rand_uptoP (int n)
-	{
-		return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
-	} 
+		int rand_uptoP (int n)
+		{
+			return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
+		} 
 
-	unsigned int poisson (double mu) 
-	{
-		return (gsl_ran_poisson(GLOBAL_RNG, mu));
+		unsigned int poisson (double mu) 
+		{
+			return (gsl_ran_poisson(GLOBAL_RNG, mu));
 	} */
 
 	/*This is a binary genome generator. It generates the first genome.*/
@@ -83,19 +83,73 @@
 		return (-(neighborhood->info + 1));
 	}
 
-	/* This function computes the neighbors an individual i can reproduce with and stores this info in a list */
-	void neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
+
+	int Verify_All_Neighborhood (Population progenitors, int focal)
+	{
+		int neighbors;
+
+		neighbors = Verify_Neighborhood(progenitors[focal]->compatible_neighbors);
+		neighbors += Verify_Neighborhood(progenitors[focal]->spatial_neighbors);
+
+		return neighbors;
+	}
+
+	/* This function computes the neighbors an individual i can reproduce with and stores this info in a list
+	void Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase, int type)
+	{
+		int mate;
+
+		for (mate = 0; mate < (G->U); mate++) {
+			if (type == 1) {
+				if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)){
+					AddCellInOrder(&progenitors[focal]->compatible_neighbors, mate);
+				}
+			}
+			else {
+				if (G->adj[focal][mate] == 0 && Verify_Distance (progenitors, focal, mate, info, increase)){
+					AddCellInOrder(&progenitors[focal]->spatial_neighbors, mate);
+				}
+			}
+		}
+	}*/
+
+	void Compatible_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
 	{
 		int mate;
 
 		for (mate = 0; mate < (G->U); mate++) {
 			if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)){
-				AddCellInOrder(&progenitors[focal]->neighborhood, mate);
+				AddCellInOrder(&progenitors[focal]->compatible_neighbors, mate);
 			}
 		}
 	}
 
-	void expand_neighborhood (Graph G, List bigger_neighborhood, Population progenitors, int focal, Parameters info, int increase)
+	void Spatial_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
+	{
+		int mate;
+
+		for (mate = 0; mate < (G->U); mate++) {
+			if (G->adj[focal][mate] == 0 && Verify_Distance (progenitors, focal, mate, info, increase)){
+				AddCellInOrder(&progenitors[focal]->spatial_neighbors, mate);
+			}
+		}
+	}
+
+	/*void Expand_Neighborhood (Graph G, List bigger_neighborhood, Population progenitors, int focal, Parameters info, int increase, int type)
+	{
+		int mate;
+
+		for (mate = 0; mate < (G->U); mate++) {
+			if (G->adj[focal][mate] == type && Verify_Distance (progenitors, focal, mate, info, increase)) {
+				if (!Verify_Distance (progenitors, focal, mate, info, increase - 1)) {
+					AddCellInOrder(&bigger_neighborhood, mate);
+				}
+			}
+		}
+	}*/
+
+
+	void Expand_Compatible_Neighborhood (Graph G, List bigger_neighborhood, Population progenitors, int focal, Parameters info, int increase)
 	{
 		int mate;
 
@@ -106,6 +160,33 @@
 				}
 			}
 		}
+	}
+
+	void Expand_Spatial_Neighborhood (Graph G, List bigger_neighborhood, Population progenitors, int focal, Parameters info, int increase)
+	{
+		int mate;
+
+		for (mate = 0; mate < (G->U); mate++) {
+			if (G->adj[focal][mate] == 0 && Verify_Distance (progenitors, focal, mate, info, increase)) {
+				if (!Verify_Distance (progenitors, focal, mate, info, increase - 1)) {
+					AddCellInOrder(&bigger_neighborhood, mate);
+				}
+			}
+		}
+	}
+
+	int Site_Occupation (Graph G, Population progenitors, int focal, Parameters info) 
+	{
+		int i, occupation;
+
+		occupation = 0;
+		for (i = 0; i < G->U; ++i) {
+			if (progenitors[i]->x == progenitors[focal]->x && progenitors[i]->y == progenitors[focal]->y) {
+				occupation ++;
+			}
+		}
+
+		return occupation;
 	}
 
 /* ====================================================================== */
@@ -132,10 +213,10 @@
 		info->dispersion             = 0.01;
 		info->min_neighboors         = 2;
 		info->max_increase           = 3;
-		info->max_spot_occupation    = 5;
+		info->max_spot_density       = 100;
 		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 		individuals that mark the density limit (60% of the original density) */
-		info->density = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
+		info->density = ceil((0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width));
 		
 		return info;
 	}
@@ -150,7 +231,8 @@
 		for (i = 0; i < info->individual_vector_size; i++) {
 			individuals[i] = (Individual) malloc (sizeof (individual));
 			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
-			individuals[i]->neighborhood = CreateHeadedList ();
+			individuals[i]->compatible_neighbors = CreateHeadedList ();
+			individuals[i]->spatial_neighbors = CreateHeadedList ();
 		}
 
 		return individuals;
@@ -207,8 +289,10 @@
 					RemoveArc (G, i, j);
 				}	
 			}
-			RestartList (&individuals[i]->neighborhood);
-			neighborhood (G, individuals, i, info, 0);
+			RestartList (&individuals[i]->compatible_neighbors);
+			Compatible_Neighborhood (G, individuals, i, info, 0);
+			RestartList (&individuals[i]->spatial_neighbors);
+			Spatial_Neighborhood (G, individuals, i, info, 0);
 		}
 	} 
 
@@ -297,6 +381,73 @@
 		}
 	}
 
+	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info)
+	{
+		int j, i, all, compatible_neighbors, spatial_neighbors, compatible_expand, spatial_expand, other_neighborhood, radius_increase, other, n;
+		List p;
+		List bigger_compatible_neighborhood, bigger_spatial_neighborhood;
+
+		radius_increase = 0;
+		other = -1;
+		other_neighborhood = 0;
+
+		bigger_compatible_neighborhood = CreateHeadedList ();
+		bigger_spatial_neighborhood = CreateHeadedList ();
+
+		while (radius_increase < info->max_increase && other == -1) {
+			if (radius_increase > 0) {
+				Expand_Compatible_Neighborhood (G, bigger_compatible_neighborhood, progenitors, focal, info, radius_increase);
+				Expand_Spatial_Neighborhood (G, bigger_spatial_neighborhood, progenitors, focal, info, radius_increase);
+			}
+
+			compatible_neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+			spatial_neighbors = Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+			compatible_expand = Verify_Neighborhood (bigger_compatible_neighborhood);
+			spatial_expand = Verify_Neighborhood (bigger_spatial_neighborhood);
+
+			all = compatible_neighbors + spatial_neighbors + compatible_expand + spatial_expand;
+
+			for (n = 0; n < 2 && other_neighborhood < info->min_neighboors; ++n) {				
+				if (all) {
+					i = rand_1ton (all);
+					if (i <= compatible_neighbors + spatial_neighbors) {
+						if (i <= compatible_neighbors)
+							for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j < i; p = p->next, j++);
+						else {
+							i -= compatible_neighbors;
+							for (j = 1, p = progenitors[focal]->spatial_neighbors->next; p != NULL && j < i; p = p->next, j++);	
+						}
+					}
+					else {
+						i = i - (compatible_neighbors + spatial_neighbors);
+						if (i <= compatible_expand)
+							for (j = 1, p = bigger_compatible_neighborhood->next; p != NULL && j < i; p = p->next, j++);
+						else {
+							i -= compatible_expand;
+							for (j = 1, p = bigger_spatial_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
+						}
+					}
+
+					if (j == i && p != NULL) {
+						other = p->info;
+						other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+					} 
+					else other = -1;
+				}
+				else other = -1;
+			}
+			if (other == -1) {
+				radius_increase += 1;
+			} 
+		}
+		
+		
+		DestroyList (&bigger_compatible_neighborhood);
+		DestroyList (&bigger_spatial_neighborhood);
+		
+		return other;
+	}
+
 	/* This function, called by Reproduction, chooses the mate of the focal individual (i) based on the graph
 	(who it can reproduce with) and the distance of the others (who is in their range).*/
 	int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
@@ -312,10 +463,10 @@
 
 		while (radius_increase < info->max_increase && mate == -1) {
 			if (radius_increase > 0) {
-				expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
+				Expand_Compatible_Neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
 			}
 
-			neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
+			neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 			expand = Verify_Neighborhood (bigger_neighborhood);
 
 			
@@ -323,7 +474,7 @@
 				i = rand_1ton (neighbors + expand);
 				
 				if (i <= neighbors) {
-					for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
+					for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j < i; p = p->next, j++);
 				}
 				else {
 					i -= neighbors;
@@ -348,139 +499,65 @@
 		return mate;
 	}
 
-	int Choose_MateVD (Graph G, int focal, Population progenitors, Parameters info)
-	{
-		int j, i, neighbors, expand, radius_increase, radius, mate;
-		List p;
-		List bigger_neighborhood;
-
-
-		mate = -1;
-		radius_increase = 0;
-
-		bigger_neighborhood = CreateHeadedList ();
-
-		neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
-		expand = 0;
-
-		//printf("neighbors + expand = %d\n", neighbors + expand);
-		while (radius_increase <= info->max_increase && (neighbors + expand) < info->min_neighboors) {
-			radius_increase ++;
-			expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
-			expand = Verify_Neighborhood (bigger_neighborhood);
-		}
-
-		if ((neighbors + expand) >= info->min_neighboors ) {
-			i = rand_1ton (neighbors + expand);			
-			if (i <= neighbors) {
-				for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
-			}
-			else {
-				i -= neighbors;
-				for (j = 1, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
-			}
-			if (j == i && p != NULL) {
-				mate = p->info;
-			} 
-			else {
-				printf("ERRO\n");
-				mate = -1;
-			}
-		}
-		else mate = -1;
-
-		DestroyList (&bigger_neighborhood);
-		
-		return mate;
-	}
-
-	void ReproductionWVD (Graph G, Population progenitors, Population offspring, Parameters info)
-	{ 	
-		int focal, mate, other, baby, n, neighborhood;
-
-		baby = 0;
-
-		for (focal = 0; focal < (G->U); focal++) {
-			mate = -1;
-			if ((G->U) < info->number_individuals) {
-				if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->density) {
-					mate = Choose_Mate (G, focal, progenitors, info);
-					//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
-					if (mate != -1){
-						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
-						baby ++;
-						info->population_size ++;
-					}
-				}
-			}
-			other = focal; 
-			if (random_number() < 0.63) {
-				if (mate == -1){
-					mate = Choose_Mate (G, focal, progenitors, info);
-				}
-
-			}
-			else {
-				mate = -1;
-				for (n = 0; n < 2; n++) {
-					if (mate == -1) {
-						other = Choose_Mate (G, focal, progenitors, info);
-						if (other != -1)
-							mate = Choose_Mate(G, other, progenitors, info);
-					}
-				}
-			}
-
-			if (mate != -1 && other != -1) {
-				//printf("mate: %d, focal: %d, other: %d. baby: %d\n", mate, focal, other, baby);
-				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-				baby ++;
-			}
-			else info->population_size --;
-		}
-	}
-
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
-	{ 	
-		int focal, mate, other, baby, n, neighborhood;
+	{
+		int focal, mate, other, baby, all_neighborhood, compatible_neighborhood, increase, expand, n, occupation;
+		List bigger_compatible_neighborhood, bigger_spatial_neighborhood;
 
 		baby = 0;
+		bigger_spatial_neighborhood = CreateHeadedList ();
+		bigger_compatible_neighborhood = CreateHeadedList ();
+
 
 		for (focal = 0; focal < (G->U); focal++) {
 			mate = -1;
-			if ((G->U) < info->number_individuals) {
-				neighborhood = Verify_Neighborhood (progenitors[focal]->neighborhood);
-				if (neighborhood < info->density && neighborhood > 2) {
+			compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+			all_neighborhood = compatible_neighborhood;
+			all_neighborhood += Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+			//printf("all_neighborhood: %d, info->density: %d\n", all_neighborhood, info->density);
+			if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
+				occupation = Site_Occupation (G, progenitors, focal, info);
+				if (occupation < info->max_spot_density/3 && compatible_neighborhood >= info->min_neighboors) {
 					mate = Choose_Mate (G, focal, progenitors, info);
-					if (mate != -1){
+					if (mate == -1) printf("erro na Choose_Mate\n");
+					for (n = 0; n < 2 && mate != -1; n++) {
 						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
 						baby ++;
-						info->population_size ++;
-					}
+ 					}
 				}
-			}
-			other = focal; 
-			if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
-				if (mate == -1)
-					mate = Choose_Mate (G, focal, progenitors, info);
 			}
 			else {
-				mate = -1;
-				for (n = 0; n < 2; n++) {
-					if (mate == -1) {
-						other = Choose_Mate (G, focal, progenitors, info);
-						if (other != -1 && Verify_Neighborhood (progenitors[other]->neighborhood) > 2)
-							mate = Choose_Mate(G, other, progenitors, info);
+				increase = 0;
+				for (increase = 1; all_neighborhood < info->min_neighboors && increase < info->max_increase; increase++) {
+					Expand_Compatible_Neighborhood (G, bigger_compatible_neighborhood, progenitors, focal, info, increase);
+					Expand_Spatial_Neighborhood (G, bigger_spatial_neighborhood, progenitors, focal, info, increase);
+					expand = Verify_Neighborhood (bigger_compatible_neighborhood) + Verify_Neighborhood (bigger_spatial_neighborhood);
+					all_neighborhood += expand;
+				}
+				if (increase < info->max_increase) {
+					other = focal;
+					if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
+						other = Choose_Other (G, focal, progenitors, info);
+						if (other == -1) printf("cant find other\n");
+					}
+					mate = -1;
+					if (other != -1) {
+						mate = 	Choose_Mate (G, focal, progenitors, info);
+					}
+					if (mate != -1 && other != -1) {
+						if (other > G->U)
+							printf("focal: %d, other: %d, mate = %d\n", focal, other, mate);
+						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+						baby ++;
 					}
 				}
 			}
-
-			if (mate != -1 && other != -1) {
-				Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-				baby ++;
-			}
-			else info->population_size --;
 		}
+
+		info->population_size = baby;
+
+		DestroyList (&bigger_compatible_neighborhood);
+		DestroyList (&bigger_spatial_neighborhood);
 	}
 
 /* ========================================================================= */
@@ -562,7 +639,8 @@
 		for (i = 0; i < info->individual_vector_size; i++) {
 			if (individuals[i]->genome != NULL)
 			free (individuals[i]->genome);
-			DestroyList (&individuals[i]->neighborhood);
+			DestroyList (&individuals[i]->compatible_neighbors);
+			DestroyList (&individuals[i]->spatial_neighbors);
 			free(individuals[i]);
 	    }
 
@@ -571,6 +649,8 @@
 
 /* ========================================================================== */
 
+
+/* ============================== Testing =================================== */
 
 	int CheckSpecies (Graph G, Population individuals, Parameters info) {
 		int i, j;
@@ -625,3 +705,5 @@
 		//printf("\n");
 		return singles;
 	}
+
+/* ========================================================================== */
