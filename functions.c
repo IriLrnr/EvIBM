@@ -117,7 +117,7 @@
 	{
 		int i;
 
-		RestartList (&individuals[i]->compatible_neighbors);
+		RestartList (&progenitors[focal]->compatible_neighbors);
 
 		for (i = 0; i < (G->U); i++) {
 			if (G->adj[focal][i] != 0 && Verify_Distance (progenitors, focal, i, info, increase)){
@@ -130,7 +130,7 @@
 	{
 		int i;
 
-		RestartList (&individuals[i]->compatible_neighbors);
+		RestartList (&progenitors[focal]->compatible_neighbors);
 
 		for (i = 0; i < (G->U); i++) {
 			if (G->adj[focal][i] == 0 && Verify_Distance (progenitors, focal, i, info, increase)){
