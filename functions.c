@@ -117,6 +117,8 @@
 	{
 		int i;
 
+		RestartList (&individuals[i]->compatible_neighbors);
+
 		for (i = 0; i < (G->U); i++) {
 			if (G->adj[focal][i] != 0 && Verify_Distance (progenitors, focal, i, info, increase)){
 				AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
@@ -127,6 +129,8 @@
 	void Spatial_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
 	{
 		int i;
+
+		RestartList (&individuals[i]->compatible_neighbors);
 
 		for (i = 0; i < (G->U); i++) {
 			if (G->adj[focal][i] == 0 && Verify_Distance (progenitors, focal, i, info, increase)){
@@ -289,9 +293,7 @@
 					RemoveArc (G, i, j);
 				}	
 			}
-			RestartList (&individuals[i]->compatible_neighbors);
 			Compatible_Neighborhood (G, individuals, i, info, 0);
-			RestartList (&individuals[i]->spatial_neighbors);
 			Spatial_Neighborhood (G, individuals, i, info, 0);
 		}
 	} 
@@ -529,7 +531,7 @@
 				for (increase = 1; all_neighborhood < info->min_neighboors && increase < info->max_increase; increase++) {
 					Expand_Compatible_Neighborhood (G, bigger_compatible_neighborhood, progenitors, focal, info, increase);
 					Expand_Spatial_Neighborhood (G, progenitors[focal]->spatial_neighbors, progenitors, focal, info, increase);
-					compatible_neighborhood += Verify_Neighborhood (bigger_compatible_neighborhood) 
+					compatible_neighborhood += Verify_Neighborhood (bigger_compatible_neighborhood);
 					all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
 				}
 				if (increase < info->max_increase) {
@@ -555,7 +557,6 @@
 		info->population_size = baby;
 
 		DestroyList (&bigger_compatible_neighborhood);
-		DestroyList (&bigger_spatial_neighborhood);
 	}
 
 /* ========================================================================= */
