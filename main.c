@@ -16,6 +16,7 @@ int main()
   FILE *nspecies;
   unsigned int sample;
   time_t t;
+
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
     /* Using a fixed seed gives same results at every simulation. */
@@ -26,12 +27,12 @@ int main()
     time(&t);
     printf("********************\n%s\n*********************\n", ctime(&t));
 
-    sprintf (nome_arq_s, "./data/species/v1/numsp_v1_%02d.csv", l);
+    sprintf (nome_arq_s, "./data/species/v1/numsp_vf_7_%02d.csv", l);
     nspecies = fopen (nome_arq_s, "w");
     fprintf (nspecies, "gen;sp;singles;sim\n");
 
     if (l == 0) {
-      sprintf (nome_arq_p, "./data/position/indloc_v1.csv");
+      sprintf (nome_arq_p, "./data/position/indloc_vf_7.csv");
       position = fopen (nome_arq_p, "w");
       fprintf (position, "id;x;y;sp;gen\n");
     }

@@ -1,7 +1,7 @@
 # Load the libraries'
 library(ggplot2)
 
-setwd("./data/species/v1")
+setwd("./data/species/vf")
 file.names <- dir()
 
 number.spp=data.frame()
@@ -49,5 +49,5 @@ number.fig <-
         plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
 number.fig
-ggsave("./figs/species/nspp_v1.png")
+ggsave("./figs/species/nspp_vf.png")
 
