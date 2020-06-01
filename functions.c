@@ -216,13 +216,13 @@
 		info->radius                 = 5;
 		info->mutation               = 0.00025;
 		info->dispersion             = 0.01;
-		info->min_neighboors         = 2;
-		info->max_increase           = 3;
+		info->min_neighboors         = 3;
+		info->max_increase           = 2;
 		info->max_spot_density       = 100;
 		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 		individuals that mark the density limit (60% of the original density) */
 		rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
-		info->density = ceil(3.1416*rho*info->radius*info->radius*0.6);
+		info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
 		
 		return info;
 	}
@@ -387,18 +387,18 @@
 		}
 	}
 
-	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info)
+	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase)
 	{
 		int j, i, all, compatible_neighbors, spatial_neighbors, compatible_expand, spatial_expand, other_neighborhood, radius_increase, other, n;
 		List p;
 		List bigger_neighborhood;
 
-		radius_increase = 0;
+		radius_increase = increase;
 		other = -1;
 		other_neighborhood = 0;
 
-		while (radius_increase <= info->max_increase && other == -1) {
-			if (radius_increase > 0) {
+		while (radius_increase < info->max_increase && other == -1) {
+			if (radius_increase > increase) {
 				Compatible_Neighborhood (G, progenitors, focal, info, radius_increase);
 				Spatial_Neighborhood (G, progenitors, focal, info, radius_increase);
 			}
@@ -407,7 +407,7 @@
 			all = compatible_neighbors + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
 
 
-			for (n = 0; n < 2 && other_neighborhood < info->min_neighboors; ++n) {				
+			for (n = 0; n < 2 && other_neighborhood < 2; ++n) {				
 				if (all) {
 					i = rand_1ton (all);
 					if (i <= compatible_neighbors)
@@ -445,33 +445,16 @@
 	{
 		int j, i, neighbors, expand, radius_increase, radius, mate;
 		List p;
-		List bigger_neighborhood;
 
 		mate = -1;
-		radius_increase = 0;
-
-		bigger_neighborhood = CreateHeadedList ();
-
-		while (radius_increase <= info->max_increase && mate == -1) {
-			if (radius_increase > 0) {
-				Expand_Compatible_Neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
-			}
 
 			neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
-			expand = Verify_Neighborhood (bigger_neighborhood);
 
-			
-			if (neighbors + expand) {
-				i = rand_1ton (neighbors + expand);
+			if (neighbors) {
+				i = rand_1ton (neighbors);
 				
-				if (i <= neighbors) {
-					for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j < i; p = p->next, j++);
-				}
-				else {
-					i -= neighbors;
-					for (j = 1, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
-				}
-
+				for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j < i; p = p->next, j++);
+				
 				if (j == i && p != NULL) {
 					mate = p->info;
 				} 
@@ -479,14 +462,6 @@
 			}
 			else mate = -1;
 
-			if (mate == -1) {
-				radius += 1;
-				radius_increase += 1;
-			}
-		}
-		
-		DestroyList (&bigger_neighborhood);
-		
 		return mate;
 	}
 
@@ -512,16 +487,19 @@
 				}
 			}
 			else {
-				for (increase = 1; all_neighborhood < info->min_neighboors && increase <= info->max_increase; increase++) {
+				expand = 0;
+				for (increase = 1; all_neighborhood < 2 && increase < info->max_increase; increase++) {
 					Compatible_Neighborhood (G, progenitors, focal, info, increase);
 					Spatial_Neighborhood (G, progenitors, focal, info, increase);
 					compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 					all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+					expand = 1;
 				}
-				if (increase <= info->max_increase) {
+				if (expand == 0) increase = 0;
+				if (increase < info->max_increase) {
 					other = focal;
 					if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
-						other = Choose_Other (G, focal, progenitors, info);
+						other = Choose_Other (G, focal, progenitors, info, increase);
 						if (other == -1) printf("cant find other\n");
 					}
 					mate = -1;

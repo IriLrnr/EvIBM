@@ -20,8 +20,8 @@ int main()
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
     /* Using a fixed seed gives same results at every simulation. */
-    srand (time(NULL));
-    //srand(1);
+    //srand (time(NULL));
+    srand(1);
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
     time(&t);
@@ -46,6 +46,8 @@ int main()
 
     G = CreateGraph (info->individual_vector_size, info->number_individuals);
 
+    printf("idensity = %d\n", info->density);
+
     printf("SIMULATION %d\n", l);
     for (i = 0; i <= info->number_generations; i++) {
       Stablish_Distances (G, progenitors, info);
@@ -61,7 +63,7 @@ int main()
           }
         }
       }
-      if (i%10 == 0) {
+      if (i%5 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);
