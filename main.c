@@ -20,19 +20,19 @@ int main()
   /* This loop is used when more simulations are needed */
   for (l = 0; l < 1; l++) {
     /* Using a fixed seed gives same results at every simulation. */
-    //srand (time(NULL));
-    srand(1);
+    srand (time(NULL));
+    //srand(1);
     GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 
     time(&t);
     printf("********************\n%s\n*********************\n", ctime(&t));
 
-    sprintf (nome_arq_s, "./data/species/v1/numsp_vf_7_%02d.csv", l);
+    sprintf (nome_arq_s, "./data/species/v1/numsp_vf_%02d.csv", l);
     nspecies = fopen (nome_arq_s, "w");
     fprintf (nspecies, "gen;sp;singles;sim\n");
 
     if (l == 0) {
-      sprintf (nome_arq_p, "./data/position/indloc_vf_7.csv");
+      sprintf (nome_arq_p, "./data/position/indloc_vf.csv");
       position = fopen (nome_arq_p, "w");
       fprintf (position, "id;x;y;sp;gen\n");
     }
@@ -45,8 +45,6 @@ int main()
     Set_Initial_Values (progenitors, info);
 
     G = CreateGraph (info->individual_vector_size, info->number_individuals);
-
-    printf("idensity = %d\n", info->density);
 
     printf("SIMULATION %d\n", l);
     for (i = 0; i <= info->number_generations; i++) {
@@ -63,7 +61,7 @@ int main()
           }
         }
       }
-      if (i%5 == 0) {
+      if (i%1 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);
