@@ -18,7 +18,7 @@ int main()
   time_t t;
 
   /* This loop is used when more simulations are needed */
-  for (l = 0; l < 1; l++) {
+  for (l = 0; l < 20; l++) {
     /* Using a fixed seed gives same results at every simulation. */
     srand (time(NULL));
     //srand(1);
@@ -29,7 +29,7 @@ int main()
 
     sprintf (nome_arq_s, "./data/species/v1/numsp_vf_%02d.csv", l);
     nspecies = fopen (nome_arq_s, "w");
-    fprintf (nspecies, "gen;sp;singles;sim\n");
+    fprintf (nspecies, "gen;sp;singles;pop;sim\n");
 
     if (l == 0) {
       sprintf (nome_arq_p, "./data/position/indloc_vf.csv");
@@ -54,14 +54,14 @@ int main()
       //if (i > 0) CheckSpecies(G, progenitors, info);
   		Reproduction  (G, progenitors, offspring, info);
       if (1) {
-        fprintf (nspecies, "%d;%d;%d;%d\n", i, number_species, singles, l);
+        fprintf (nspecies, "%d;%d;%d;%d;%d\n", i, number_species, singles, G->U, l);
         if (l == 0) {
           for (j = 0; j < (G->U); j++) {
             fprintf(position, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
           }
         }
       }
-      if (i%1 == 0) {
+      if (i%100 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);
