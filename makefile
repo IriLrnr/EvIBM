@@ -1,5 +1,5 @@
 run : main
-	./out
+	valgrind --leak-check=full ./out
 	rm *.o out
 	
 main :

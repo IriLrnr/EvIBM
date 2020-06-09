@@ -61,7 +61,7 @@ int main()
           }
         }
       }
-      if (i%100 == 0) {
+      if (i%1 == 0) {
         printf("GENERATION: %d\n", i);
         printf("pop size: %d\n", G->U);
         printf("NUMBER OF SPECIES = %d\n", number_species);
