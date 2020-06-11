@@ -1,5 +1,5 @@
 run : main
-	valgrind --leak-check=full ./out
+	gdb out
 	rm *.o out
 	
 main :

@@ -57,6 +57,9 @@ int Verify_Neighborhood (List);
 void Compatible_Neighborhood (Graph, Population, int, Parameters, int);
 void Spatial_Neighborhood (Graph, Population, int, Parameters, int);
 void Expand_Compatible_Neighborhood (Graph, List, Population, int, Parameters, int);
+void Expand_Neighborhood (Graph, Population, int, Parameters, int);
+void Shrink_Neighborhood (Graph, Population, int, Parameters, int);
+int Sort_Neighbor (Population, int);
 int Site_Occupation (Graph, Population, int, Parameters); 
 Parameters Set_Parameters ();
 Population Alloc_Population (Parameters);
@@ -73,5 +76,5 @@ void DepthFirstSearch (Graph, int*, Population);
 int Count_Species (Graph, Population);
 void Free_Population (Population, Parameters);
 int CheckSpecies (Graph, Population, Parameters);
-int Count_Singletons (Graph, Population, int, Parameters);
+void Count_Sizes (Graph, Population, int, Parameters, int*);
 

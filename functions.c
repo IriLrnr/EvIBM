@@ -1,6 +1,6 @@
 #include "functions.h"
 
-/* =========================  Used everywhere  ========================== */
+/* ==================  Functions for randomness  ===================== */
 
 	/*Generates a random number between 0 and 1 */
 	double random_number()
@@ -47,6 +47,83 @@
 		}
 		return first_genome;
 	}
+
+/* =================================================================== */
+
+
+/* ========================= Initializing ============================ */
+	Parameters Set_Parameters () 
+	{
+		Parameters info;
+		double rho;
+
+		info = (Parameters) malloc (sizeof (parameters));
+
+		info->number_individuals     = 1000;
+		info->population_size        = 1000;
+		/* The population can grow and sink. Here we estimate the grown aoround 20% */
+		info->individual_vector_size = (int)(info->number_individuals * 2);
+		info->reproductive_distance  = 7;
+		info->genome_size            = 150;
+		info->number_generations     = 3000;
+		info->lattice_length         = 100;
+		info->lattice_width          = 100;
+		info->radius                 = 5;
+		info->mutation               = 0.00025;
+		info->dispersion             = 0.01;
+		info->min_neighboors         = 3;
+		info->max_increase           = 2;
+		info->max_spot_density       = 100;
+		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
+		individuals that mark the density limit (60% of the original density) */
+		rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+		info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
+		
+		return info;
+	}
+
+	Population Alloc_Population (Parameters info)
+	{
+		Population individuals;
+		int i;
+
+		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
+
+		for (i = 0; i < info->individual_vector_size; i++) {
+			individuals[i] = (Individual) malloc (sizeof (individual));
+			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
+			individuals[i]->compatible_neighbors = CreateHeadedList ();
+			individuals[i]->spatial_neighbors = CreateHeadedList ();
+		}
+
+		return individuals;
+	}
+
+	void Set_Initial_Values (Population progenitors, Parameters info)
+	{
+		int i, j;
+		int* first_genome;
+
+    	first_genome = Generate_Genome(info->genome_size);
+
+    	for (i = 0; i < info->individual_vector_size; i++) {
+    		for (j = 0; j < info->genome_size; j++) {
+	        	progenitors[i]->genome[j] = first_genome[j];
+	    	}
+    	}
+	 
+    	for (i = 0; i < info->number_individuals; i++) {
+	      progenitors[i]->x = random_number() * info->lattice_width;
+	      progenitors[i]->y = random_number() * info->lattice_length;
+	    }
+
+	    free (first_genome);
+	}
+
+/* =================================================================== */
+
+
+/* ======================== Space Functions ========================== */
 
 	/* This function checks if an individual (j) is within the range of another individual */
 	int Verify_Distance (Population progenitors, int focal, int mate, Parameters info, int increase)
@@ -138,10 +215,44 @@
 		}
 	}
 
+	void Shrink_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
+	{
+		int i;
+
+		if (increase > 0) {
+			for (i = 0; i < (G->U); i++) {
+				if (focal != i) {
+					if (!Verify_Distance (progenitors, focal, i, info, 0) && Verify_Distance (progenitors, focal, i, info, increase - 1)) {
+						if (G->adj[focal][i] != 0) {
+							//printf("comp focal = %d\n", focal);
+							//PrintList (progenitors[focal]->compatible_neighbors);
+							//printf("remove = %d\n", i);
+							RemoveCell(&progenitors[focal]->compatible_neighbors, i);
+							//PrintList (progenitors[focal]->compatible_neighbors);
+							//printf("\n");
+						}
+						else {
+							//printf("comp focal = %d\n", focal);
+							//PrintList (progenitors[focal]->compatible_neighbors);
+							//printf("remove = %d\n", i);
+							RemoveCell(&progenitors[focal]->spatial_neighbors, i);
+							//PrintList (progenitors[focal]->compatible_neighbors);
+							//printf("\n");
+						}
+					}
+				}	
+			}
+		}
+	}
+
 	int Sort_Neighbor (Population progenitors, int i) 
 	{
 		int j, k, compatible_neighbors, all, other;
 		List p;
+
+		if (i < 0) {
+			printf("i: %d\n", i);
+		}
 
 		compatible_neighbors = Verify_Neighborhood (progenitors[i]->compatible_neighbors);
 		all = compatible_neighbors + Verify_Neighborhood (progenitors[i]->spatial_neighbors);
@@ -179,82 +290,10 @@
 		return occupation;
 	}
 
-/* ====================================================================== */
+/* =================================================================== */
 
 
-/* ========================== Initializing ============================== */
-	Parameters Set_Parameters () 
-	{
-		Parameters info;
-		double rho;
-
-		info = (Parameters) malloc (sizeof (parameters));
-
-		info->number_individuals     = 1000;
-		info->population_size        = 1000;
-		/* The population can grow and sink. Here we estimate the grown aoround 20% */
-		info->individual_vector_size = (int)(info->number_individuals * 2);
-		info->reproductive_distance  = 7;
-		info->genome_size            = 150;
-		info->number_generations     = 500;
-		info->lattice_length         = 100;
-		info->lattice_width          = 100;
-		info->radius                 = 5;
-		info->mutation               = 0.00025;
-		info->dispersion             = 0.01;
-		info->min_neighboors         = 3;
-		info->max_increase           = 2;
-		info->max_spot_density       = 100;
-		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
-		individuals that mark the density limit (60% of the original density) */
-		rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
-		info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
-		
-		return info;
-	}
-
-	Population Alloc_Population (Parameters info)
-	{
-		Population individuals;
-		int i;
-
-		individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
-
-		for (i = 0; i < info->individual_vector_size; i++) {
-			individuals[i] = (Individual) malloc (sizeof (individual));
-			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
-			individuals[i]->compatible_neighbors = CreateHeadedList ();
-			individuals[i]->spatial_neighbors = CreateHeadedList ();
-		}
-
-		return individuals;
-	}
-
-	void Set_Initial_Values (Population progenitors, Parameters info)
-	{
-		int i, j;
-		int* first_genome;
-
-    	first_genome = Generate_Genome(info->genome_size);
-
-    	for (i = 0; i < info->individual_vector_size; i++) {
-    		for (j = 0; j < info->genome_size; j++) {
-	        	progenitors[i]->genome[j] = first_genome[j];
-	    	}
-    	}
-	 
-    	for (i = 0; i < info->number_individuals; i++) {
-	      progenitors[i]->x = random_number() * info->lattice_width;
-	      progenitors[i]->y = random_number() * info->lattice_length;
-	    }
-
-	    free (first_genome);
-	}
-
-/* ====================================================================== */
-
-
-/* ===================  Used for Creating the graph  ====================== */
+/* ======================= Graph functions =========================== */
 
 	/* This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
 	arches means they can reproduce (similar genomes). The weight of the arch is the distance
@@ -284,19 +323,56 @@
 
 			Neighborhood (G, individuals, i, info, 0);
 		}
-	} 
-
-/* ========================================================================= */
+	}
 
 
-/* =======================  Used for Reproduction  ========================== */
+	void DSFvisit (Graph G, Vertix v, int* parent, Population individuals, int species)
+	{
+	  int i;
+
+	  for (i = 0; i < (G->U); i++) {
+	    if (G->adj[v][i] != 0 && parent[i] == -1) {
+	      parent[i] = v;
+	      individuals[i]->species = species;
+	      DSFvisit (G, i, parent, individuals, species);
+	    }
+	  }
+	}
+
+	void DepthFirstSearch (Graph G, int* counter_adress, Population individuals)
+	{
+	  int i;
+	  int *parent, *comp;
+
+	  parent = (int*) malloc ((G->U) * sizeof (int));
+	  for (i = 0; i < (G->U); i++) {
+	    parent[i] = -1;
+	  }
+
+	  (*counter_adress) = 0;
+
+	  for (i = 0; i < (G->U); i++) {
+	    if (parent[i] == -1) {
+	      parent[i] = -2;
+	      individuals[i]->species = (*counter_adress);
+	      DSFvisit (G, i, parent, individuals, (*counter_adress));
+	      (*counter_adress)++;
+	    }
+	  }
+
+	  free (parent);
+	}
+
+/* =================================================================== */
+
+
+/* ===================== Used for Reproduction ======================= */
 
 	/* This function, called by Reproduction, defines the offspring position, that is, if it is going to move, how much,
 	and in which direction. It can move in it's focal parent range, with 1% chance*/
 	void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info)
 	{
-		double movement_x, movement_y;
-		double r, theta;
+		double movement_x, movement_y, r, theta;
 
 		movement_x = movement_y = 0;
 
@@ -401,10 +477,11 @@
 					Expand_Neighborhood (G, progenitors, focal, info, radius_increase);
 				}
 			}
-			other = Sort_Neighbor (progenitors, other);
+			if (other != -1) other = Sort_Neighbor (progenitors, other);
 			if (other != -1) {
-				Neighborhood (G, progenitors, other, info, radius_increase);
-				changed[other] = 1;
+				for (j = 1; j < radius_increase; j++)
+					Expand_Neighborhood (G, progenitors, other, info, j);
+				changed[other] = radius_increase;
 				compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 				all = compatible_neighbors + Verify_Neighborhood (progenitors[other]->spatial_neighbors);
 			}
@@ -412,8 +489,9 @@
 		}
 
 		for (i = 0; i < G->U; ++i) {
-			if (changed[i] && i != focal && i != other)
-				Neighborhood (G, progenitors, i, info, 0);
+			if (changed[i] > 0 && i != focal && i != other)
+				//printf("CO\n");
+				Shrink_Neighborhood (G, progenitors, i, info, changed[i]);
 		}
 
 		return other;
@@ -423,7 +501,7 @@
 	(who it can reproduce with) and the distance of the others (who is in their range).*/
 	int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
 	{
-		int j, i, neighbors, expand, radius_increase, radius, mate;
+		int j, i, neighbors, mate;
 		List p;
 
 		mate = -1;
@@ -492,18 +570,22 @@
 					}
 				}
 				if (increase > 0) {
-					Neighborhood (G, progenitors, focal, info, 0);
-					if (other != focal && other != -1)Neighborhood (G, progenitors, other, info, 0);
+					//printf("REP f\n");
+					Shrink_Neighborhood (G, progenitors, focal, info, increase);
+					if (other != focal && other != -1) {
+						//printf("Rep O\n");
+						Neighborhood (G, progenitors, other, info, 0);
+					}
 				}
 			}
 		}
 		info->population_size = baby;
 	}
 
-/* ========================================================================= */
+/* =================================================================== */
 
 
-/* =======================  Exchange Generations  ========================== */
+/* ==================== Exchange Generations ========================= */
 
 	/*This function, called by main, Exchanges the generation's vector's pointers*/
 	void Swap_Generations (Population* progenitors_pointer, Population* offspring_pointer)
@@ -515,47 +597,10 @@
 		(*offspring_pointer) = helper;
 	}
 
-/* ========================================================================= */
+/* =================================================================== */
 
 
-/* ====================  Used for Counting species  ======================== */
-
-	void DSFvisit (Graph G, Vertix v, int* parent, Population individuals, int species)
-	{
-	  int i;
-
-	  for (i = 0; i < (G->U); i++) {
-	    if (G->adj[v][i] != 0 && parent[i] == -1) {
-	      parent[i] = v;
-	      individuals[i]->species = species;
-	      DSFvisit (G, i, parent, individuals, species);
-	    }
-	  }
-	}
-
-	void DepthFirstSearch (Graph G, int* counter_adress, Population individuals)
-	{
-	  int i;
-	  int *parent, *comp;
-
-	  parent = (int*) malloc ((G->U) * sizeof (int));
-	  for (i = 0; i < (G->U); i++) {
-	    parent[i] = -1;
-	  }
-
-	  (*counter_adress) = 0;
-
-	  for (i = 0; i < (G->U); i++) {
-	    if (parent[i] == -1) {
-	      parent[i] = -2;
-	      individuals[i]->species = (*counter_adress);
-	      DSFvisit (G, i, parent, individuals, (*counter_adress));
-	      (*counter_adress)++;
-	    }
-	  }
-
-	  free (parent);
-	}
+/* ====================== Counting species =========================== */
 
 	/* This function, called by main, calls DFS to count the number of maximal connected components in the graph */
 	int Count_Species (Graph G, Population individuals)
@@ -567,10 +612,10 @@
 		return counter;
 	}
 
-/* ========================================================================== */
+/* =================================================================== */
 
 
-/* ============================= Freeing =====================================*/
+/* =========================== Freeing =============================== */
 
 	void Free_Population (Population individuals, Parameters info)
 	{
@@ -587,10 +632,10 @@
 	    free (individuals);
 	}
 
-/* ========================================================================== */
+/* =================================================================== */
 
 
-/* ============================== Testing =================================== */
+/* =========================== Testing =============================== */
 
 	int CheckSpecies (Graph G, Population individuals, Parameters info) {
 		int i, j;
@@ -619,10 +664,9 @@
 		return 1;
 	}
 
-	int Count_Singletons (Graph G, Population individuals, int total, Parameters info) 
+	void Count_Sizes (Graph G, Population individuals, int total, Parameters info, int sizes[]) 
 	{
-		int i, singles = 0;
-		int sizes[total+1];
+		int i;
 
 		for (i = 0; i <= total; ++i) {
 			sizes[i] = 0;
@@ -634,16 +678,6 @@
 				printf("species error\n");
 			}
 		}
-
-		//printf("sizes\n");
-		for (i = 0; i < total; ++i) {
-		//	printf("%d ", sizes[i]);
-			if (sizes[i] == 1){
-				singles++;
-			}
-		}
-		//printf("\n");
-		return singles;
 	}
 
-/* ========================================================================== */
+/* =================================================================== */
