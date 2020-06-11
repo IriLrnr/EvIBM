@@ -17,7 +17,7 @@ int main()
   time_t t;
 
   /* This loop is used when more simulations are needed */
-  for (l = 0; l < 20; l++) {
+  for (l = 1; l < 20; l++) {
     /* Using a fixed seed gives same results at every simulation. */
     time(&t);
     srand (t);

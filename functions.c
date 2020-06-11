@@ -203,7 +203,7 @@
 
 		for (i = 0; i < (G->U); i++) {
 			if (focal != i) {
-				if (Verify_Distance (progenitors, focal, i, info, increase) && !Verify_Distance (progenitors, focal, i, info, increase - 1)) {
+				if (Verify_Distance (progenitors, focal, i, info, increase) == 1 && Verify_Distance (progenitors, focal, i, info, increase - 1) == 0) {
 					if (G->adj[focal][i] != 0) {
 						AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
 					}
@@ -222,22 +222,22 @@
 		if (increase > 0) {
 			for (i = 0; i < (G->U); i++) {
 				if (focal != i) {
-					if (!Verify_Distance (progenitors, focal, i, info, 0) && Verify_Distance (progenitors, focal, i, info, increase - 1)) {
+					if (Verify_Distance (progenitors, focal, i, info, 0) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
 						if (G->adj[focal][i] != 0) {
-							//printf("comp focal = %d\n", focal);
-							//PrintList (progenitors[focal]->compatible_neighbors);
-							//printf("remove = %d\n", i);
+							printf("%d compatible: \n", focal);
+							PrintList (progenitors[focal]->compatible_neighbors);
+							printf("Remove: %d\n", i);
 							RemoveCell(&progenitors[focal]->compatible_neighbors, i);
-							//PrintList (progenitors[focal]->compatible_neighbors);
-							//printf("\n");
+							PrintList (progenitors[focal]->compatible_neighbors);
+							printf("\n");
 						}
 						else {
-							//printf("comp focal = %d\n", focal);
-							//PrintList (progenitors[focal]->compatible_neighbors);
-							//printf("remove = %d\n", i);
+							printf("%d spatial: \n", focal);
+							PrintList (progenitors[focal]->spatial_neighbors);
+							printf("Remove: %d\n", i);
 							RemoveCell(&progenitors[focal]->spatial_neighbors, i);
-							//PrintList (progenitors[focal]->compatible_neighbors);
-							//printf("\n");
+							PrintList (progenitors[focal]->spatial_neighbors);
+							printf("\n");
 						}
 					}
 				}	
@@ -249,10 +249,6 @@
 	{
 		int j, k, compatible_neighbors, all, other;
 		List p;
-
-		if (i < 0) {
-			printf("i: %d\n", i);
-		}
 
 		compatible_neighbors = Verify_Neighborhood (progenitors[i]->compatible_neighbors);
 		all = compatible_neighbors + Verify_Neighborhood (progenitors[i]->spatial_neighbors);
@@ -321,7 +317,7 @@
 				}	
 			}
 
-			Neighborhood (G, individuals, i, info, 0);
+			Neighborhood (G, individuals, i, info, 0); //1n//
 		}
 	}
 
@@ -447,18 +443,18 @@
 		}
 	}
 
-	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase)
+	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase, int changed[])
 	{
 		int j, i, all, compatible_neighbors, radius_increase, other, n;
 		List p;
-		int changed[G->U];
 
 		radius_increase = 0;
 		compatible_neighbors = 0;
 		all = 0;
 
 		for (i = 0; i < G->U; ++i) {
-			changed[i] = 0;
+			if (i != focal)
+				changed[i] = 0;
 		}
 
 		other = Sort_Neighbor (progenitors, focal);
@@ -470,16 +466,17 @@
 		n = 0;
 		while (compatible_neighbors < 2 && radius_increase < info->max_increase) {
 			if (n > 1) {
-				radius_increase++;
+				radius_increase ++;
 				n = 0;
 				other = focal;
 				if (radius_increase > increase) {
 					Expand_Neighborhood (G, progenitors, focal, info, radius_increase);
+					changed[focal] = radius_increase;
 				}
 			}
 			if (other != -1) other = Sort_Neighbor (progenitors, other);
 			if (other != -1) {
-				for (j = 1; j < radius_increase; j++)
+				for (j = 1; j <= radius_increase; j++)
 					Expand_Neighborhood (G, progenitors, other, info, j);
 				changed[other] = radius_increase;
 				compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
@@ -525,7 +522,8 @@
 
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{
-		int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, expand, n, occupation;
+		int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, n, occupation, expand;
+		int changed[G->U];
 
 		baby = 0;
 
@@ -544,19 +542,17 @@
 				}
 			}
 			else {
-				expand = 0;
-				for (increase = 1; all_neighborhood < 2 && increase <= info->max_increase; increase++) {
-					Expand_Neighborhood (G, progenitors, focal, info, increase);
-					compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
-					all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
-					expand = 1;
+				for (increase = 0; all_neighborhood < 2 && increase < info->max_increase; increase++) {
+					Expand_Neighborhood (G, progenitors, focal, info, increase + 1);                      //1n//
+          compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+          all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
 				}
-				if (expand == 0) increase = 0;
-				if (increase <= info->max_increase) {
+				if (all_neighborhood > 1) {
+					changed[focal] = increase;
 					other = focal;
 					other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 					if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
-						other = Choose_Other (G, focal, progenitors, info, increase);
+						other = Choose_Other (G, focal, progenitors, info, increase, changed);      //1n//
 						if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 						else other_neighborhood = 0;
 					}
@@ -568,13 +564,16 @@
 						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
 						baby ++;
 					}
-				}
-				if (increase > 0) {
-					//printf("REP f\n");
-					Shrink_Neighborhood (G, progenitors, focal, info, increase);
-					if (other != focal && other != -1) {
-						//printf("Rep O\n");
-						Neighborhood (G, progenitors, other, info, 0);
+					if (increase > 0) {
+						printf("Rep f\n");
+            printf("focal = %d, other = %d\n", focal, other);
+						printf("changed[focal] = %d, increase = %d\n", changed[focal], increase);
+						Shrink_Neighborhood (G, progenitors, focal, info, changed[focal]);
+					}
+					if (other != focal && other != -1 && changed[other] > 0) {
+						printf("Rep 0\n");
+						printf("changed[other] = %d\n", changed[other]);
+						Shrink_Neighborhood (G, progenitors, other, info, changed[other]);
 					}
 				}
 			}

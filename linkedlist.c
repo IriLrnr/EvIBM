@@ -56,23 +56,30 @@ void RemoveCell (List *list, int value)
 {
   List p, discard;
 
-  if ((*list)->info == value) {
-    discard = (*list);
-    (*list) = (*list)->next;
-  }
-  else {
-    for (p = *list; p->next != NULL && (p->next)->info < value; p = p->next);
-    if ((p->next) != NULL) {
-      if ((p->next)->info == value) {
-        discard = p->next;
-        p->next = discard->next;
-        (*list)->info ++;
-      }
-      else if ((p->next)->info > value)
-        return;
+  discard = NULL;
+
+  if ((*list) != NULL) {
+
+    if ((*list)->info == value) {
+      discard = (*list);
+      (*list) = (*list)->next;
     }
+    else {
+      for (p = *list; p->next != NULL && (p->next)->info < value; p = p->next);
+      if ((p->next) != NULL) {
+        if ((p->next)->info == value) {
+          discard = p->next;
+          p->next = discard->next;
+          (*list)->info ++;
+        }
+        else if ((p->next)->info > value)
+          return;
+      }
+    }
+    if (discard != NULL)
+      free (discard);
   }
-  free (discard);
+
 }
 
 List FindValue (int value, List *list)
