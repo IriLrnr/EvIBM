@@ -32,7 +32,25 @@
 		unsigned int poisson (double mu) 
 		{
 			return (gsl_ran_poisson(GLOBAL_RNG, mu));
-	} */
+  	} 
+    other options
+
+    double random_number()
+    {
+      return((double) rand() / ((double) RAND_MAX + 1));
+    }
+
+    int rand_upto (int n)
+    {
+      return ((int) floor(random_number() * (n + 1)));
+    }
+
+    int rand_1ton (int n)
+    {
+      return ((int) ceil(random_number() * (n + 1)));
+    }
+
+  */
 
 	/*This is a binary genome generator. It generates the first genome.*/
 	int* Generate_Genome (int genome_size)
@@ -168,7 +186,7 @@
 		RestartList (&progenitors[focal]->compatible_neighbors);
 		RestartList (&progenitors[focal]->spatial_neighbors);
 
-		for (i = 0; i < (G->U); i++) {
+		for (i = G->U - 1; i >= 0; i--) {
 			if (focal != i) {
 				if (Verify_Distance (progenitors, focal, i, info, increase)) {
 					if (G->adj[focal][i] != 0) {
@@ -182,28 +200,13 @@
 		}
 	}
 
-	void Compatible_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
-	{
-		int i;
-
-		RestartList (&progenitors[focal]->compatible_neighbors);
-
-		for (i = 0; i < (G->U); i++) {
-			if (i != focal){
-				if (G->adj[focal][i] != 0 && Verify_Distance (progenitors, focal, i, info, increase)){
-					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
-				}
-			}
-		}
-	}
-
 	void Expand_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
 	{
 		int i;
 
-		for (i = 0; i < (G->U); i++) {
+		for (i = G->U - 1; i >= 0; i--) {
 			if (focal != i) {
-				if (Verify_Distance (progenitors, focal, i, info, increase) == 1 && Verify_Distance (progenitors, focal, i, info, increase - 1) == 0) {
+				if (Verify_Distance (progenitors, focal, i, info, increase - 1) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
 					if (G->adj[focal][i] != 0) {
 						AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
 					}
@@ -220,24 +223,14 @@
 		int i;
 
 		if (increase > 0) {
-			for (i = 0; i < (G->U); i++) {
+			for (i = 0; i < G->U; i++) {
 				if (focal != i) {
 					if (Verify_Distance (progenitors, focal, i, info, 0) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
 						if (G->adj[focal][i] != 0) {
-							printf("%d compatible: \n", focal);
-							PrintList (progenitors[focal]->compatible_neighbors);
-							printf("Remove: %d\n", i);
 							RemoveCell(&progenitors[focal]->compatible_neighbors, i);
-							PrintList (progenitors[focal]->compatible_neighbors);
-							printf("\n");
 						}
 						else {
-							printf("%d spatial: \n", focal);
-							PrintList (progenitors[focal]->spatial_neighbors);
-							printf("Remove: %d\n", i);
 							RemoveCell(&progenitors[focal]->spatial_neighbors, i);
-							PrintList (progenitors[focal]->spatial_neighbors);
-							printf("\n");
 						}
 					}
 				}	
@@ -462,7 +455,7 @@
 			compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 			all = compatible_neighbors + Verify_Neighborhood(progenitors[other]->spatial_neighbors);
 		}
-		
+	
 		n = 0;
 		while (compatible_neighbors < 2 && radius_increase < info->max_increase) {
 			if (n > 1) {
@@ -476,19 +469,20 @@
 			}
 			if (other != -1) other = Sort_Neighbor (progenitors, other);
 			if (other != -1) {
-				for (j = 1; j <= radius_increase; j++)
-					Expand_Neighborhood (G, progenitors, other, info, j);
+				for (j = 0; j < radius_increase; j++) {
+					Expand_Neighborhood (G, progenitors, other, info, j + 1);
+        }
 				changed[other] = radius_increase;
 				compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 				all = compatible_neighbors + Verify_Neighborhood (progenitors[other]->spatial_neighbors);
 			}
 			n++;
-		}
+    }
 
 		for (i = 0; i < G->U; ++i) {
-			if (changed[i] > 0 && i != focal && i != other)
-				//printf("CO\n");
+			if (changed[i] > 0 && i != focal && i != other) {
 				Shrink_Neighborhood (G, progenitors, i, info, changed[i]);
+      }
 		}
 
 		return other;
@@ -543,7 +537,7 @@
 			}
 			else {
 				for (increase = 0; all_neighborhood < 2 && increase < info->max_increase; increase++) {
-					Expand_Neighborhood (G, progenitors, focal, info, increase + 1);                      //1n//
+					Expand_Neighborhood (G, progenitors, focal, info, increase + 1);
           compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
           all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
 				}
@@ -552,29 +546,24 @@
 					other = focal;
 					other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 					if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
-						other = Choose_Other (G, focal, progenitors, info, increase, changed);      //1n//
+						other = Choose_Other (G, focal, progenitors, info, increase, changed);
 						if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 						else other_neighborhood = 0;
 					}
-					mate = -1;
-					if (other != -1 && other_neighborhood > 1) {
-						mate = Choose_Mate (G, other, progenitors, info);
-					}
-					if (mate != -1 && other != -1) {
-						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-						baby ++;
-					}
-					if (increase > 0) {
-						printf("Rep f\n");
-            printf("focal = %d, other = %d\n", focal, other);
-						printf("changed[focal] = %d, increase = %d\n", changed[focal], increase);
-						Shrink_Neighborhood (G, progenitors, focal, info, changed[focal]);
-					}
-					if (other != focal && other != -1 && changed[other] > 0) {
-						printf("Rep 0\n");
-						printf("changed[other] = %d\n", changed[other]);
-						Shrink_Neighborhood (G, progenitors, other, info, changed[other]);
-					}
+          if (other != -1) {
+            if (other_neighborhood > 1) {
+              mate = Choose_Mate (G, other, progenitors, info);
+              if (mate != -1) {
+                Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+                baby ++;
+              }
+            }
+            if (other != focal && changed[other] > 0) {
+              Shrink_Neighborhood (G, progenitors, other, info, changed[other]);
+            }
+          }
+					if (changed[focal] > 0) 
+            Shrink_Neighborhood (G, progenitors, focal, info, changed[focal]);
 				}
 			}
 		}

@@ -3,7 +3,7 @@
 
 #### Hello!
 
-Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows the research and me; however,readers probably have different backgrounds, and I want the text to be clear to everyone, and the code to be as self-explanatory as possible, so I'm making this informal text, with bits of theory.
+Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows the research and me; however, readers probably have different backgrounds, and I want the text to be clear to everyone, and the code to be as self-explanatory as possible, so I'm making this informal text, with bits of theory.
 
 My goal is for this document to be complete, informative and helpful on understanding the relation between what we **want** to model, and what we are **actually** modeling, because frankly, both you and I are here to help me fix some mistakes. So I'll be needing every little feedback you can give me, even if it's just a stylistic tip.
 
@@ -39,6 +39,7 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [Verify_Distance](#verify_distance)
 		- [Neighborhood](#neighborhood)
 		- [Expand_Neighborhood](#expand_neighborhood)
+		- [Shrink_Neighborhood](#shrink_neighborhood)
 		- [Mutation](#mutation)
 		- [Choose_Mate](#choose_mate)
 		- [Create_Offspring](#create_offspring)
@@ -91,24 +92,21 @@ main.c
 		linkedlist.h
 ```
 
-The `main` function keeps the skeleton of the code, while the `functions` library keeps the stuffing. To make that, I built two libraries: one to work with graphs, and {++an++}other one to word with linked lists. They are included in `functions.h`.
+The `main` function keeps the skeleton of the code, while the `functions` library keeps the stuffing. To make that, I built two libraries: one to work with graphs, and another one to word with linked lists. They are included in `functions.h`.
 
 ```c
 //in functions.h
-#include <stdio.h>
-#include <stdlib.h>
+/* Libraries */
 #include <time.h>
 #include <math.h>
-#include "graph.h"
-#include "linkedlist.h"
 #include <gsl_randist.h>
 #include <gsl_rng.h>
+#include "graph.h"
+#include "linkedlist.h"
 
 //in main.c
 #include "functions.h"
 ```
-<<<<<<< HEAD
-=======
 So that way, the libraries declared in `functions.h` can be used in `main.c`. I will not expose the full `graph.h` and `linkedlist.h` code here, for brevity, but you are welcome to look at the source.
 
 It is also necessary to initialize a global variable to use with the gsl library. It is the "state keeper" of the random number generator.
@@ -126,22 +124,25 @@ I will leave here the variables' declaration for reference.
 int main(){...
 //...
 	int i, j, l, number_species;
+	/* A vector for keeping all the individuals of the kth generation, and other for the
+	/* (k+1)th generation */
 	Population progenitors, offspring;
-	Graph G;
+	Graph G, H;
 	Parameters info;
 	unsigned int sample;
+	time_t t;
 
-  GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
+	time(&t);
 	...}
 ```
 
 ### Randomness <a name="random"></a>
-To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the `C` random number generator, `rand()`. Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value.
+To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the `C` random number generator, `rand()`. Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value. For multiple simulations, we use the time as seed for the function
 ```c
 //in main
-srand (1);
+srand (t);
+GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 ```
-where 1 is the seed.
 
 The functions I am currently using to produce random numbers are one based on rand(), or rand() itself. It generates a integer between 0 and RAND_MAX (the maximum value an integer can have).
 
@@ -165,12 +166,14 @@ double random_number()
 	return((double) rand() / ((double) RAND_MAX + 1));
 }
 ```
-Maybe it would be better to use a more powerfull random number generator.
+
 
 Just passing by to remember the functions are docummented in the last section.
 
 ### Parameters <a name="parameters"></a>
+
 To begin the simulation, we have to tell the program what we want it to simulate, so in the main file we create an structure called `Parameters`, and set the initial values we want to
+
 ```c
 //in main
 info = Set_Parameters();
@@ -188,7 +191,10 @@ typedef struct
 	int genome_size;
 	int reproductive_distance;
 	int number_generations;
-	int neighbors;
+	int density;
+	int min_neighboors;
+	int max_increase;
+	int max_spot_density;
 	double lattice_width;
 	double lattice_length;
 	double radius;
@@ -203,25 +209,33 @@ These parameters can be manually set to the desired values. To make simulation a
 <a name="set_parameters"></a>
 ```c
 //in functions.h
-Parameters Set_Parameters ()
+Parameters Set_Parameters () 
 {
 	Parameters info;
+	double rho;
 
 	info = (Parameters) malloc (sizeof (parameters));
 
 	info->number_individuals     = 1000;
 	info->population_size        = 1000;
+	/* The population can grow and sink. Here we estimate the grown aoround 20% */
+	info->individual_vector_size = (int)(info->number_individuals * 2);
 	info->reproductive_distance  = 7;
 	info->genome_size            = 150;
-	info->number_generations     = 1000;
+	info->number_generations     = 3000;
 	info->lattice_length         = 100;
 	info->lattice_width          = 100;
 	info->radius                 = 5;
-	info->individual_vector_size = (int)(info->number_individuals * 1.2);
-	info->neighbors              = (int)(0.6*info->radius*info->radius*3.14159*info->number_individuals) / (info->lattice_length * info->lattice_width);
-	info-> mutation              = 0.00025;
+	info->mutation               = 0.00025;
 	info->dispersion             = 0.01;
-
+	info->min_neighboors         = 3;
+	info->max_increase           = 2;
+	info->max_spot_density       = 100;
+	/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
+	individuals that mark the density limit (60% of the original density) */
+	rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+	info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
+	
 	return info;
 }
 ```
@@ -235,8 +249,12 @@ First, the structure info is allocated dynamically, and then the values are set.
 - `number_generations`: how long will the simulation last, in steps of time
 - `lattice_length` and `lattice_width`: dimensions for the space
 - `radius`: the distance an individual can look for mates
+- `max_increase`: the maximum a radius can increase in the search for mates
 - `dispersion`: the chance of the offspring dispersing
 - `mutation`: the tax of genomic mutation
+ 
+ The last values are less obvious, and are there because what we are modeling is spatial. Rho is the average density around an individual at t = 0. The parameter `density` keeps the number of how many individuals correspond to 60% of the density.
+ The parameter `max neighbors` keeps the minimum number of neighboors an individual need around it, so it won't be considered isolated.
 
 ### Structures <a name="structures"></a>
 
@@ -252,7 +270,8 @@ typedef struct
 	int species;
 	double x;
 	double y;
-	List neighborhood;
+	List compatible_neighbors;
+	List spatial_neighbors;
 } individual;
 
 typedef individual * Individual;
@@ -265,7 +284,7 @@ A population is just a vector of individuals.
 //in functions.h
 typedef Individual * Population;
 ```
-Inside the model, there are only two populations {++held in memory ++}at a time. In the following code, we declare and allocate this structures.
+Inside the model, there are only two populations held in memory at a time. In the following code, we declare and allocate this structures.
 
 ```c
 //in main.c
@@ -274,6 +293,8 @@ Population offspring;
 
 progenitors = Alloc_Population (info);
 offspring = Alloc_Population (info);
+
+Set_Initial_Values (progenitors, info);
 ```
 
 #### Set first values<a name="alloc"></a>
@@ -364,18 +385,21 @@ typedef graph * Graph;
 
 ### Simulating <a name="simulation"></a>
 After initializing the values and creating our structure, we are going to take a look at the *actual* program.
+
 ```c
 //in main
 for (i = 0; i < info->number_generations; i++) {
-	printf("GENERATION: %d\n", i);
 	Stablish_Distances (G, progenitors, info);
-	Reproduction (G, progenitors, offspring, info);
 	number_species = Count_Species (G, progenitors);
+	Reproduction (G, progenitors, offspring, info);
 	Swap_Generations (&progenitors, &offspring);
-	printf("NUMBER OF SPECIES = %d\n", number_species);
+	if (!i%10) {
+		printf("GENERATION: %d\n", i);
+		printf("NUMBER OF SPECIES = %d\n", number_species);
+	}
 }
 ```
-You may say "*Wow* just that little? Just four functions?", but we still have at least 200 more lines of code to explore! We still have to look at the more intricate part of the model (which is giving me headaches).
+You may say "just that little", but we still have at least 200 more lines of code to explore! We still have to look at the more intricate part of the model.
 
 The prints keep track of the stage of the simulation, so we can see how it is going.
 
@@ -410,14 +434,16 @@ void Stablish_Distances (Graph G, Population individuals, Parameters info)
 				RemoveArc (G, i, j);
 			}	
 		}
-		RestartList (&individuals[i]->neighborhood);
-		neighborhood (G, individuals, i, info, 0);
+
+		Neighborhood (G, individuals, i, info, 0);
 	}
-} 
+}
 ```
 The function receives a Graph G, a Population and the Parameters. It sets the number of needed vertices, setting G->U to the current population size. Then, it compares all the individuals in the population, looking for differences in their genome. If two individuals are sufficiently similar, an arc will be inserted between their vertices. If not, there will be no arc between them (if there were, in the previous population, this arc will be removed). Finally, it creates the list of possible partners in their range, freeing the previous list.
 
 With this function, we have created a graph that contains comparative information between individuals, to be used further in the simulation.
+
+The time it takes to run this function is \Theta(n^2). Not because the construction of the graph, but because the construction of the neighborhoods.
 
 _Even though this function is not perfect, It's there because it works, even if redundantly. We have bigger problems in the code, and optimizing this function comes after fixing those mistakes. The future plans for this part of the code is not to use a complete graph, because the only really important relations are the ones kept in the "neighborhood" list. To find out how many species can be used, we would implement an Union-Find algorithim, to find maximal connected components faster (explained further)._
 
@@ -429,19 +455,29 @@ The neighborhood function used here is not part of the graph (yet). It needs a l
 
 ```c
 //in functions.h
-void neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
+void Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
 {
-	int mate;
+	int i;
 
-	for (mate = 0; mate < (G->U); mate++) {
-		if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)){
-			AddCellInOrder(&progenitors[focal]->neighborhood, mate);
-		}
+	RestartList (&progenitors[focal]->compatible_neighbors);
+	RestartList (&progenitors[focal]->spatial_neighbors);
+
+	for (i = 0; i < (G->U); i++) {
+		if (focal != i) {
+			if (Verify_Distance (progenitors, focal, i, info, increase)) {
+				if (G->adj[focal][i] != 0) {
+					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
+				}
+				else {
+					AddCellInOrder(&progenitors[focal]->spatial_neighbors, i);
+				}
+			}
+		}	
 	}
 }
 ```
 
-The neighborhood function looks for everybody who is in the range of the focal, that is, everybody who is the same species as the focal and who is inside their range. Those mate-candidates are kept in a linked list (the `->neighborhood` part of the struct).
+The neighborhood function looks for everybody who is in the range of the focal. The compatible neighbors will be put in the `->compatible_neighbors` list, and the not compatible will be put in the `->spatial_neighbors`
 
 **SUGESTION**
 _A friend gave me a suggestion: first, to use a linked list graph, instead of a adjacency matrix one, and sort the linked lists by distance from the focal. It would affect the time taken to find out if two individuals are the same species (maybe that is not a problem, because they have a "->species" identifier), but it would simplify this function. What do you think? Let me know!_
@@ -491,54 +527,65 @@ Now that we know the relationship between all the progenitors (which species the
 ```c
  //in functions.h
 void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
-{ 	
-	int focal, mate, other, baby, n;
+{
+	int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, expand, n, occupation;
 
 	baby = 0;
 
-	if (info->population_size < info->number_individuals) {
-		for (focal = 0; focal < info->population_size; focal++) {
-			if (Verify_Neighborhood (progenitors[focal]->neighborhood) < info->neighbors) {
-				mate = Choose_Mate (G, focal, progenitors, info);
-				if (mate != -1) {
-					Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
-					baby++;
-					info->population_size ++;
-				}
-			}
-		}
-	}
-
 	for (focal = 0; focal < (G->U); focal++) {
-		other = focal; 
 		mate = -1;
-
-		if (random_number() < 0.63 && Verify_Neighborhood (progenitors[focal]->neighborhood) > 2) {
-			mate = Choose_Mate (G, focal, progenitors, info);
-		}
-
-		for (n = 0; n < 2; n++) {
-			if (mate == -1) {
-				other = Choose_Mate (G, focal, progenitors, info);
-				if (other != -1)
-					mate = Choose_Mate(G, other, progenitors, info);
+		compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+		all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+		if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
+			occupation = Site_Occupation (G, progenitors, focal, info);
+			if (compatible_neighborhood >= info->min_neighboors && occupation < info->max_spot_density/3) {
+				mate = Choose_Mate (G, focal, progenitors, info);
+				for (n = 0; n < 2 && mate != -1; n++) {
+					Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
+					baby ++;
+					}
 			}
-		}
-
-		if (mate != -1 && other != -1) {
-			Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-			baby++;
 		}
 		else {
-			info->population_size --;
+			expand = 0;
+			for (increase = 1; all_neighborhood < 2 && increase <= info->max_increase; increase++) {
+				Expand_Neighborhood (G, progenitors, focal, info, increase);
+				compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+				all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+				expand = 1;
+			}
+			if (expand == 0) increase = 0;
+			if (increase <= info->max_increase) {
+				other = focal;
+				other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+				if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
+					other = Choose_Other (G, focal, progenitors, info, increase);
+					if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+					else other_neighborhood = 0;
+				}
+				mate = -1;
+				if (other != -1 && other_neighborhood > 1) {
+					mate = Choose_Mate (G, other, progenitors, info);
+				}
+				if (mate != -1 && other != -1) {
+					Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+					baby ++;
+				}
+			}
+			if (increase > 0) {
+				Neighborhood (G, progenitors, focal, info, 0);
+				if (other != focal && other != -1) Neighborhood (G, progenitors, other, info, 0);
+			}
 		}
 	}
-	printf("pop size: %d\n", info->population_size);
+	info->population_size = baby;
 }
 ```
-The function for Reproduction receives two population vectors and the information about them, that is, the graph, and the Parameters. First of all, it verifies if the population is below its carry capacity. If yes, it gives a chance for individuals with low density to reproduce first. That can be biologicaly interpreted as if they have more food available, and so they can reproduce again. Then, for every individual in the population, it will have a chance at reproduction, with some chance of death. If they die, the "mate" variable will have value -1, and then the chance to reproduce will be given to some neighbor of the deceased. Twice. The offspring will only be created if we have both parents chosen.
+The function for Reproduction receives two population vectors and the information about them, that is, the graph, and the Parameters. For every individual, if the population is at carry capacity and the individual in question is in a low density region, it can reproduce twice. If one or both conditions are violated, it will have only one offspring with a probability of 63%. With 37% chance, it will not reproduce, giving a chance to another individual in it's neighborhood to reproduce. This could be interpreted as another individual using the resources spared by the focal's death, occuping it's niche.
 
 The function "Verify_Neighborhood" just returns the number of possible partners in its range an individual has, because it is a headed linked list, and the head keeps the size of the list.
+
+The subtle balance of parameters, in this function, indicates who lives and dies in the model, shaping all of the other characteristics of the population as a whole. 
 
 #### Subfunctions
 
@@ -549,58 +596,123 @@ The function "Choose_Mate" sorts one of those neighbors out:
 //in functions.h
 int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
 {
-	int j, i, neighbors, expand, radius_increase, radius, mate;
+	int j, i, neighbors, mate;
 	List p;
-	List bigger_neighborhood;
 
 	mate = -1;
-	radius_increase = 0;
 
-	bigger_neighborhood = CreateHeadedList ();
+	neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 
-	while (radius_increase <= 3 && mate == -1) {
-		if (radius_increase > 0) {
-			expand_neighborhood (G, bigger_neighborhood, progenitors, focal, info, radius_increase);
-		}
-
-		neighbors = Verify_Neighborhood (progenitors[focal]->neighborhood);
-		expand = Verify_Neighborhood (bigger_neighborhood);
-
-		i = 0;
-		if (neighbors + expand) {
-			while (i == 0) i = rand_upto(neighbors + expand);
-			
-			if (i <= neighbors) {
-				for (j = 1, p = progenitors[focal]->neighborhood->next; p != NULL && j < i; p = p->next, j++);
-			}
-			else {
-				i -= neighbors;
-				for (j = 1, p = bigger_neighborhood->next; p != NULL && j < i; p = p->next, j++);	
-			}
-
-			if (j == i && p != NULL) {
-				mate = p->info;
-			} 
-			else mate = -1;
-		}
-
+	if (neighbors) {
+		i = rand_1ton (neighbors);
+		
+		for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j < i; p = p->next, j++);
+		
+		if (j == i && p != NULL) {
+			mate = p->info;
+		} 
 		else mate = -1;
-
-		if (mate == -1) {
-			radius += 1;
-			radius_increase += 1;
-		}
 	}
+	else mate = -1;
 
-	DestroyList (&bigger_neighborhood);
-	
 	return mate;
 }
 ```
 
-This function is long and it took me a while to figure it out. It receives the graph, the "name" of the focal individual that is looking for a mate, the population and the parameters. The focal first will look around him in his range, that is, in its "neighborhood" list, described in the previous section. If there are no neighbors in its range, it will look a little further: it expands it's range in 1 unit of space (reminder: the space is 100.000 square units of space). The extra neighbors are kept in another linked list, the "bigger_neighborhood" list. If there are still no possible partners, it will expand range again, and once more if necessary. Each time it expands neighborhood, the "bigger_neighborhood" list grows.
+Each individual has a linked list of compatible neighbors. This function just randomly chooses between one of them, and returns it. If the list is empty, then mate = -1. A similar function is this one:
 
-Once it has the list of possible partners, it sorts a number from 0 to the number of possible partners, and a walk through the list chooses who is THE ONE. To finnish, the "bigger_neighborhood" is destroyed. 
+<a name="sort_neighbor"></a>
+
+```c
+//in functions.h
+int Sort_Neighbor (Population progenitors, int i) 
+{
+	int j, k, compatible_neighbors, all, other;
+	List p;
+
+	compatible_neighbors = Verify_Neighborhood (progenitors[i]->compatible_neighbors);
+	all = compatible_neighbors + Verify_Neighborhood (progenitors[i]->spatial_neighbors);
+
+	if (all) {
+		k = rand_1ton (all);
+		if (k <= compatible_neighbors)
+			for (j = 1, p = progenitors[i]->compatible_neighbors->next; p != NULL && j < k; p = p->next, j++);
+		else {
+			k -= compatible_neighbors;
+			for (j = 1, p = progenitors[i]->spatial_neighbors->next; p != NULL && j < k; p = p->next, j++);	
+		}
+
+		if (j == k && p != NULL) {
+			other = p->info;
+		}
+		else other = -1;
+	}
+	else other = -1;
+
+	return other;
+}
+```
+
+where this function is used to sort a neighbor in all the neighborhood, not just in the compatible one.
+
+Another function that is necessary for 
+
+```c
+//in functions.h
+int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase, int changed[])
+{
+	int j, i, all, compatible_neighbors, radius_increase, other, n;
+	List p;
+
+	radius_increase = 0;
+	compatible_neighbors = 0;
+	all = 0;
+
+	for (i = 0; i < G->U; ++i) {
+		if (i != focal)
+			changed[i] = 0;
+	}
+
+	other = Sort_Neighbor (progenitors, focal);
+	if (other != -1) {
+		compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+		all = compatible_neighbors + Verify_Neighborhood(progenitors[other]->spatial_neighbors);
+	}
+
+	n = 0;
+	while (compatible_neighbors < 2 && radius_increase < info->max_increase) {
+		if (n > 1) {
+			radius_increase ++;
+			n = 0;
+			other = focal;
+			if (radius_increase > increase) {
+				Expand_Neighborhood (G, progenitors, focal, info, radius_increase);
+				changed[focal] = radius_increase;
+			}
+		}
+		if (other != -1) other = Sort_Neighbor (progenitors, other);
+		if (other != -1) {
+			for (j = 0; j < radius_increase; j++) {
+				Expand_Neighborhood (G, progenitors, other, info, j + 1);
+      }
+			changed[other] = radius_increase;
+			compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+			all = compatible_neighbors + Verify_Neighborhood (progenitors[other]->spatial_neighbors);
+		}
+		n++;
+  }
+
+	for (i = 0; i < G->U; ++i) {
+		if (changed[i] > 0 && i != focal && i != other) {
+			Shrink_Neighborhood (G, progenitors, i, info, changed[i]);
+    }
+	}
+
+	return other;
+}
+```
+
+This function chooses another individual around the focal to reproduce in its place. It looks twice for each increase in the radius, until it finds someone or increases the radius too much.
 
 <a name="expand_neighborhood"></a>
 
@@ -608,20 +720,51 @@ The function "expand_neighborhood" looks like the function "neighborhood"
 
 ```c
 //in functions.h
-void expand_neighborhood (Graph G, List bigger_neighborhood, Population progenitors, int focal, Parameters info, int increase)
+void Expand_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
 {
-	int mate;
+	int i;
 
-	for (mate = 0; mate < (G->U); mate++) {
-		if (G->adj[focal][mate] != 0 && Verify_Distance (progenitors, focal, mate, info, increase)) {
-			if (!Verify_Distance (progenitors, focal, mate, info, increase - 1)) {
-				AddCellInOrder(&bigger_neighborhood, mate);
+	for (i = G->U - 1; i >= 0; i--) {
+		if (focal != i) {
+			if (Verify_Distance (progenitors, focal, i, info, increase - 1) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
+				if (G->adj[focal][i] != 0) {
+					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
+				}
+				else {
+					AddCellInOrder(&progenitors[focal]->spatial_neighbors, i);
+				}
 			}
-		}
+		}	
 	}
 }
 ```
 But it only adds a possible mate to the list if it wasn't previously added. We only want to know if this individual is in the "added" space, so if it was in the previous considered space, it is not addded. We could also check if it was already on the list.
+
+After expanding neighborhood, we can shrink it back to zero.
+
+<a name="shrink_neighborhood"></a>
+```c
+//In functions.h
+void Shrink_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
+{
+	int i;
+
+	if (increase > 0) {
+		for (i = 0; i < G->U; i++) {
+			if (focal != i) {
+				if (Verify_Distance (progenitors, focal, i, info, 0) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
+					if (G->adj[focal][i] != 0) {
+						RemoveCell(&progenitors[focal]->compatible_neighbors, i);
+					}
+					else {
+						RemoveCell(&progenitors[focal]->spatial_neighbors, i);
+					}
+				}
+			}	
+		}
+	}
+}
+```
 
 Back to the reproduction, after choosing a mate, we ...
 
@@ -666,8 +809,7 @@ The last function I need to present is how I choose the position of the offsprin
 //in functions.h
 void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info)
 {
-	double movement_x, movement_y;
-	double r, theta;
+	double movement_x, movement_y, r, theta;
 
 	movement_x = movement_y = 0;
 
