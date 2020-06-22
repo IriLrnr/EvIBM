@@ -32,7 +32,7 @@ number.fig <-
   geom_ribbon(data = subset(sumario), aes(x = gen, ymin=sp.mn-sp.sd, ymax=sp.mn+sp.sd),alpha=0.3, color = "darkorange2", fill = "chocolate1")+
   #geom_line(data = subset(sumario), aes(x = gen, y = singles.mn), color = "darkred", size = 0.5) +
   guides(fill=FALSE, shape="none") +
-  labs(x = "generation", y = "Number of species") +  
+  labs(x = "geração", y = "Número de espécies") +  
   xlim(0, max.time) +
   ylim(0, max.spp) +
   theme_bw()+

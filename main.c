@@ -7,7 +7,7 @@ int main()
   /* A vector for keeping all the individuals of the kth generation, and other for the
   /* (k+1)th generation */
   Population progenitors, offspring;
-  Graph G, H;
+  Graph G;
   Parameters info;
   char nome_arq_s[80] = "";
   char nome_arq_ss[80] = "";

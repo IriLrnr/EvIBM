@@ -20,7 +20,7 @@ fig1 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 0")
+  ggtitle("geração 0")
 
 fig2 <- ggplot() +
   geom_point(data = subset(ind.loc, gen == 350), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -32,7 +32,7 @@ fig2 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 350")
+  ggtitle("geração 350")
 
 fig3 <- ggplot() +  
   geom_point(data = subset(ind.loc, gen == 700), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -44,7 +44,7 @@ fig3 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 700")
+  ggtitle("geração 700")
 
 fig4 <- ggplot() +  
   geom_point(data = subset(ind.loc, gen == 1050), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -56,7 +56,7 @@ fig4 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 1050")
+  ggtitle("geração 1050")
 
 fig5 <- ggplot() +
   geom_point(data = subset(ind.loc, gen == 1400), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -68,7 +68,7 @@ fig5 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 1400")
+  ggtitle("geração 1400")
 
 fig6 <- ggplot() +  
   geom_point(data = subset(ind.loc, gen == 1750), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -80,7 +80,7 @@ fig6 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 1750")
+  ggtitle("geração 1750")
 
 fig7 <- ggplot() +  
   geom_point(data = subset(ind.loc, gen == 2100), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -92,7 +92,7 @@ fig7 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 2100")
+  ggtitle("geração 2100")
 
 fig8 <- ggplot() +  
   geom_point(data = subset(ind.loc, gen == 2450), aes(x = x, y = y,color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -104,7 +104,7 @@ fig8 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 2450")
+  ggtitle("geração 2450")
 
 fig9 <- ggplot() +  
   geom_point(data = subset(ind.loc, gen == 2800), 
@@ -119,7 +119,7 @@ fig9 <- ggplot() +
   theme(text = element_text(size=7, family="Helvetica"),
         panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
         plot.margin = unit(c(0,1,0,0), "cm"))+
-  ggtitle("generation 2800")
+  ggtitle("geração 2800")
 
 position <- grid.arrange(fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9, ncol = 3)
 
