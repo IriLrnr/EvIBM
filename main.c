@@ -84,7 +84,8 @@ int main()
         info->number_generations = 1000;
         if (l > 20) return 0;
       }
-      if (type == 2) info->population_size = info->number_individuals;
+      
+      info->population_size = info->number_individuals;
 
       printf("*************BEG**************\n%s******************************\n", ctime(&t));
       
