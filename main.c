@@ -23,9 +23,8 @@ int main()
 
   info = Set_Parameters();
 
-  //printf("type:\n1 to run mu tests\n2 to run rho tests\n3 to run g tests\n4 to run B tests\n");
-  //scanf("%d", &type);
-  type = 2;
+  printf("type:\n1 to run mu tests\n2 to run rho tests\n3 to run g tests\n4 to run B tests\n");
+  scanf("%d", &type);
 
   switch (type) {
     case 1:
