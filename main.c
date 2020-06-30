@@ -74,7 +74,7 @@ int main()
       printf("B = %d\n", info->genome_size);
     } 
 
-    for (l = 0; l < 2; l++) {
+    for (l = 0; l < 50; l++) {
       time(&t);
       srand (t);
       start = clock();

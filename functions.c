@@ -83,7 +83,7 @@
 		info->individual_vector_size = (int)(info->number_individuals * 1.05);
 		info->genome_size            = 150;
 		info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-		info->number_generations     = 2;
+		info->number_generations     = 2000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
