@@ -1,12 +1,12 @@
 # Load the libraries'
 library(ggplot2)
 
-setwd("./data/species/v1")
+setwd("./data/base/species")
 file.names <- dir()
 
 number.spp=data.frame()
 
-for (i in 1:length(file.names)){
+for (i in 1:(length(file.names)-1)){
   dados <- read.csv(paste(file.names[i]), head=TRUE, sep=";")
   number.spp <- rbind(number.spp, dados)
 }
@@ -48,5 +48,4 @@ number.fig <-
         legend.margin = margin(-4, 4, -1, -1),
         plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
-number.fig
-ggsave("./figs/species/nspp_vf.png")
+ggsave("./figs/base/nspp.png")

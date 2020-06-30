@@ -80,10 +80,10 @@
 		info->number_individuals     = 1000;
 		info->population_size        = 1000;
 		/* The population can grow and sink. Here we estimate the grown aoround 20% */
-		info->individual_vector_size = (int)(info->number_individuals * 2);
+		info->individual_vector_size = (int)(info->number_individuals * 1.05);
 		info->genome_size            = 150;
 		info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-		info->number_generations     = 2000;
+		info->number_generations     = 2;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
