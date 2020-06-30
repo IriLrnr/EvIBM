@@ -31,7 +31,7 @@ int main()
   //for (k = 1; k <= 10; k++) {
     //info->reproductive_distance = (int)(floor((k/100)*info->genome_size));
   for (info->genome_size = 1500; info->genome_size <= 150000; info->genome_size*=10) {
-    for (l = 0; l < 2; l++) {
+    for (l = 0; l < 50; l++) {
       if (info->genome_size > 1500 && l > 20) return 0;
       time(&t);
       srand (t);
