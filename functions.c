@@ -81,9 +81,9 @@
 		info->population_size        = 1000;
 		/* The population can grow and sink. Here we estimate the grown aoround 20% */
 		info->individual_vector_size = (int)(info->number_individuals * 2);
-		info->reproductive_distance  = 7;
 		info->genome_size            = 150;
-		info->number_generations     = 3000;
+		info->reproductive_distance  = (int) floor(0.05*info->genome_size);
+		info->number_generations     = 2000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
@@ -296,21 +296,21 @@
 		for (i = 0; i < G->U; i++) {
 			for (j = i + 1; j < G->U; j++) {
 				divergences = 0;
-				for (k = 0; k < info->genome_size; k++) {
+				for (k = 0; k < info->genome_size && divergences <= info->reproductive_distance + 1; k++) {
 					if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
 						divergences++;
 					}
 				}
 
 				if (divergences <= info->reproductive_distance) {
-					InsertArc (G, i, j, 1);
+					InsertArc (G, i, j, divergences + 1);
 				}
 				else if (G->adj[i][j] != 0) {
 					RemoveArc (G, i, j);
 				}	
 			}
 
-			Neighborhood (G, individuals, i, info, 0); //1n//
+			Neighborhood (G, individuals, i, info, 0);
 		}
 	}
 
@@ -414,9 +414,9 @@
 	each loci, 50% chance of coming from either of his parents */
 	void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int other, int mate, Parameters info)
 	{
-	  int i;
+	 	int i;
 		
-		Offspring_Position(progenitors, offspring, baby, focal, info);
+		Offspring_Position (progenitors, offspring, baby, focal, info);
 
 		for (i = 0; i < info->genome_size; i++) {
 			if (progenitors[other]->genome[i] != progenitors[mate]->genome[i]) {
@@ -516,58 +516,58 @@
 
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{
-		int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, n, occupation, expand;
-		int changed[G->U];
+	int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, n, occupation, expand;
+	int changed[G->U];
 
-		baby = 0;
+	baby = 0;
 
-		for (focal = 0; focal < (G->U); focal++) {
-			mate = -1;
-			compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
-			all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
-			if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
-				occupation = Site_Occupation (G, progenitors, focal, info);
-				if (compatible_neighborhood >= info->min_neighboors && occupation < info->max_spot_density/3) {
-					mate = Choose_Mate (G, focal, progenitors, info);
-					for (n = 0; n < 2 && mate != -1; n++) {
-						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
-						baby ++;
- 					}
-				}
-			}
-			else {
-				for (increase = 0; all_neighborhood < 2 && increase < info->max_increase; increase++) {
-					Expand_Neighborhood (G, progenitors, focal, info, increase + 1);
-          compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
-          all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
-				}
-				if (all_neighborhood > 1) {
-					changed[focal] = increase;
-					other = focal;
-					other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
-					if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
-						other = Choose_Other (G, focal, progenitors, info, increase, changed);
-						if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
-						else other_neighborhood = 0;
-					}
-          if (other != -1) {
-            if (other_neighborhood > 1) {
-              mate = Choose_Mate (G, other, progenitors, info);
-              if (mate != -1) {
-                Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-                baby ++;
-              }
-            }
-            if (other != focal && changed[other] > 0) {
-              Shrink_Neighborhood (G, progenitors, other, info, changed[other]);
-            }
-          }
-					if (changed[focal] > 0) 
-            Shrink_Neighborhood (G, progenitors, focal, info, changed[focal]);
+	for (focal = 0; focal < (G->U); focal++) {
+		mate = -1;
+		compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+		all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+		if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
+			occupation = Site_Occupation (G, progenitors, focal, info);
+			if (compatible_neighborhood >= info->min_neighboors && occupation < info->max_spot_density/3) {
+				mate = Choose_Mate (G, focal, progenitors, info);
+				for (n = 0; n < 2 && mate != -1; n++) {
+					Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
+					baby ++;
 				}
 			}
 		}
-		info->population_size = baby;
+		else {
+			for (increase = 0; all_neighborhood < 2 && increase < info->max_increase; increase++) {
+				Expand_Neighborhood (G, progenitors, focal, info, increase + 1);
+				compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+				all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+			}
+			if (all_neighborhood > 1) {
+				changed[focal] = increase;
+				other = focal;
+				other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+				if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
+					other = Choose_Other (G, focal, progenitors, info, increase, changed);
+					if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+					else other_neighborhood = 0;
+				}
+				if (other != -1) {
+					if (other_neighborhood > 1) {
+					mate = Choose_Mate (G, other, progenitors, info);
+						if (mate != -1) {
+						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+						baby ++;
+						}
+					}
+					if (other != focal && changed[other] > 0) {
+						Shrink_Neighborhood (G, progenitors, other, info, changed[other]);
+					}
+				}
+				if (changed[focal] > 0) 
+					Shrink_Neighborhood (G, progenitors, focal, info, changed[focal]);
+			}
+		}
+	}
+	info->population_size = baby;
 	}
 
 /* =================================================================== */
@@ -630,7 +630,7 @@
 
 		for (i = 0; i < G->U; ++i) {
 			for (j = i + 1; j < G->U; ++j) {
-				if (G->adj[i][j] == 1) {
+				if (G->adj[i][j] >= 1) {
 					if (G->adj[j][i] != G->adj[i][j]) {
 						printf("ERRO NA CONSTRUÇÃO DAS ARESTAS +\n");
 						return 0;
