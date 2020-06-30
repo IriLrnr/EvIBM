@@ -61,7 +61,6 @@ int main()
     }
     if (type == 2) {
       info->number_individuals = (int) n;
-      info->population_size = info->number_individuals;
       info->individual_vector_size = (int)(info->number_individuals * 1.05);
       rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
       info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
@@ -85,6 +84,7 @@ int main()
         info->number_generations = 1000;
         if (l > 20) return 0;
       }
+      if (type == 2) info->population_size = info->number_individuals;
 
       printf("*************BEG**************\n%s******************************\n", ctime(&t));
       
