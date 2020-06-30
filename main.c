@@ -2,7 +2,7 @@
 
 int main()
 {
-  int i, j, k, l, number_species;
+  int i, j, k, l, number_species, type;
   int sizes[40];
   Population progenitors, offspring;
   Graph G;
