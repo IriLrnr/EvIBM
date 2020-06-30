@@ -1,7 +1,8 @@
 run : main
-	#gdb out
-	./out
+	gdb out
+	#./out
 	rm *.o out
+	scp 
 
 main :
 	#gcc -c *.c -I /usr/include/gsl/
