@@ -23,7 +23,7 @@ int main()
 
   info = Set_Parameters();
 
-  printf("type:\n1 to run mu tests\n2 to run rho tests\n3 to run g tests\n4 to run B tests\n");
+    printf("type:\n1 to run mu tests\n2 to run rho tests\n3 to run g tests\n4 to run B tests\n");
   scanf("%d", &type);
 
   switch (type) {
@@ -60,6 +60,7 @@ int main()
     }
     if (type == 2) {
       info->number_individuals = (int) n;
+      info->population_size = info->number_individuals;
       info->individual_vector_size = (int)(info->number_individuals * 1.05);
       rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
       info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
