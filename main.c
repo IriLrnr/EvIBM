@@ -73,6 +73,7 @@ int main()
     }
     if (type == 4) {
       info->genome_size = n;
+      info->reproductive_distance  = (int) floor(0.05*info->genome_size);
       printf("B = %d\n", info->genome_size);
     } 
 
@@ -89,7 +90,7 @@ int main()
       
       info->population_size = info->number_individuals;
 
-      printf("*************BEG**************\n%s******************************\n", ctime(&t));
+      printf("*************BEG**************\n%sB = %d, g = %d, mu = %0.4f\n******************************\n", ctime(&t), info->genome_size, info->reproductive_distance, info->mutation);
       
       if (type == 1) sprintf (nome_arq_s, "./data/tests/mu/%d/species/numsp_%02d.csv", ((int) (info->mutation*10000)), l);
       if (type == 2) sprintf (nome_arq_s, "./data/tests/rho/%d/species/numsp_%02d.csv", (info->number_individuals/100), l);
