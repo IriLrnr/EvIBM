@@ -130,7 +130,7 @@ int main()
         if (i % 200 == 0) {
           Count_Sizes (G, progenitors, number_species, info, sizes);
           for (j = 0; j < number_species; ++j) {
-            fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], G->U);
+            fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], (G->U));
           }
           for (j = 0; l == 0 && j < (G->U); j++) {
             fprintf(position, "%d;%f;%f;%d;%d\n", j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
