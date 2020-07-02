@@ -48,12 +48,12 @@ int main()
     break;
 
     case 4:
-    n = 1500;
-    lim = 150000;
-    x = n*10 - n;
+    printf("genome size (150, 1500, 15000 or 150000)?\n");
+    scanf("%d", &info->genome_size);
+    lim = info->genome_size;
+    x = 1;
     break;
   }
-  printf("Type %d:\nn = %f, lim = %f, x = %f\n", type, n, lim, x);
 
   for (n; n <= lim; n += x) {
     if (type == 1) {
