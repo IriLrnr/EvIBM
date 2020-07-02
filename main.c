@@ -49,8 +49,8 @@ int main()
 
     case 4:
     printf("genome size (150, 1500, 15000 or 150000)?\n");
-    scanf("%d", &info->genome_size);
-    lim = info->genome_size;
+    scanf("%lf", &n);
+    lim = n;
     x = 1;
     break;
   }
