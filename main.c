@@ -2,7 +2,7 @@
 
 int main()
 {
-  int i, j, k, l, number_species, type, deltat;
+  int i, j, k, l, number_species, type, deltat, p, count;
   int sizes[40];
   Population progenitors, offspring;
   Graph G;
@@ -16,10 +16,12 @@ int main()
   FILE *size;
   FILE *stats;
   //unsigned int sample;
-  time_t t;
+  time_t t, ti, tf;
   clock_t start, end;
   double rho, cpu_time_used_sim, total_cpu_time = 0;
   double n, x, lim;
+
+  time(&ti);
 
   info = Set_Parameters();
 
@@ -27,24 +29,30 @@ int main()
   scanf ("%d", &type);
   printf("time interval?\n");
   scanf ("%d", &deltat);
-
+  if (type != 4) {
+    printf("begin parameter at (1-10):\n");
+    scanf("%d", &p);
+  }
+  printf("begin simulation at (0-49):\n");
+  scanf("%d", &l);
+  
   switch (type) {
     case 1:
-    n = 0.0001;
-    lim = 0.001;
     x = 0.0001;
+    n = p*x;
+    lim = 0.001;
     break;
 
     case 2:
-    n = 700;
-    lim = 2000;
     x = 100; 
+    n = 600 + p*x;
+    lim = 2000;
     break;
 
     case 3:
-    n = 0.01;
-    lim = 0.1;
     x = 0.01;
+    n = p*x;
+    lim = 0.1;
     break;
 
     case 4:
@@ -54,7 +62,6 @@ int main()
     x = 1;
     break;
   }
-
   for (n; n <= lim; n += x) {
     if (type == 1) {
       info->mutation = n;
@@ -76,8 +83,8 @@ int main()
       info->reproductive_distance  = (int) floor(0.05*info->genome_size);
       printf("B = %d\n", info->genome_size);
     } 
-
-    for (l = 0; l < 50; l++) {
+    count = 0;
+    for (l; l < 50; l++) {
       time(&t);
       srand (t);
       start = clock();
@@ -153,18 +160,22 @@ int main()
 
       end = clock();
       cpu_time_used_sim = ((double) (end - start)) / CLOCKS_PER_SEC;
+      printf("cpu: %f\n", cpu_time_used_sim);
       total_cpu_time += cpu_time_used_sim;
+      count++;
     }
 
-  time(&t);
-  if (type == 1) sprintf (nome_arq_st, "./data/tests/mu/%d/stats.txt", ((int) (info->mutation*10000)));
-  if (type == 2) sprintf (nome_arq_st, "./data/tests/rho/%d/stats.txt", (info->number_individuals/100));
-  if (type == 3) sprintf (nome_arq_st, "./data/tests/g/%d/stats.txt", (int)(n*100));
-  if (type == 4) sprintf (nome_arq_st, "./data/tests/B/%d/stats.txt", info->genome_size);
-  stats = fopen (nome_arq_st, "w");
-  fprintf(stats, "STATS:\nfinnish time: %stotal CPU: %f\nmean CPU: %f\nN = %d, G = %d, gen = %d\n", ctime(&t), total_cpu_time, total_cpu_time/l, info->number_individuals, info->genome_size, info->number_generations);
-  fclose(stats);
-  printf("*******************************\nSTATS:\nfinnish time = %stotal CPU = %f\nmean CPU = %f\nN = %d, G = %d, gen = %d\n", ctime(&t), total_cpu_time, total_cpu_time/l, info->number_individuals, info->genome_size, info->number_generations);
+    time(&tf);
+    if (type == 1) sprintf (nome_arq_st, "./data/tests/mu/%d/stats.txt", ((int) (info->mutation*10000)));
+    if (type == 2) sprintf (nome_arq_st, "./data/tests/rho/%d/stats.txt", (info->number_individuals/100));
+    if (type == 3) sprintf (nome_arq_st, "./data/tests/g/%d/stats.txt", (int)(n*100));
+    if (type == 4) sprintf (nome_arq_st, "./data/tests/B/%d/stats.txt", info->genome_size);
+    stats = fopen (nome_arq_st, "w");
+    fprintf(stats, "STATS:\nbegin time: %sfinnish time: %stotal CPU: %f\nmean CPU: %f\nN = %d, B = %d, gen = %d\n", ctime(&ti), ctime(&tf), total_cpu_time, total_cpu_time/count, info->number_individuals, info->genome_size, info->number_generations);
+    fprintf(stats, "mu = %f, G = %d\n", info->mutation, info->reproductive_distance);
+    fclose(stats);
+    printf("*******************************\nSTATS:\nbegin time: %sfinnish time: %stotal CPU: %f\nmean CPU: %f\nN = %d, B = %d, gen = %d\n", ctime(&ti), ctime(&tf), total_cpu_time, total_cpu_time/count, info->number_individuals, info->genome_size, info->number_generations);
+    printf("mu = %f, G = %d\n", info->mutation, info->reproductive_distance);
   }
 
   free (info);
