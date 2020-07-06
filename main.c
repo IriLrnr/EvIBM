@@ -27,8 +27,8 @@ int main()
 
   printf("type:\n1 to run mu tests\n2 to run rho tests\n3 to run g tests\n4 to run B tests\n");
   scanf ("%d", &type);
-  printf("time interval?\n");
-  scanf ("%d", &deltat);
+  //printf("time interval?\n");
+  //scanf ("%d", &deltat);
   if (type != 4) {
     printf("begin parameter at (1-10):\n");
     scanf("%d", &p);
@@ -137,7 +137,7 @@ int main()
         if (i%10 == 0) {
           fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
         }
-        if (i % deltat == 0) {
+        if (i % 200 == 0) {
           Count_Sizes (G, progenitors, number_species, info, sizes);
           for (j = 0; j < number_species; ++j) {
             fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], (G->U));
