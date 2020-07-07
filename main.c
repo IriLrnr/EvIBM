@@ -164,7 +164,7 @@ int main()
       total_cpu_time += cpu_time_used_sim;
       count++;
     }
-
+    l = 0;
     time(&tf);
     if (type == 1) sprintf (nome_arq_st, "./data/tests/mu/%d/stats.txt", ((int) (info->mutation*10000)));
     if (type == 2) sprintf (nome_arq_st, "./data/tests/rho/%d/stats.txt", (info->number_individuals/100));
