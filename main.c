@@ -33,8 +33,6 @@ int main()
     printf("begin parameter at (1-10):\n");
     scanf("%d", &p);
   }
-  printf("begin simulation at (0-49):\n");
-  scanf("%d", &l);
   
   switch (type) {
     case 1:
@@ -84,7 +82,7 @@ int main()
       printf("B = %d\n", info->genome_size);
     } 
     count = 0;
-    for (l; l < 50; l++) {
+    for (l = 0; l < 50; l++) {
       time(&t);
       srand (t);
       start = clock();
@@ -164,7 +162,7 @@ int main()
       total_cpu_time += cpu_time_used_sim;
       count++;
     }
-    l = 0;
+    
     time(&tf);
     if (type == 1) sprintf (nome_arq_st, "./data/tests/mu/%d/stats.txt", ((int) (info->mutation*10000)));
     if (type == 2) sprintf (nome_arq_st, "./data/tests/rho/%d/stats.txt", (info->number_individuals/100));
