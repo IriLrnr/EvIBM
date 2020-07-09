@@ -4,7 +4,7 @@ library(gridExtra)
 library(RColorBrewer)
 
 # Read data
-ind.loc <- read.csv(file = "./data/base/indloc_00.csv", head = TRUE, sep = ";")
+ind.loc <- read.csv(file = "./indloc_00.csv", head = TRUE, sep = ";")
 
 loc.data <- data.frame()
 max.space=100
@@ -123,4 +123,4 @@ fig9 <- ggplot() +
 
 position <- grid.arrange(fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9, ncol = 3)
 
-ggsave("./figs/base/position.png", position, height = 6, width = 7)
+#ggsave("./figs/base/position.png", position, height = 6, width = 7)

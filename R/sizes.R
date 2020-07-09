@@ -1,7 +1,6 @@
-# Load the libraries'
-library(ggplot2)
+library(RColorBrewer)
 
-setwd("./data/base/sizes")
+setwd("./sizes")
 file.names <- dir()
 
 pop.info <- data.frame()
@@ -10,9 +9,9 @@ for (i in 1:length(file.names)){
   dados <- read.csv(paste(file.names[i]), head=TRUE, sep=";")
   pop.info <- rbind(pop.info, dados)
 }
-setwd("../../../")
+setwd("../")
 
-breaks <- seq(1, 1000, 1)
+breaks <- seq(1, 1000, 2)
 g = 500
 
 pop.info.gen <- subset(pop.info, gen%%200 == 0, select = c("gen", "size"))
@@ -41,14 +40,43 @@ sizes.hist <- ggplot(pop.info, aes(x = size, fill = gen)) +
   theme(text = element_text(size=12, family="Helvetica"),
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(), 
-        legend.title=element_blank(),
+        legend.title=element_text("geração", size = 8),
         legend.position = c(1.10,0.365),
         legend.text=element_text(size=5),
-        legend.box.background = element_rect(),
+        #legend.box.background = element_rect(),
         legend.margin = margin(-4, 4, -1, -1),
         plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
 
 sizes.hist
 
-ggsave(sizes.hist, "./figs/base/histogram.png")
+sizes.hist.200 <- ggplot(pop.info, aes(x = size, fill = gen)) +
+  geom_histogram(data = subset(pop.info, gen==0), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==200), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==400), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==600), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==800), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==1000), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==1200), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==1400), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==1600), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==1800), breaks = breaks, position = "dodge") +
+  geom_histogram(data = subset(pop.info, gen==2000), breaks = breaks, position = "dodge") +
+  sc +
+  labs(x = "size", y = "") +  
+  xlim(0, 200) +
+  ggtitle("Species sizes in different generations") +
+  theme_bw()+
+  theme(text = element_text(size=12, family="Helvetica"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(), 
+        legend.title=element_text("geração", size = 8),
+        legend.position = c(1.10,0.365),
+        legend.text=element_text(size=5),
+        #legend.box.background = element_rect(),
+        legend.margin = margin(-4, 4, -1, -1),
+        plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
+
+sizes.hist.200
+
+#ggsave(sizes.hist, "./figs/base/histogram.png")
