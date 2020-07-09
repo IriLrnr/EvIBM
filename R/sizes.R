@@ -73,7 +73,6 @@ sizes.hist.200 <- ggplot(pop.info, aes(x = size, fill = gen)) +
         legend.title=element_text("geração", size = 8),
         legend.position = c(1.10,0.365),
         legend.text=element_text(size=5),
-        #legend.box.background = element_rect(),
         legend.margin = margin(-4, 4, -1, -1),
         plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
