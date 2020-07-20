@@ -549,7 +549,7 @@
 		all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
 		if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
 			//occupation = Site_Occupation (G, progenitors, focal, info); --correct
-			occupation = 1 /*Incorect but useless*/
+			occupation = 1; /*Incorect but useless*/
 			if (compatible_neighborhood >= info->min_neighboors && occupation < info->max_spot_density/3) {
 				mate = Choose_Mate (G, focal, progenitors, info);
 				for (n = 0; n < 2 && mate != -1; n++) {
