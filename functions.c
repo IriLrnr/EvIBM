@@ -269,29 +269,19 @@
 	{
 		int i, j, occupation, all, compatible_neighbors;
 		List p;
-		double xint, yint;
-		
-		xint = (int) progenitors[focal]->x;
-		yint = (int) progenitors[focal]->y;
-
-		printf("xint = %f,  yint = %f\n", xint, yint);
 
 		occupation = 0;
 		
 		compatible_neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 		all = compatible_neighbors + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
 
-		printf("comp = %d, all = %d\n", compatible_neighbors, all);
-
 		if (all) {
 			if (compatible_neighbors) {
 				for (p = progenitors[focal]->compatible_neighbors->next; p != NULL && j <= compatible_neighbors; p = p->next, j++) {
 					if (p !=  NULL) {
 						i = p->info;
-						if (progenitors[i]->x < xint + 1 && progenitors[i]->x > xint) {
-							if (progenitors[i]->y < yint + 1 && progenitors[i]->y > yint) {
-								occupation++;
-							}
+						if (Verify_Distance (progenitors, focal, i, info, -(info->radius - 1)) == 1) {
+							occupation++;
 						}
 					}
 				}
@@ -300,17 +290,13 @@
 				for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j <= all - compatible_neighbors; p = p->next, j++) {
 					if (p !=  NULL) {
 						i = p->info;
-						if (progenitors[i]->x < xint + 1 && progenitors[i]->x > xint) {
-							if (progenitors[i]->y < yint + 1 && progenitors[i]->y > yint) {
-								occupation++;
-							}
+						if (Verify_Distance (progenitors, focal, i, info, -(info->radius - 1)) == 1) {
+							occupation++;
 						}
 					}
 				}
 			}
 		}
-
-		printf("occupation = %d\n", occupation);
 
 		return occupation;
 	}
@@ -562,7 +548,8 @@
 		compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 		all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
 		if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
-			occupation = Site_Occupation (G, progenitors, focal, info);
+			//occupation = Site_Occupation (G, progenitors, focal, info); --correct
+			occupation = 1 /*Incorect but useless*/
 			if (compatible_neighborhood >= info->min_neighboors && occupation < info->max_spot_density/3) {
 				mate = Choose_Mate (G, focal, progenitors, info);
 				for (n = 0; n < 2 && mate != -1; n++) {
