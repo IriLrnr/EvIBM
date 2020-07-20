@@ -267,14 +267,50 @@
 
 	int Site_Occupation (Graph G, Population progenitors, int focal, Parameters info) 
 	{
-		int i, occupation;
+		int i, j, occupation, all, compatible_neighbors;
+		List p;
+		double xint, yint;
+		
+		xint = (int) progenitors[focal]->x;
+		yint = (int) progenitors[focal]->y;
+
+		printf("xint = %f,  yint = %f\n", xint, yint);
 
 		occupation = 0;
-		for (i = 0; i < G->U; ++i) {
-			if (progenitors[i]->x == progenitors[focal]->x && progenitors[i]->y == progenitors[focal]->y) {
-				occupation ++;
+		
+		compatible_neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+		all = compatible_neighbors + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+
+		printf("comp = %d, all = %d\n", compatible_neighbors, all);
+
+		if (all) {
+			if (compatible_neighbors) {
+				for (p = progenitors[focal]->compatible_neighbors->next; p != NULL && j <= compatible_neighbors; p = p->next, j++) {
+					if (p !=  NULL) {
+						i = p->info;
+						if (progenitors[i]->x < xint + 1 && progenitors[i]->x > xint) {
+							if (progenitors[i]->y < yint + 1 && progenitors[i]->y > yint) {
+								occupation++;
+							}
+						}
+					}
+				}
+			}
+			if (all - compatible_neighbors > 0) {
+				for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j <= all - compatible_neighbors; p = p->next, j++) {
+					if (p !=  NULL) {
+						i = p->info;
+						if (progenitors[i]->x < xint + 1 && progenitors[i]->x > xint) {
+							if (progenitors[i]->y < yint + 1 && progenitors[i]->y > yint) {
+								occupation++;
+							}
+						}
+					}
+				}
 			}
 		}
+
+		printf("occupation = %d\n", occupation);
 
 		return occupation;
 	}

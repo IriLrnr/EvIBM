@@ -30,7 +30,7 @@ int main()
   //printf("time interval?\n");
   //scanf ("%d", &deltat);
   if (type != 4) {
-    printf("begin parameter at (1-10):\n");
+    printf("begin parameter at?:\n");
     scanf("%d", &p);
   }
   
@@ -60,6 +60,7 @@ int main()
     x = 1;
     break;
   }
+
   for (n; n <= lim; n += x) {
     if (type == 1) {
       info->mutation = n;
@@ -80,9 +81,9 @@ int main()
       info->genome_size = n;
       info->reproductive_distance  = (int) floor(0.05*info->genome_size);
       printf("B = %d\n", info->genome_size);
-    } 
+    }
     count = 0;
-    for (l = 0; l < 50; l++) {
+    for (l = 0; l < 5; l++) {
       time(&t);
       srand (t);
       start = clock();
@@ -97,25 +98,25 @@ int main()
 
       printf("*************BEG**************\n%sB = %d, g = %d, mu = %0.4f\n******************************\n", ctime(&t), info->genome_size, info->reproductive_distance, info->mutation);
       
-      if (type == 1) sprintf (nome_arq_s, "./data/tests/mu/%d/species/numsp_%02d.csv", ((int) (info->mutation*10000)), l);
-      if (type == 2) sprintf (nome_arq_s, "./data/tests/rho/%d/species/numsp_%02d.csv", (info->number_individuals/100), l);
-      if (type == 3) sprintf (nome_arq_s, "./data/tests/g/%d/species/numsp_%02d.csv", (int)(n*100), l);
-      if (type == 4) sprintf (nome_arq_s, "./data/tests/B/%d/species/numsp_%02d.csv", info->genome_size, l);
+      if (type == 1) sprintf (nome_arq_s, "./data/tests/mu/%d/species/Tnumsp_%02d.csv", ((int) (info->mutation*10000)), l);
+      if (type == 2) sprintf (nome_arq_s, "./data/tests/rho/%d/species/Tnumsp_%02d.csv", (info->number_individuals/100), l);
+      if (type == 3) sprintf (nome_arq_s, "./data/tests/g/%d/species/Tnumsp_%02d.csv", (int)(n*100), l);
+      if (type == 4) sprintf (nome_arq_s, "./data/tests/B/%d/species/Tnumsp_%02d.csv", info->genome_size, l);
       nspecies = fopen (nome_arq_s, "w");
       fprintf (nspecies, "gen;sp;sim\n");
 
-      if (type == 1) sprintf (nome_arq_ss, "./data/tests/mu/%d/sizes/sizes_%02d.csv", ((int) (info->mutation*10000)), l);
-      if (type == 2) sprintf (nome_arq_ss, "./data/tests/rho/%d/sizes/sizes_%02d.csv", (info->number_individuals/100), l);
-      if (type == 3) sprintf (nome_arq_ss, "./data/tests/g/%d/sizes/sizes_%02d.csv", (int)(n*100), l);
-      if (type == 4) sprintf (nome_arq_ss, "./data/tests/B/%d/sizes/sizes_%02d.csv", info->genome_size, l);
+      if (type == 1) sprintf (nome_arq_ss, "./data/tests/mu/%d/sizes/Tsizes_%02d.csv", ((int) (info->mutation*10000)), l);
+      if (type == 2) sprintf (nome_arq_ss, "./data/tests/rho/%d/sizes/Tsizes_%02d.csv", (info->number_individuals/100), l);
+      if (type == 3) sprintf (nome_arq_ss, "./data/tests/g/%d/sizes/Tsizes_%02d.csv", (int)(n*100), l);
+      if (type == 4) sprintf (nome_arq_ss, "./data/tests/B/%d/sizes/Tsizes_%02d.csv", info->genome_size, l);
       size = fopen (nome_arq_ss, "w");
       fprintf (size, "sim;gen;sp;size;pop\n");
 
       if (l == 0) {
-        if (type == 1) sprintf (nome_arq_p, "./data/tests/mu/%d/indloc_00.csv", ((int) (info->mutation*10000)));
-        if (type == 2) sprintf (nome_arq_p, "./data/tests/rho/%d/indloc_00.csv", ((int) info->number_individuals/100));
-        if (type == 3) sprintf (nome_arq_p, "./data/tests/g/%d/indloc_00.csv", (int)(n*100));
-        if (type == 4) sprintf (nome_arq_p, "./data/tests/B/%d/indloc_00.csv", info->genome_size);
+        if (type == 1) sprintf (nome_arq_p, "./data/tests/mu/%d/Tindloc_00.csv", ((int) (info->mutation*10000)));
+        if (type == 2) sprintf (nome_arq_p, "./data/tests/rho/%d/Tindloc_00.csv", ((int) info->number_individuals/100));
+        if (type == 3) sprintf (nome_arq_p, "./data/tests/g/%d/Tindloc_00.csv", (int)(n*100));
+        if (type == 4) sprintf (nome_arq_p, "./data/tests/B/%d/Tindloc_00.csv", info->genome_size);
         position = fopen (nome_arq_p, "w");
         fprintf (position, "id;x;y;sp;gen\n");
       }
@@ -130,12 +131,12 @@ int main()
       printf("Sim \t Gen \t nsp \t pop\n");
       for (i = 0; i <= info->number_generations; i++) {
         Stablish_Distances (G, progenitors, info);
-        number_species = Count_Species (G, progenitors);
-        Reproduction  (G, progenitors, offspring, info);
-        if (i%10 == 0) {
+        if (i%100 == 0) {
+          number_species = Count_Species (G, progenitors);
           fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
         }
-        if (i % 200 == 0) {
+        Reproduction  (G, progenitors, offspring, info);
+        if (i % 100 == 0) {
           Count_Sizes (G, progenitors, number_species, info, sizes);
           for (j = 0; j < number_species; ++j) {
             fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], (G->U));
@@ -164,10 +165,10 @@ int main()
     }
     
     time(&tf);
-    if (type == 1) sprintf (nome_arq_st, "./data/tests/mu/%d/stats.txt", ((int) (info->mutation*10000)));
-    if (type == 2) sprintf (nome_arq_st, "./data/tests/rho/%d/stats.txt", (info->number_individuals/100));
-    if (type == 3) sprintf (nome_arq_st, "./data/tests/g/%d/stats.txt", (int)(n*100));
-    if (type == 4) sprintf (nome_arq_st, "./data/tests/B/%d/stats.txt", info->genome_size);
+    if (type == 1) sprintf (nome_arq_st, "./data/tests/mu/%d/Tstats.txt", ((int) (info->mutation*10000)));
+    if (type == 2) sprintf (nome_arq_st, "./data/tests/rho/%d/Tstats.txt", (info->number_individuals/100));
+    if (type == 3) sprintf (nome_arq_st, "./data/tests/g/%d/Tstats.txt", (int)(n*100));
+    if (type == 4) sprintf (nome_arq_st, "./data/tests/B/%d/Tstats.txt", info->genome_size);
     stats = fopen (nome_arq_st, "w");
     fprintf(stats, "STATS:\nbegin time: %sfinnish time: %stotal CPU: %f\nmean CPU: %f\nN = %d, B = %d, gen = %d\n", ctime(&ti), ctime(&tf), total_cpu_time, total_cpu_time/count, info->number_individuals, info->genome_size, info->number_generations);
     fprintf(stats, "mu = %f, G = %d\n", info->mutation, info->reproductive_distance);
