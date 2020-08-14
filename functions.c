@@ -73,14 +73,14 @@
 	Parameters Set_Parameters () 
 	{
 		Parameters info;
-		double rho;
+		double rho, epslon = 0.74;
 
 		info = (Parameters) malloc (sizeof (parameters));
 
 		info->number_individuals     = 1000;
 		info->population_size        = 1000;
 		/* The population can grow and sink. Here we estimate the grown aoround 20% */
-		info->individual_vector_size = (int)(info->number_individuals * 1.5);
+		info->individual_vector_size = (int)(info->number_individuals * 1.05);
 		info->genome_size            = 150;
 		info->reproductive_distance  = (int) floor(0.05*info->genome_size);
 		info->number_generations     = 2000;
@@ -95,7 +95,7 @@
 		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 		individuals that mark the density limit (60% of the original density) */
 		rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
-		info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
+		info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
 		
 		return info;
 	}
@@ -167,7 +167,7 @@
 		if (x0 <= r && x >= info->lattice_width - r)
 			x = x - info->lattice_length;
 
-		if ((x - x0) * (x - x0) + (y - y0) * (y - y0) <= r * r)
+		if ((x - x0) * (x - x0) + (y - y0) * (y - y0) < r * r)
 			return 1;
 		else 
 			return 0;
@@ -242,6 +242,8 @@
 	{
 		int j, k, compatible_neighbors, all, other;
 		List p;
+
+		if (i == -1) return -1;
 
 		compatible_neighbors = Verify_Neighborhood (progenitors[i]->compatible_neighbors);
 		all = compatible_neighbors + Verify_Neighborhood (progenitors[i]->spatial_neighbors);
@@ -377,7 +379,7 @@
 /* =================================================================== */
 
 
-/* ===================== Used for Reproduction ======================= */
+/* ===================== Reproduction Functions ====================== */
 
 	/* This function, called by Reproduction, defines the offspring position, that is, if it is going to move, how much,
 	and in which direction. It can move in it's focal parent range, with 1% chance*/
@@ -460,51 +462,52 @@
 
 	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase, int changed[])
 	{
-		int j, i, all, compatible_neighbors, radius_increase, other, n;
+		int j, i, all, compatible_neighbors, radius_increase, other, n, focal_neighbors;
 		List p;
 
+		other = focal;
 		radius_increase = 0;
-		compatible_neighbors = 0;
-		all = 0;
+		compatible_neighbors = all = 0;
 
 		for (i = 0; i < G->U; ++i) {
 			if (i != focal)
 				changed[i] = 0;
 		}
 
-		other = Sort_Neighbor (progenitors, focal);
-		if (other != -1) {
+		focal_neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+
+		if (random_number() < 0.37 || focal_neighbors < info->min_neighboors) {
+			other = Sort_Neighbor (progenitors, focal);
 			compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 			all = compatible_neighbors + Verify_Neighborhood(progenitors[other]->spatial_neighbors);
-		}
-	
-		n = 0;
-		while (compatible_neighbors < 2 && radius_increase < info->max_increase) {
-			if (n > 1) {
-				radius_increase ++;
-				n = 0;
-				other = focal;
-				if (radius_increase > increase) {
+			if (other == -1) printf("ERRO");
+			if (increase > 0) Shrink_Neighborhood (G, progenitors, focal, info, increase);
+			n = 0;
+			while (compatible_neighbors < info->min_neighboors && radius_increase < info->max_increase) {
+				if (n > 1) {
+					radius_increase ++;
+					n = 0;
+					other = focal;
 					Expand_Neighborhood (G, progenitors, focal, info, radius_increase);
 					changed[focal] = radius_increase;
 				}
-			}
-			if (other != -1) other = Sort_Neighbor (progenitors, other);
-			if (other != -1) {
-				for (j = 0; j < radius_increase; j++) {
-					Expand_Neighborhood (G, progenitors, other, info, j + 1);
-        }
-				changed[other] = radius_increase;
-				compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
-				all = compatible_neighbors + Verify_Neighborhood (progenitors[other]->spatial_neighbors);
-			}
-			n++;
-    }
+				other = Sort_Neighbor (progenitors, other);
+				if (other != -1) {
+					for (j = 0; j < radius_increase; j++) {
+						Expand_Neighborhood (G, progenitors, other, info, j + 1);
+	        		}
+					changed[other] = radius_increase;
+					compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+					all = compatible_neighbors + Verify_Neighborhood (progenitors[other]->spatial_neighbors);
+				}
+				n++;
+	    	}
+		}
 
-		for (i = 0; i < G->U; ++i) {
+		for (i = 0; i < G->U; ++i) { /*diminuir apenas se for usar de novo*/
 			if (changed[i] > 0 && i != focal && i != other) {
 				Shrink_Neighborhood (G, progenitors, i, info, changed[i]);
-      }
+     		}
 		}
 
 		return other;
@@ -538,59 +541,52 @@
 
 	void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 	{
-	int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, n, occupation, expand;
-	int changed[G->U];
+		int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, n, occupation, expand, density;
+		int changed[G->U];
 
-	baby = 0;
-
-	for (focal = 0; focal < (G->U); focal++) {
-		mate = -1;
-		compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
-		all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
-		if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
-			//occupation = Site_Occupation (G, progenitors, focal, info); --correct
-			occupation = 1; /*Incorect but useless*/
-			if (compatible_neighborhood >= info->min_neighboors && occupation < info->max_spot_density/3) {
-				mate = Choose_Mate (G, focal, progenitors, info);
-				for (n = 0; n < 2 && mate != -1; n++) {
-					Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
-					baby ++;
+		baby = 0;
+		for (focal = 0; focal < (G->U); focal++) {
+			mate = -1;
+			compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+			all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+			if ((G->U) < info->number_individuals && all_neighborhood < info->density) {
+				occupation = Site_Occupation (G, progenitors, focal, info);
+				if (compatible_neighborhood >= info->min_neighboors && occupation < info->max_spot_density/3) {
+					mate = Choose_Mate (G, focal, progenitors, info);
+					for (n = 0; n < 2 && mate != -1; n++) {
+						Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
+						baby ++;
+					}
 				}
 			}
-		}
-		else {
-			for (increase = 0; all_neighborhood < 2 && increase < info->max_increase; increase++) {
-				Expand_Neighborhood (G, progenitors, focal, info, increase + 1);
-				compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
-				all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
-			}
-			if (all_neighborhood > 1) {
-				changed[focal] = increase;
-				other = focal;
-				other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
-				if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
+			else {
+				for (increase = 0; all_neighborhood < 2 && increase < info->max_increase; increase++) {
+					Expand_Neighborhood (G, progenitors, focal, info, increase + 1);
+					compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+					all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
+					changed[focal] = increase + 1;
+				}
+				if (all_neighborhood > 1) {
 					other = Choose_Other (G, focal, progenitors, info, increase, changed);
 					if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 					else other_neighborhood = 0;
-				}
-				if (other != -1) {
 					if (other_neighborhood > 1) {
-					mate = Choose_Mate (G, other, progenitors, info);
+						mate = Choose_Mate (G, other, progenitors, info);
 						if (mate != -1) {
-						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-						baby ++;
+							Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+							baby ++;
 						}
 					}
-					if (other != focal && changed[other] > 0) {
+					if (other != focal && other != -1 && changed[other] > 0) {
 						Shrink_Neighborhood (G, progenitors, other, info, changed[other]);
 					}
 				}
-				if (changed[focal] > 0) 
+				if (changed[focal] > 0) {
 					Shrink_Neighborhood (G, progenitors, focal, info, changed[focal]);
+				}
 			}
 		}
-	}
-	info->population_size = baby;
+		info->population_size = baby;
 	}
 
 /* =================================================================== */
