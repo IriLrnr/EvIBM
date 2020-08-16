@@ -1,40 +1,7 @@
 #include "functions.h"
 
 /* ==================  Functions for randomness  ===================== */
-
 	/*Generates a random number between 0 and 1 */
-	double random_number()
-	{
-		return((double) rand() / ((double) RAND_MAX + 1));
-	}
-
-	int rand_upto (int n)
-	{
-		return (rand() / (RAND_MAX / (n + 1)));
-	}
-
-	int rand_1ton (int n)
-	{
-		return (rand() / (RAND_MAX / (n)) + 1);
-	}
-
-	/*Generates a random number between 0 and 1 
-		double random_numberP ()
-		{
-			return (gsl_rng_uniform_pos (GLOBAL_RNG));
-		}
-
-		int rand_uptoP (int n)
-		{
-			return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
-		} 
-
-		unsigned int poisson (double mu) 
-		{
-			return (gsl_ran_poisson(GLOBAL_RNG, mu));
-  	} 
-    other options
-
     double random_number()
     {
       return((double) rand() / ((double) RAND_MAX + 1));
@@ -47,10 +14,8 @@
 
     int rand_1ton (int n)
     {
-      return ((int) ceil(random_number() * (n + 1)));
+      return ((int) (random_number() * n) + 1);
     }
-
-  */
 
 	/*This is a binary genome generator. It generates the first genome.*/
 	int* Generate_Genome (int genome_size)
@@ -65,7 +30,7 @@
 		}
 		return first_genome;
 	}
-
+	
 /* =================================================================== */
 
 

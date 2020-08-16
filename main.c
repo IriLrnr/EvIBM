@@ -3,7 +3,7 @@
 int main()
 {
   int i, j, k, l, number_species, type, deltat, p, count;
-  int sizes[40];
+  int sizes[100];
   Population progenitors, offspring;
   Graph G;
   Parameters info;
