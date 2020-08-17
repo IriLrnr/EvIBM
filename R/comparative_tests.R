@@ -11,13 +11,14 @@ theme.all <- theme(text = element_text(size=8, family="Helvetica"),
                    #legend.margin = margin(-4, 4, -1, -1),
                    plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
-setwd("./data/test_cp")
+setwd("./data/test_cp/")
 ##### G ######
 getwd()
 setwd("./g")
-spp.mn.g <- tibble(.rows = 201)
-spp.sd.g <- tibble(.rows = 201)
-for(f in 1:10){
+glim <- 5
+spp.mn.g <- tibble(.rows = 2001)
+spp.sd.g <- tibble(.rows = 2001)
+for(f in 1:glim){
   setwd(paste0("./", f, "/species"))
   file.names <- dir()
   
@@ -38,8 +39,8 @@ for(f in 1:10){
 }
 setwd("../")
 
-colnames(spp.mn.g) <- seq(1,10,1)
-colnames(spp.sd.g) <- seq(1,10,1)
+colnames(spp.mn.g) <- seq(1,glim,1)
+colnames(spp.sd.g) <- seq(1,glim,1)
 spp.mn.g <- cbind(sumario$gen, spp.mn.g)
 spp.sd.g <- cbind(sumario$gen, spp.sd.g)
 
@@ -58,6 +59,7 @@ spp.g <- ggplot(melted, aes(x=gen, y=sp, group=variable, colour=factor(variable)
         labs (x = "Geração", y = "Número de espécies", color = "g (%)") +
         theme_bw() +
         theme.all
+spp.g
 #spp.g <- spp.g + ggtitle("Especies x tempo para diferentes valores de g")
 #ggsave("../../figs/test/comparative/allsp_g.png", spp.g)
 
@@ -75,9 +77,10 @@ g.fig
 
 getwd()
 setwd("./mu")
-spp.mn.mu <- tibble(.rows = 201)
-spp.sd.mu <- tibble(.rows = 201)
-for(f in 1:10){
+mulim = 4
+spp.mn.mu <- tibble(.rows = 2001)
+spp.sd.mu <- tibble(.rows = 2001)
+for(f in 1:mulim){
   setwd(paste0("./", f, "/species"))
   file.names <- dir()
   
@@ -98,8 +101,8 @@ for(f in 1:10){
 }
 setwd("../")
 
-colnames(spp.mn.mu) <- seq(1,10,1)
-colnames(spp.sd.mu) <- seq(1,10,1)
+colnames(spp.mn.mu) <- seq(1,mulim,1)
+colnames(spp.sd.mu) <- seq(1,mulim,1)
 spp.mn.mu <- cbind(sumario$gen, spp.mn.mu)
 spp.sd.mu <- cbind(sumario$gen, spp.sd.mu)
 colnames(spp.mn.mu)[1] <- c("gen")
@@ -134,9 +137,10 @@ mu.fig
 ###### RHO ########
 getwd()
 setwd("./rho")
-spp.mn.p <- tibble(.rows = 201)
-spp.sd.p <- tibble(.rows = 201)
-for(f in 7:16){
+rholim <- 12
+spp.mn.p <- tibble(.rows = 2001)
+spp.sd.p <- tibble(.rows = 2001)
+for(f in 7:rholim){
   setwd(paste0("./", f, "/species"))
   file.names <- dir()
   
@@ -157,8 +161,8 @@ for(f in 7:16){
 }
 setwd("../")
 
-colnames(spp.mn.p) <- seq(7,16,1)
-colnames(spp.sd.p) <- seq(7,16,1)
+colnames(spp.mn.p) <- seq(7,rholim,1)
+colnames(spp.sd.p) <- seq(7,rholim,1)
 spp.mn.p <- cbind(sumario$gen, spp.mn.p)
 spp.sd.p <- cbind(sumario$gen, spp.sd.p)
 colnames(spp.mn.p)[1] <- c("gen")
@@ -193,10 +197,9 @@ rho.fig
 ######## B ######
 getwd()
 setwd("./B")
-spp.mn.b <- tibble(.rows = 101)
-spp.sd.b <- tibble(.rows = 101)
-bvec <- c(150, 1500, 15000)
-f = 15000
+spp.mn.b <- tibble(.rows = 2001)
+spp.sd.b <- tibble(.rows = 2001)
+bvec <- c(150)#, 1500, 15000)
 for(f in bvec){
   setwd(paste0("./", f, "/species"))
   file.names <- dir()
@@ -204,7 +207,7 @@ for(f in bvec){
   number.spp=data.frame()
   for (i in 1:(length(file.names)-1)){
     dados <- read.csv(paste(file.names[i]), head=TRUE, sep=";")
-    number.spp <- rbind(number.spp, dados[1:101,])
+    number.spp <- rbind(number.spp, dados[1:2001,])
   }
   setwd("../../")
   
@@ -218,8 +221,8 @@ for(f in bvec){
 }
 setwd("../")
 
-colnames(spp.mn.b) <- c(150, 1500, 15000)
-colnames(spp.sd.b) <- c(150, 1500, 15000)
+colnames(spp.mn.b) <- c(150)
+colnames(spp.sd.b) <- c(150)
 spp.mn.b <- cbind(sumario$gen, spp.mn.b)
 spp.sd.b <- cbind(sumario$gen, spp.sd.b)
 colnames(spp.mn.b)[1] <- c("gen")
