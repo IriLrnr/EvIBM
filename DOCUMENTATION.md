@@ -1,15 +1,6 @@
+# Model and Code Documentation for V0
 
-# Model and Code Walkthrough
-
-#### Hello!
-
-Welcome to my detailed walkthrough! If you are reading this, at this point, either you are my advisor or another person who knows the research and me; however, readers probably have different backgrounds, and I want the text to be clear to everyone, and the code to be as self-explanatory as possible, so I'm making this informal text, with bits of theory.
-
-My goal is for this document to be complete, informative and helpful on understanding the relation between what we **want** to model, and what we are **actually** modeling, because frankly, both you and I are here to help me fix some mistakes. So I'll be needing every little feedback you can give me, even if it's just a stylistic tip.
-
-#### Let's begin!
-
-This is a computational model for evolution and speciation. In this walkthrough, I am going to explain the model while showing the code that corresponds at the same time, so it is also a documentation. If you have a specific doubt, you can look into function section through the table of contents, or in the F.A.Q.
+This is a computational model for evolution and speciation. Firt, the model is described, and following is the code. The order is not as it appear in the files, but as is used when compiling.
 
 ## Table of Contents
 - [The model](#model)
@@ -30,8 +21,9 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [Swap_Generations](#swap_generations)
 - [Libraries](#libraries)
 	- [functions.h](#functionsh)
-		- [rand_upto](#rand_upto)
 		- [random_number](#random_number)
+		- [rand_upto](#rand_upto)
+		- [rand_1ton](#rand_1ton)
 		- [Set_Parameters](#set_parameters)
 		- [Alloc_Population](#alloc_population)
 		- [Set_Initial_Values](#set_initial_values)
@@ -46,44 +38,39 @@ This is a computational model for evolution and speciation. In this walkthrough,
 		- [Offspring_Position](#offspring_position)
 
 ## The model <a name="model"></a>
-Our goal is to model evolution. That is, how do many species arise from only one?
+This is an evolutive model. It is used to explore the mechanisms that allow speciation, and it's limits. 
 
-We know the answer. When the genetic flow between populations stop, as the time passes, those populations reproduce only within. They accumulate mutations until the point where the genetic pool is so far apart, no one in one population can reproduce with anyone from the other.
+When the genetic flow between populations stop, as the time passes, populations reproduce only within. They accumulate mutations until the point where the genetic pool is so far apart, no one in one population can reproduce with anyone from the other. The process of isolation occurs because of distance in space. 
 
-But it doesn't mean there are no questions to be answered. For example, how long does this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
+Isolation could happen due to a barrier, like rivers, mountains or seas, or just due to distance. But could a population with genetic flow within give rise to species? Theory says yes, but has never been. That is simpatric speciation.
 
-Modeling simplified evolution can provide insights to those answers, but first we need our model to work as we think nature would, considering the parts we think are important in evolutionary timescales.
+There are a lot of questions still waiting for an answer, that an evolutive model can help. For example, how long does this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
 
 ### Overview <a name="overview"></a>
 
-Our model begins with a single species, homogeneously distributed over a two-dimensional space, of genomically identical individuals. Reproduction is sexual. Individuals leave children who will hopefuly reproduce, and die :( .
-
-As the generations pass, the individuals accumulate differences, and speciation occurs when there is no possible genetic flow between two groups of individuals anymore.
+This model begins with a single species of hermafrodites, homogeneously distributed over a two-dimensional space, of genomically identical individuals. Reproduction is sexual. All individuals have the same chance of reproducing. Recombination and mutation are present when creating the offspring genome, adding genetic flow to the model. As the generations pass, the individuals accumulate differences, and speciation occurs when there is no possible genetic flow between two groups of individuals anymore.
 
 It looks like this, initially:
 
 <img src="./figs/firstDistribution.png" width="60%">
 
 ### Simplifications <a name="simplifications"></a>
-Any model needs simplifications and assumptions. The goal is to have simplifications that maintain the model meaningful.
-
-Ours are these:
+Any model needs simplifications and assumptions. The goal is to have simplifications that maintain the model meaningful. In the present work, simplifications are:
 
 1. The genomes are a binary string
-2. The individuals are hermaphrodites (not asexual, because they reproduce sexually)
-3. The generations don't overlap (mates come from the same generation)
-4. There is no fitness. No one has advantages or disadvantages (it is a neutral model)
-5. The population is stable, it doesn't grow or shrink much
+2. The generations don't overlap (mates come from the same generation)
+3. There is no fitness. No one has advantages or disadvantages (it is a neutral model)
+4. The population is stable, it doesn't grow or shrink much
 
 	_This simplification could be considered as the space limit_
 
-7. Two individuals can be in the same spot
-6. The space is a toroid: the margins touch like this
+5. Two individuals can be in the same spot
+6. The space is a toroid: the margins touch (see below)
 
 <img src="./figs/toroid.png" width="40%">
 
 ## Code <a name="code"></a>
-The code is structured as follows
+Code structure is as follows
 
 ```bash
 main.c
@@ -92,7 +79,7 @@ main.c
 		linkedlist.h
 ```
 
-The `main` function keeps the skeleton of the code, while the `functions` library keeps the stuffing. To make that, I built two libraries: one to work with graphs, and another one to word with linked lists. They are included in `functions.h`.
+The `main` function keeps the skeleton of the code, while the `functions` library store the inner parts. Two libraries were built: one to work with graphs, and another one to word with linked lists. They are included in `functions.h`.
 
 ```c
 //in functions.h
@@ -107,7 +94,7 @@ The `main` function keeps the skeleton of the code, while the `functions` librar
 //in main.c
 #include "functions.h"
 ```
-So that way, the libraries declared in `functions.h` can be used in `main.c`. I will not expose the full `graph.h` and `linkedlist.h` code here, for brevity, but you are welcome to look at the source.
+That way, the libraries declared in `functions.h` can be used in `main.c`. The full `graph.h` and `linkedlist.h` code will not be displayed here, for brevity, but you are welcome to look at the source.
 
 It is also necessary to initialize a global variable to use with the gsl library. It is the "state keeper" of the random number generator.
 
@@ -116,59 +103,72 @@ It is also necessary to initialize a global variable to use with the gsl library
 gsl_rng *GLOBAL_RNG;
 ```
 
-The main file will appear in order, so every code part beginning with "//main" in this file, is exactly in the same order as it appears in the main section. We cannot apply the same method for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
-{>>Se você usar aquele programa que eu te passei, você consegue incluir o número das linhas (e potêncialmente a função de que vieram<<}
+The main file will appear in order, so every code part beginning with `//main` in this file, is exactly in the same order as it appears in the main section. This order cannot be applied for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
+
 I will leave here the variables' declaration for reference.
 ```c
 //in main.c
-int main(){...
+int main() {...
 //...
-	int i, j, l, number_species;
-	/* A vector for keeping all the individuals of the kth generation, and other for the
-	/* (k+1)th generation */
+	int i, j, k, l, number_species, type, deltat, p, count;
+	int sizes[50];
 	Population progenitors, offspring;
-	Graph G, H;
+	Graph G;
 	Parameters info;
-	unsigned int sample;
-	time_t t;
+	char nome_arq_s[80] = "";
+	char nome_arq_p[80] = "";
+	char nome_arq_st[80] = "";
+	FILE *position;
+	FILE *nspecies;
+	FILE *size;
+	FILE *stats;
+	time_t t, ti, tf;
+	clock_t start, end;
+	double cpu_time_used_sim, total_cpu_time = 0;
 
-	time(&t);
+	time(&ti);
 	...}
 ```
 
 ### Randomness <a name="random"></a>
-To keep the model neutral, we need to use randomness to choose some values. To do that, we are using the `C` random number generator, `rand()`. Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value. For multiple simulations, we use the time as seed for the function
+To keep the model neutral, randomness is necessary. To do that, we are using the `C` random number generator, `rand()`. Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value. For multiple simulations, we use the time as seed for the function
 ```c
 //in main
 srand (t);
 GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
 ```
-
-The functions I am currently using to produce random numbers are one based on rand(), or rand() itself. It generates a integer between 0 and RAND_MAX (the maximum value an integer can have).
-
-<a name="rand_upto"></a>
-
-To achieve an integer between 0 and a value, we can use this function that generates an integer up to n.
-```c
-int rand_upto (int n) 
-{
-	return (rand() / (RAND_MAX / (n + 1)));
-}
-```
+To keep the random numbers in a desired interval, the following functions can be used.
 
 <a name="random_number"></a>
 
-When we need a random number between 0 and 1, excluding both 0 and 1, we use
+When a random number between 0 and 1, excluding both 0 and 1, is needed:
 
 ```c
-double random_number() 
+double random_number()
 {
-	return((double) rand() / ((double) RAND_MAX + 1));
+  return((double) rand() / ((double) RAND_MAX + 1));
 }
 ```
 
+<a name="rand_upto"></a>
 
-Just passing by to remember the functions are docummented in the last section.
+To achieve an integer between 0 and a value, this function that generates an integer up to n cam be used.
+```c
+int rand_upto (int n)
+{
+  return ((int) floor(random_number() * (n + 1)));
+}
+```
+
+<a name="rand_1ton"></a>
+
+To achieve an integer between 0 and a value, this function that generates an integer up to n cam be used.
+```c
+int rand_1ton (int n)
+{
+  return ((int) (random_number() * n) + 1);
+}
+```
 
 ### Parameters <a name="parameters"></a>
 
@@ -212,17 +212,17 @@ These parameters can be manually set to the desired values. To make simulation a
 Parameters Set_Parameters () 
 {
 	Parameters info;
-	double rho;
+	double rho, epslon = 0.74;
 
 	info = (Parameters) malloc (sizeof (parameters));
 
 	info->number_individuals     = 1000;
 	info->population_size        = 1000;
 	/* The population can grow and sink. Here we estimate the grown aoround 20% */
-	info->individual_vector_size = (int)(info->number_individuals * 2);
-	info->reproductive_distance  = 7;
+	info->individual_vector_size = (int)(info->number_individuals * 1.05);
 	info->genome_size            = 150;
-	info->number_generations     = 3000;
+	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
+	info->number_generations     = 2000;
 	info->lattice_length         = 100;
 	info->lattice_width          = 100;
 	info->radius                 = 5;
@@ -234,7 +234,7 @@ Parameters Set_Parameters ()
 	/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 	individuals that mark the density limit (60% of the original density) */
 	rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
-	info->density = (int) ceil(3.1416*rho*info->radius*info->radius*0.6);
+	info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
 	
 	return info;
 }
@@ -253,7 +253,8 @@ First, the structure info is allocated dynamically, and then the values are set.
 - `dispersion`: the chance of the offspring dispersing
 - `mutation`: the tax of genomic mutation
  
- The last values are less obvious, and are there because what we are modeling is spatial. Rho is the average density around an individual at t = 0. The parameter `density` keeps the number of how many individuals correspond to 60% of the density.
+ The last values are less obvious, and are there because what we are modeling is spatial. Rho is the average density around an individual at t = 0. The parameter `density` keeps the number of how many individuals correspond to 60% of the density. To correct the `ceil` rounding, we subtract an epslon so the density is in a desired range.
+
  The parameter `max neighbors` keeps the minimum number of neighboors an individual need around it, so it won't be considered isolated.
 
 ### Structures <a name="structures"></a>
@@ -300,7 +301,7 @@ Set_Initial_Values (progenitors, info);
 #### Set first values<a name="alloc"></a>
 Now we have the population vectors, with empty individuals structures in it. For each individual in the vector of the population we have to alloc their "internal structures" and set values to the generation 0, that is allocated as the first `progenitors`
 
-For each individual in the vector of the population we have to allocate their “internal structures” and set values to the generation 0, that is allocated as the first “progenitors”
+For each individual in the vector of the population 0, the values of their characteristics need to be set. That is allocated as the first “progenitors”
 
 <a name="set_initial_values"></a>
 
@@ -348,13 +349,11 @@ int* Generate_Genome (int genome_size)
 Generate_genome recieves a vector, and an integer corresponding to the vector's size. The genome is allocated.For each spot in the genome, it draws a value between 0 and 1 with equal chance.
 
 #### The graph <a name="graph"></a>
-Now we have one population with individuals, that have a genome, coordinates and a species (and it's  helpful list of bootycalls. We know, at first, the individuals are identical, so we have **genetic flow** between all individuals. But further in time, the individuals accumulate diffences, and we have to find out the possible genetic flow in this population. How?
+It begins with one population with individuals, that have a genome, coordinates and a species (and it's list of compatible and spatial neighbors. At first, the individuals are identical, so **genetic flow** exists between all individuals. But further in time, the individuals accumulate diffences. In that case, genetic flow can be constructed as **graph**.
 
-We construct a **graph**, where the vertices corespond to individuals, and an edge exists between two vertices if the two individuals are genetically compatible (independently of geography).
+In this graph, the vertices corespond to individuals, and an edge exists between two vertices if the two individuals are genetically compatible (independently of geography).
 
-To make the correspondence between the graph and the individual, each vertex has an index that is the same as the `Population` vector's index of its corresponding individual.
-
-As the generations pass, species connect and disconnect, as shown bellow (it can be seen forward or backwards)
+To make the correspondence between the graph and the individual, each vertex has an index that is the same as the `Population` vector's index of its corresponding individual. As the generations pass, species connect and disconnect, as shown bellow (it can be seen forward or backwards)
 
 ![](./figs/species.png)
 
@@ -381,30 +380,23 @@ typedef struct {
 
 typedef graph * Graph;
 ```
-**A** is the number of arcs in the graph, **V** is the total of vertices available, and **U** is the number of used vertices. This way, the population can vary without having to create and destroy new graphs (because I tried implementing different graphs for different generations and I failed). In the next generation, if the population grows or shrinks, the U parameter will change and the graph also grows or shrinks.
+**A** is the number of arcs in the graph, **V** is the total of vertices available, and **U** is the number of used vertices. This way, the population can vary without having to create and destroy new graphs. In the next generation, if the population grows or shrinks, the U parameter will change and the graph also grows or shrinks.
 
 ### Simulating <a name="simulation"></a>
-After initializing the values and creating our structure, we are going to take a look at the *actual* program.
+After initializing the values and creating our structure, the actual program can be written.
 
 ```c
 //in main
-for (i = 0; i < info->number_generations; i++) {
-	Stablish_Distances (G, progenitors, info);
+for (i = 0; i <= info->number_generations; i++) {
+    Stablish_Distances (G, progenitors, info);
 	number_species = Count_Species (G, progenitors);
-	Reproduction (G, progenitors, offspring, info);
-	Swap_Generations (&progenitors, &offspring);
-	if (!i%10) {
-		printf("GENERATION: %d\n", i);
-		printf("NUMBER OF SPECIES = %d\n", number_species);
-	}
-}
+    Reproduction  (G, progenitors, offspring, info);
+	printf(" %d \t %d \t  %d \t %d \t %d\n", l, i, number_species, G->U, info->density);
+    Swap_Generations (&progenitors, &offspring);
+  }
 ```
-You may say "just that little", but we still have at least 200 more lines of code to explore! We still have to look at the more intricate part of the model.
 
-The prints keep track of the stage of the simulation, so we can see how it is going.
-
-The `for` loop will iterate in the generations. First, `Stablish_Distances` fills the graph with the progenitors's genetical relations. Then, the progenitors will reproduce among themselves, and their children will be put in the "offspring" population vector. We count how many species compose the progenitors population, and then swap the offspring and progenitors vectors, which
-can be interpreted as the progenitors dying and the offspring growing up to have its own children.
+The `for` loop will iterate in the generations. First, `Stablish_Distances` fills the graph with the progenitors's genetical relations. Then, the progenitors will reproduce among themselves, and their children will be put in the "offspring" population vector. Then, `Count_Species()` will count how many species compose the progenitors population, and then swap the offspring and progenitors vectors, which can be interpreted as the progenitors dying and the offspring growing up to be progenitors. The parent's data is not stored at this point.
 
 ### Stablish_Distances <a name="stablish_distances"></a>
 
@@ -421,14 +413,14 @@ void Stablish_Distances (Graph G, Population individuals, Parameters info)
 	for (i = 0; i < G->U; i++) {
 		for (j = i + 1; j < G->U; j++) {
 			divergences = 0;
-			for (k = 0; k < info->genome_size; k++) {
+			for (k = 0; k < info->genome_size && divergences <= info->reproductive_distance + 1; k++) {
 				if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
 					divergences++;
 				}
 			}
 
 			if (divergences <= info->reproductive_distance) {
-				InsertArc (G, i, j, 1);
+				InsertArc (G, i, j, divergences + 1);
 			}
 			else if (G->adj[i][j] != 0) {
 				RemoveArc (G, i, j);
@@ -445,13 +437,11 @@ With this function, we have created a graph that contains comparative informatio
 
 The time it takes to run this function is \Theta(n^2). Not because the construction of the graph, but because the construction of the neighborhoods.
 
-_Even though this function is not perfect, It's there because it works, even if redundantly. We have bigger problems in the code, and optimizing this function comes after fixing those mistakes. The future plans for this part of the code is not to use a complete graph, because the only really important relations are the ones kept in the "neighborhood" list. To find out how many species can be used, we would implement an Union-Find algorithim, to find maximal connected components faster (explained further)._
-
 #### Subfunctions
 
 ##### Neighborhood <a name="neighborhood"></a>
 
-The neighborhood function used here is not part of the graph (yet). It needs a little more information to be created, that is, the distance from the focal individual. In this list, we keep only the individuals who are in the range of the focal (that is what I called a bootycall list).
+The neighborhood function used here is not part of the graph (yet). It needs a little more information to be created, that is, the distance from the focal individual. In this list, we keep only compatible individuals who are in the range of the focal.
 
 ```c
 //in functions.h
@@ -462,7 +452,7 @@ void Neighborhood (Graph G, Population progenitors, int focal, Parameters info, 
 	RestartList (&progenitors[focal]->compatible_neighbors);
 	RestartList (&progenitors[focal]->spatial_neighbors);
 
-	for (i = 0; i < (G->U); i++) {
+	for (i = G->U - 1; i >= 0; i--) {
 		if (focal != i) {
 			if (Verify_Distance (progenitors, focal, i, info, increase)) {
 				if (G->adj[focal][i] != 0) {
@@ -478,9 +468,6 @@ void Neighborhood (Graph G, Population progenitors, int focal, Parameters info, 
 ```
 
 The neighborhood function looks for everybody who is in the range of the focal. The compatible neighbors will be put in the `->compatible_neighbors` list, and the not compatible will be put in the `->spatial_neighbors`
-
-**SUGESTION**
-_A friend gave me a suggestion: first, to use a linked list graph, instead of a adjacency matrix one, and sort the linked lists by distance from the focal. It would affect the time taken to find out if two individuals are the same species (maybe that is not a problem, because they have a "->species" identifier), but it would simplify this function. What do you think? Let me know!_
 
 ##### Verify_Distance <a name="verify_distance"></a>
 
@@ -525,13 +512,12 @@ This is a boolean function, it returns 1 if the individuals are in the range of 
 Now that we know the relationship between all the progenitors (which species they are) and have the graph keeping it, they will reproduce, creating the offspring population. 
 
 ```c
- //in functions.h
 void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 {
-	int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, expand, n, occupation;
+	int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, n, occupation, expand, density;
+	int changed[G->U];
 
 	baby = 0;
-
 	for (focal = 0; focal < (G->U); focal++) {
 		mate = -1;
 		compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
@@ -543,38 +529,33 @@ void Reproduction (Graph G, Population progenitors, Population offspring, Parame
 				for (n = 0; n < 2 && mate != -1; n++) {
 					Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
 					baby ++;
-					}
+				}
 			}
 		}
 		else {
-			expand = 0;
-			for (increase = 1; all_neighborhood < 2 && increase <= info->max_increase; increase++) {
-				Expand_Neighborhood (G, progenitors, focal, info, increase);
+			for (increase = 0; all_neighborhood < 2 && increase < info->max_increase; increase++) {
+				Expand_Neighborhood (G, progenitors, focal, info, increase + 1);
 				compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 				all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);
-				expand = 1;
+				changed[focal] = increase + 1;
 			}
-			if (expand == 0) increase = 0;
-			if (increase <= info->max_increase) {
-				other = focal;
-				other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
-				if (random_number() < 0.37 || compatible_neighborhood < info->min_neighboors) {
-					other = Choose_Other (G, focal, progenitors, info, increase);
-					if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
-					else other_neighborhood = 0;
-				}
-				mate = -1;
-				if (other != -1 && other_neighborhood > 1) {
+			if (all_neighborhood > 1) {
+				other = Choose_Other (G, focal, progenitors, info, increase, changed);
+				if (other != -1) other_neighborhood = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+				else other_neighborhood = 0;
+				if (other_neighborhood > 1) {
 					mate = Choose_Mate (G, other, progenitors, info);
+					if (mate != -1) {
+						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+						baby ++;
+					}
 				}
-				if (mate != -1 && other != -1) {
-					Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-					baby ++;
+				if (other != focal && other != -1 && changed[other] > 0) {
+					Shrink_Neighborhood (G, progenitors, other, info, changed[other]);
 				}
 			}
-			if (increase > 0) {
-				Neighborhood (G, progenitors, focal, info, 0);
-				if (other != focal && other != -1) Neighborhood (G, progenitors, other, info, 0);
+			if (changed[focal] > 0) {
+				Shrink_Neighborhood (G, progenitors, focal, info, changed[focal]);
 			}
 		}
 	}
@@ -591,7 +572,7 @@ The subtle balance of parameters, in this function, indicates who lives and dies
 
 ##### Choose_Mate <a name="choose_mate"></a>
 
-The function "Choose_Mate" sorts one of those neighbors out:
+The function `Choose_Mate` sorts one of those neighbors out:
 ```c
 //in functions.h
 int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
@@ -630,6 +611,8 @@ int Sort_Neighbor (Population progenitors, int i)
 	int j, k, compatible_neighbors, all, other;
 	List p;
 
+	if (i == -1) return -1;
+
 	compatible_neighbors = Verify_Neighborhood (progenitors[i]->compatible_neighbors);
 	all = compatible_neighbors + Verify_Neighborhood (progenitors[i]->spatial_neighbors);
 
@@ -661,58 +644,59 @@ Another function that is necessary for
 //in functions.h
 int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase, int changed[])
 {
-	int j, i, all, compatible_neighbors, radius_increase, other, n;
+	int j, i, all, compatible_neighbors, radius_increase, other, n, focal_neighbors;
 	List p;
 
+	other = focal;
 	radius_increase = 0;
-	compatible_neighbors = 0;
-	all = 0;
+	compatible_neighbors = all = 0;
 
 	for (i = 0; i < G->U; ++i) {
 		if (i != focal)
 			changed[i] = 0;
 	}
 
-	other = Sort_Neighbor (progenitors, focal);
-	if (other != -1) {
+	focal_neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
+
+	if (random_number() < 0.37 || focal_neighbors < info->min_neighboors) {
+		other = Sort_Neighbor (progenitors, focal);
 		compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
 		all = compatible_neighbors + Verify_Neighborhood(progenitors[other]->spatial_neighbors);
-	}
-
-	n = 0;
-	while (compatible_neighbors < 2 && radius_increase < info->max_increase) {
-		if (n > 1) {
-			radius_increase ++;
-			n = 0;
-			other = focal;
-			if (radius_increase > increase) {
+		if (other == -1) printf("ERRO");
+		if (increase > 0) Shrink_Neighborhood (G, progenitors, focal, info, increase);
+		n = 0;
+		while (compatible_neighbors < info->min_neighboors && radius_increase < info->max_increase) {
+			if (n > 1) {
+				radius_increase ++;
+				n = 0;
+				other = focal;
 				Expand_Neighborhood (G, progenitors, focal, info, radius_increase);
 				changed[focal] = radius_increase;
 			}
-		}
-		if (other != -1) other = Sort_Neighbor (progenitors, other);
-		if (other != -1) {
-			for (j = 0; j < radius_increase; j++) {
-				Expand_Neighborhood (G, progenitors, other, info, j + 1);
-      }
-			changed[other] = radius_increase;
-			compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
-			all = compatible_neighbors + Verify_Neighborhood (progenitors[other]->spatial_neighbors);
-		}
-		n++;
-  }
+			other = Sort_Neighbor (progenitors, other);
+			if (other != -1) {
+				for (j = 0; j < radius_increase; j++) {
+					Expand_Neighborhood (G, progenitors, other, info, j + 1);
+        		}
+				changed[other] = radius_increase;
+				compatible_neighbors = Verify_Neighborhood (progenitors[other]->compatible_neighbors);
+				all = compatible_neighbors + Verify_Neighborhood (progenitors[other]->spatial_neighbors);
+			}
+			n++;
+    	}
+	}
 
-	for (i = 0; i < G->U; ++i) {
+	for (i = 0; i < G->U; ++i) { /*diminuir apenas se for usar de novo*/
 		if (changed[i] > 0 && i != focal && i != other) {
 			Shrink_Neighborhood (G, progenitors, i, info, changed[i]);
-    }
+ 		}
 	}
 
 	return other;
 }
 ```
 
-This function chooses another individual around the focal to reproduce in its place. It looks twice for each increase in the radius, until it finds someone or increases the radius too much.
+This function chooses another individual around the focal to reproduce in its place. It looks twice for each increase in the radius, until it finds someone or increases the radius too much. It also looks one time more in the default radius.
 
 <a name="expand_neighborhood"></a>
 

@@ -41,7 +41,7 @@ Here's how to install make
 $ sudo apt install build.essentials
 ```
 
-To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/
+To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/, but if you don't want the graphics, you won't need R.
 
 ## References
 
