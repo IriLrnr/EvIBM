@@ -34,10 +34,40 @@
 		info->individual_vector_size = (int)(info->number_individuals * 1.05);
 		info->genome_size            = 150;
 		info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-		info->number_generations     = 2000;
+		info->number_generations     = 1000;
 		info->lattice_length         = 100;
 		info->lattice_width          = 100;
 		info->radius                 = 5;
+		info->mutation               = 0.00025;
+		info->dispersion             = 0.01;
+		info->min_neighboors         = 3;
+		info->max_increase           = 2;
+		info->max_spot_density       = 100;
+		/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
+		individuals that mark the density limit (60% of the original density) */
+		rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+		info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
+		
+		return info;
+	}
+
+	Parameters Set_Mini_Parameters () 
+	{
+		Parameters info;
+		double rho, epslon = 0.74;
+
+		info = (Parameters) malloc (sizeof (parameters));
+
+		info->number_individuals     = 10;
+		info->population_size        = 10;
+		/* The population can grow and sink. Here we estimate the grown aoround 20% */
+		info->individual_vector_size = (int)(info->number_individuals * 1.05);
+		info->genome_size            = 20;
+		info->reproductive_distance  = (int) floor(0.05*info->genome_size);
+		info->number_generations     = 2000;
+		info->lattice_length         = 5;
+		info->lattice_width          = 5;
+		info->radius                 = 1;
 		info->mutation               = 0.00025;
 		info->dispersion             = 0.01;
 		info->min_neighboors         = 3;
@@ -280,13 +310,13 @@
 				if (divergences > info->reproductive_distance) {
 					for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; p != NULL && q != NULL;) {
 						if (p->info == q->info) {
-							divergences--;
+							divergences -= 2;
 							p = p->next;
 							q = q->next;
 						}
 						else if (p->info < q->info) p = p->next;
 						else q = q->next;
-					}	
+					}
 				}
 				if (divergences <= info->reproductive_distance) {
 					if (G->adj[i][j] == 0) InsertArc (G, i, j, 1);
@@ -396,7 +426,7 @@
 			loci = (int*) malloc (quantity * sizeof(int));
 
 			for (i = 0; i < quantity;) {
-				loci[i] = rand_upto(info->genome_size - 1); //because upto goes from 0 to n
+				loci[i] = rand_upto(info->genome_size); //because upto goes from 0 to n
 				for (retry = 0, j = 0; retry == 0 && j < i; ++j) {
 					if (loci[j] == loci[i]) {
 						retry = 1;
@@ -451,6 +481,7 @@
 					q = q->next;
 				}
 				else {
+					AlterList (&(offspring[baby]->genome), q->info);
 					p = p->next;
 					q = q->next;
 				}
@@ -459,9 +490,13 @@
 
 		//printf("babysgenome\n");
 		//PrintList(offspring[baby]->genome);
-		//printf("\n");
 
 		Mutation (offspring, baby, info);
+
+		//PrintList(offspring[baby]->genome);
+		//printf("\n");
+		
+
 	}
 
 	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase, int changed[])

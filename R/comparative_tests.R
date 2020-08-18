@@ -15,7 +15,7 @@ setwd("./data/test_cp/")
 ##### G ######
 getwd()
 setwd("./g")
-glim <- 5
+glim <- 6
 spp.mn.g <- tibble(.rows = 2001)
 spp.sd.g <- tibble(.rows = 2001)
 for(f in 1:glim){
@@ -77,7 +77,7 @@ g.fig
 
 getwd()
 setwd("./mu")
-mulim = 4
+mulim = 6
 spp.mn.mu <- tibble(.rows = 2001)
 spp.sd.mu <- tibble(.rows = 2001)
 for(f in 1:mulim){

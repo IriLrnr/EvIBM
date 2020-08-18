@@ -23,6 +23,19 @@ int main()
 
   time(&ti);
 
+  /*
+  info = Set_Mini_Parameters();
+  progenitors = Alloc_Population (info);
+  offspring = Alloc_Population (info);  
+  Set_Initial_Values (progenitors, info);
+  G = CreateGraph (info->individual_vector_size, info->number_individuals);
+
+  AlterList (progenitors[1], 7);
+  AlterList (progenitors[1], 7)
+
+ 
+  /********************************************/
+
   info = Set_Parameters();
 
   printf("type:\n1 to run mu tests\n2 to run rho tests\n3 to run g tests\n4 to run B tests\n");
@@ -130,6 +143,7 @@ int main()
       printf("Sim \t Gen \t nsp \t pop \t info->density\n");
       for (i = 0; i <= info->number_generations; i++) {
         Stablish_Distances (G, progenitors, info);
+        //PrintGraph(G);
         if (i%10 == 0) {
           number_species = Count_Species (G, progenitors);
           fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
@@ -154,7 +168,7 @@ int main()
       if (l == 0) fclose (position);
       fclose (size);
       fclose (nspecies);
-      //gsl_rng_free (GLOBAL_RNG);
+      gsl_rng_free (GLOBAL_RNG);
 
       end = clock();
       cpu_time_used_sim = ((double) (end - start)) / CLOCKS_PER_SEC;

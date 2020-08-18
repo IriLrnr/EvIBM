@@ -87,8 +87,10 @@ List FindValue (int value, List *list)
   List p;
 
   for (p = *list; p != NULL && p->info < value; p = p->next);
-  if (p->info == value) return p;
-  else return NULL;
+  if (p != NULL) {
+    if (p->info == value) return p;
+  }
+  return NULL;
 }
 
 void PrintList (List cell)
@@ -189,6 +191,5 @@ void RestartList (List *list)
 
   int Verify_Head (List *list)
   {
-    printf("head : %d\n", -((*list)->info + 1));
     return (-((*list)->info + 1));
   }
