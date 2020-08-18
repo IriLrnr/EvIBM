@@ -101,7 +101,7 @@ void PrintList (List cell)
   printf(".\n");
 }
 
-void AlterList (int value, List *list)
+void AlterListW (List *list, int value)
 {
   if (FindValue (value, list) == NULL) {
     AddCellInOrder (list, value);
@@ -110,6 +110,49 @@ void AlterList (int value, List *list)
     RemoveCell (list, value);
   }
 }
+
+void AlterList (List *list, int value)
+{
+  List add, del, p;
+
+  add = malloc (sizeof (Cell));
+  add->info = value;
+  add->next = NULL;
+
+  if (*list == NULL) {
+    printf("ERRO\n");
+  }
+
+  else {
+    if (value < (*list)->info) {
+      p = (*list);
+      (*list) = add;
+      (*list)->next = p;
+      (*list)->info --;
+    }
+    else {
+      for (p = *list; p->next != NULL && (p->next)->info < value; p = p->next);
+      if (p->next == NULL) {
+        add->next = NULL;
+        p->next = add;
+        (*list)->info --;
+      }
+      else if ((p->next)->info > value) {
+        add->next = p->next;
+        p->next = add;
+        (*list)->info --;
+      }
+      else {
+        del = p->next;
+        p->next = (p->next)->next;
+        free (del);
+        free (add);
+        (*list)->info ++;
+      }
+    }
+  }
+}
+
 
 void DestroyList (List *list)
 {
@@ -143,3 +186,9 @@ void RestartList (List *list)
     (*list)->next = NULL;
   }
 }
+
+  int Verify_Head (List *list)
+  {
+    printf("head : %d\n", -((*list)->info + 1));
+    return (-((*list)->info + 1));
+  }

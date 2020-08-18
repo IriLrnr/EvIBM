@@ -43,6 +43,12 @@ $ sudo apt install build.essentials
 
 To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/, but if you don't want the graphics, you won't need R.
 
+## Questions for next session
+
+Alterations made: genome become a linked list of locus with values different from base. Mutation is made by a binomial.
+Importat functions alterated: Stablish Distances, Create Offspring, Mutation
+Problems: is not forming species
+
 ## References
 
 DE AGUIAR, Marcus Aloizo Martinez et al. Global patterns of speciation and diversity. **Nature**, v. 460, n. 7253, p. 384-387, 2009.

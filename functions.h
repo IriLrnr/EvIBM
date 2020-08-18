@@ -1,18 +1,18 @@
 /* Libraries */
 #include <time.h>
 #include <math.h>
-//#include <gsl_randist.h>
-//#include <gsl_rng.h>
+#include <gsl_randist.h>
+#include <gsl_rng.h>
 #include "graph.h"
 #include "linkedlist.h"
 
 /* State-keeper of the random number generator*/
-//gsl_rng *GLOBAL_RNG;
+gsl_rng *GLOBAL_RNG;
 
 /* Structures used */
 typedef struct
 {
-	int* genome;
+	List genome;
 	int species;
 	double x;
 	double y;
@@ -66,7 +66,7 @@ Population Alloc_Population (Parameters);
 void Set_Initial_Values (Population, Parameters);
 void Stablish_Distances (Graph, Population, Parameters);
 void Offspring_Position (Population, Population, int, int, Parameters);
-void mutation (Population, int, int);
+void Mutation (Population, int, Parameters);
 void Create_Offspring (Population, Population, int, int, int, int, Parameters);
 int Choose_Mate (Graph, int, Population, Parameters);
 void Reproduction (Graph, Population, Population, Parameters);

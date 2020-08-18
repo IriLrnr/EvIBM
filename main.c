@@ -3,7 +3,7 @@
 int main()
 {
   int i, j, k, l, number_species, type, deltat, p, count;
-  int sizes[100];
+  int sizes[50];
   Population progenitors, offspring;
   Graph G;
   Parameters info;
@@ -15,28 +15,11 @@ int main()
   FILE *nspecies;
   FILE *size;
   FILE *stats;
-  //unsigned int sample;
+  unsigned int sample;
   time_t t, ti, tf;
   clock_t start, end;
   double rho, cpu_time_used_sim, total_cpu_time = 0;
   double n, x, lim;
-
-  /*int density;
-  double epslon;
-
-  info = Set_Parameters();
-
-  for (epslon = 0.5; epslon <= 1; epslon += 0.01) {
-    printf("epslon = %.2f\n", epslon);
-    for (i = 700; i <= 2000; i += 100) {
-      rho = 0.83*((double) i)/((double) (info->lattice_length * info->lattice_width));
-      density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
-      printf("pop = %d, density = %d\n", i, density);
-    }
-    printf("\n");
-  }
-
-  return 0;*/
 
   time(&ti);
 
@@ -103,7 +86,7 @@ int main()
       time(&t);
       srand (t);
       start = clock();
-      //GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
+      GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
 
       if (info->genome_size > 1500) {
         info->number_generations = 1000;
@@ -147,12 +130,12 @@ int main()
       printf("Sim \t Gen \t nsp \t pop \t info->density\n");
       for (i = 0; i <= info->number_generations; i++) {
         Stablish_Distances (G, progenitors, info);
-        if (i%1 == 0) {
+        if (i%10 == 0) {
           number_species = Count_Species (G, progenitors);
           fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
         }
         Reproduction  (G, progenitors, offspring, info);
-        if (i % 200 == 0) {
+        if (i % 10 == 0) {
           Count_Sizes (G, progenitors, number_species, info, sizes);
           for (j = 0; j < number_species; ++j) {
             fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], (G->U));

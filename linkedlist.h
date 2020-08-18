@@ -16,6 +16,7 @@ void AddCellInOrder (List*, int);
 void RemoveCell (List*, int);
 List FindValue (int, List*);
 void PrintList (List);
-void AlterList (int, List*);
+void AlterList (List*, int);
 void DestroyList (List*);
 void RestartList (List*);
+int Verify_Head (List*);

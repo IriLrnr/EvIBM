@@ -17,20 +17,6 @@
       return ((int) (random_number() * n) + 1);
     }
 
-	/*This is a binary genome generator. It generates the first genome.*/
-	int* Generate_Genome (int genome_size)
-	{
-		int i;
-		int* first_genome;
-
-		first_genome = (int*) malloc (genome_size * sizeof(int));
-
-		for (i = 0; i < genome_size; i++) {
-			first_genome[i] = rand_upto(1);
-		}
-		return first_genome;
-	}
-	
 /* =================================================================== */
 
 
@@ -74,7 +60,7 @@
 
 		for (i = 0; i < info->individual_vector_size; i++) {
 			individuals[i] = (Individual) malloc (sizeof (individual));
-			individuals[i]->genome = (int*) malloc(info->genome_size * sizeof (int));
+			individuals[i]->genome = CreateHeadedList ();
 			individuals[i]->compatible_neighbors = CreateHeadedList ();
 			individuals[i]->spatial_neighbors = CreateHeadedList ();
 		}
@@ -82,25 +68,29 @@
 		return individuals;
 	}
 
-	void Set_Initial_Values (Population progenitors, Parameters info)
+	/*This is a binary genome generator. It generates the first genome.*/
+	int* Generate_Genome (int genome_size)
 	{
-		int i, j;
+		int i;
 		int* first_genome;
 
-    	first_genome = Generate_Genome(info->genome_size);
+		first_genome = (int*) malloc (genome_size * sizeof(int));
 
-    	for (i = 0; i < info->individual_vector_size; i++) {
-    		for (j = 0; j < info->genome_size; j++) {
-	        	progenitors[i]->genome[j] = first_genome[j];
-	    	}
-    	}
+		for (i = 0; i < genome_size; i++) {
+			first_genome[i] = rand_upto(1);
+		}
+		return first_genome;
+	}
+	
+
+	void Set_Initial_Values (Population progenitors, Parameters info)
+	{
+		int i;
 	 
     	for (i = 0; i < info->number_individuals; i++) {
 	      progenitors[i]->x = random_number() * info->lattice_width;
 	      progenitors[i]->y = random_number() * info->lattice_length;
 	    }
-
-	    free (first_genome);
 	}
 
 /* =================================================================== */
@@ -140,8 +130,9 @@
 
 	int Verify_Neighborhood (List neighborhood)
 	{
-		return (-(neighborhood->info + 1));
+		return (Verify_Head (&neighborhood));
 	}
+
 
 	/* This function computes the neighbors an individual i can reproduce with and stores this info in a list */
 	void Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
@@ -278,27 +269,32 @@
 	between genomes. */
 	void Stablish_Distances (Graph G, Population individuals, Parameters info)
 	{
-		int i, j, k, divergences;
+		int i, j, k, divergences, i_divergences, j_divergences;
+		List p, q;
 
 		G->U = info->population_size;
 
 		for (i = 0; i < G->U; i++) {
 			for (j = i + 1; j < G->U; j++) {
-				divergences = 0;
-				for (k = 0; k < info->genome_size && divergences <= info->reproductive_distance + 1; k++) {
-					if (individuals[i]->genome[k] != individuals[j]->genome[k]) {
-						divergences++;
-					}
+				divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
+				if (divergences > info->reproductive_distance) {
+					for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; p != NULL && q != NULL;) {
+						if (p->info == q->info) {
+							divergences--;
+							p = p->next;
+							q = q->next;
+						}
+						else if (p->info < q->info) p = p->next;
+						else q = q->next;
+					}	
 				}
-
 				if (divergences <= info->reproductive_distance) {
-					InsertArc (G, i, j, divergences + 1);
+					if (G->adj[i][j] == 0) InsertArc (G, i, j, 1);
 				}
 				else if (G->adj[i][j] != 0) {
 					RemoveArc (G, i, j);
 				}	
 			}
-
 			Neighborhood (G, individuals, i, info, 0);
 		}
 	}
@@ -388,13 +384,33 @@
 	}
 
 	/* This function, called by Create_Offspring, allocates the mutation in the genome */
-	void mutation (Population offspring, int baby, int mutation)
+	void Mutation (Population offspring, int baby, Parameters info)
 	{
-		if (offspring[baby]->genome[mutation] == 1) {
-			offspring[baby]->genome[mutation] = 0;
-		}
-		else {
-			offspring[baby]->genome[mutation] = 1;
+		unsigned int quantity;
+		int locus, i, j, retry;
+		int *loci;
+
+		quantity = gsl_ran_binomial (GLOBAL_RNG, info->mutation, info->genome_size);
+
+		if (quantity > 0) {
+			loci = (int*) malloc (quantity * sizeof(int));
+
+			for (i = 0; i < quantity;) {
+				loci[i] = rand_upto(info->genome_size - 1); //because upto goes from 0 to n
+				for (retry = 0, j = 0; retry == 0 && j < i; ++j) {
+					if (loci[j] == loci[i]) {
+						retry = 1;
+					}
+				}
+				if (retry == 1) {
+					i--;
+				}
+				else {
+					AlterList (&(offspring[baby]->genome), loci[i]);
+					i++;
+				}
+			}
+			free(loci);
 		}
 	}
 
@@ -404,25 +420,48 @@
 	void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int other, int mate, Parameters info)
 	{
 	 	int i;
+	 	List p, q;
 		
 		Offspring_Position (progenitors, offspring, baby, focal, info);
 
-		for (i = 0; i < info->genome_size; i++) {
-			if (progenitors[other]->genome[i] != progenitors[mate]->genome[i]) {
-				if (rand()%2 == 1) {
-					offspring[baby]->genome[i] = progenitors[mate]->genome[i];
+		RestartList (&offspring[baby]->genome);
+
+		//printf("progenitors genomes\n");
+		//PrintList(progenitors[other]->genome);
+		//PrintList(progenitors[mate]->genome);
+		
+		for (p = progenitors[other]->genome->next, q = progenitors[mate]->genome->next; p != NULL || q != NULL;) {
+			if (p == NULL) {
+				for (q; q != NULL; q = q->next) {
+					if (rand()%2 == 1) AlterList (&offspring[baby]->genome, q->info);
 				}
-				else {
-					offspring[baby]->genome[i] = progenitors[other]->genome[i];
+			}
+			else if (q == NULL) {
+				for (p; p != NULL; p = p->next) {
+					if (rand()%2 == 1) AlterList (&offspring[baby]->genome, p->info);
 				}
 			}
 			else {
-				offspring[baby]->genome[i] = progenitors[mate]->genome[i];
-			}
-			if (random_number() < info->mutation) {
-				mutation (offspring, baby, i);
+				if (p->info < q->info) {
+					if (rand()%2 == 1) AlterList (&(offspring[baby]->genome), p->info);
+					p = p->next;
+				}
+				else if (p->info > q->info) {
+					if (rand()%2 == 1) AlterList (&(offspring[baby]->genome), q->info);
+					q = q->next;
+				}
+				else {
+					p = p->next;
+					q = q->next;
+				}
 			}
 		}
+
+		//printf("babysgenome\n");
+		//PrintList(offspring[baby]->genome);
+		//printf("\n");
+
+		Mutation (offspring, baby, info);
 	}
 
 	int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase, int changed[])
@@ -594,8 +633,7 @@
 		int i;
 
 		for (i = 0; i < info->individual_vector_size; i++) {
-			if (individuals[i]->genome != NULL)
-			free (individuals[i]->genome);
+			DestroyList (&individuals[i]->genome);
 			DestroyList (&individuals[i]->compatible_neighbors);
 			DestroyList (&individuals[i]->spatial_neighbors);
 			free(individuals[i]);
@@ -614,13 +652,13 @@
 
 		for (i = 0; i < G->U; ++i) {
 			for (j = i + 1; j < G->U; ++j) {
-				if (G->adj[i][j] >= 1) {
+				if (G->adj[i][j] != 0) {
 					if (G->adj[j][i] != G->adj[i][j]) {
 						printf("ERRO NA CONSTRUÇÃO DAS ARESTAS +\n");
 						return 0;
 					} 
 					if (individuals[i]->species != individuals[j]->species) {
-						printf("ERRO NA BUCCA DE ESPECIES 1\n");
+						printf("ERRO NA BUSCA DE ESPECIES 1\n");
 						return 0;
 					}
 				}
