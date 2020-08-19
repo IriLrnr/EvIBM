@@ -60,6 +60,7 @@ void Shrink_Neighborhood (Graph, Population, int, Parameters, int);
 int Sort_Neighbor (Population, int);
 int Site_Occupation (Graph, Population, int, Parameters); 
 Parameters Set_Parameters ();
+Parameters Set_Mini_Parameters ();
 Population Alloc_Population (Parameters);
 void Set_Initial_Values (Population, Parameters);
 void Stablish_Distances (Graph, Population, Parameters);
