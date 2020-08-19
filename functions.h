@@ -48,9 +48,7 @@ typedef parameters * Parameters;
 /* functions from funtions.h */
 double random_number();
 int rand_upto (int);
-double random_numberP ();
-int rand_uptoP (int);
-unsigned int poisson (double); 
+int rand_1to (int);
 int* Generate_Genome (int);
 int Verify_Distance (Population, int, int, Parameters, int);
 int Verify_Neighborhood (List);

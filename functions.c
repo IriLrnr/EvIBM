@@ -2,20 +2,29 @@
 
 /* ==================  Functions for randomness  ===================== */
 	/*Generates a random number between 0 and 1 */
-    double random_number()
+    double random_numberP()
     {
       return((double) rand() / ((double) RAND_MAX + 1));
     }
 
-    int rand_upto (int n)
+    int rand_uptoP (int n)
     {
       return ((int) floor(random_number() * (n + 1)));
     }
 
-    int rand_1ton (int n)
+    int rand_1to (int n)
     {
       return ((int) (random_number() * n) + 1);
     }
+
+	double random_number ()
+	{
+		return (gsl_rng_uniform_pos (GLOBAL_RNG));
+	}
+	int rand_upto (int n)
+	{
+		return (gsl_rng_uniform_int (GLOBAL_RNG, n + 1));
+	} 
 
 /* =================================================================== */
 
@@ -235,7 +244,7 @@
 		all = compatible_neighbors + Verify_Neighborhood (progenitors[i]->spatial_neighbors);
 
 		if (all) {
-			k = rand_1ton (all);
+			k = rand_1to (all);
 			if (k <= compatible_neighbors)
 				for (j = 1, p = progenitors[i]->compatible_neighbors->next; p != NULL && j < k; p = p->next, j++);
 			else {
@@ -564,7 +573,7 @@
 		neighbors = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 
 		if (neighbors) {
-			i = rand_1ton (neighbors);
+			i = rand_1to (neighbors);
 			
 			for (j = 1, p = progenitors[focal]->compatible_neighbors->next; p != NULL && j < i; p = p->next, j++);
 			

@@ -12,23 +12,33 @@ int main()
   time_t t;
   double n, x, lim;
 
-  /* Tests for altered functions with mini population
-  info = Set_Mini_Parameters();
-  progenitors = Alloc_Population (info);
-  offspring = Alloc_Population (info);  
-  Set_Initial_Values (progenitors, info);
-  G = CreateGraph (info->individual_vector_size, info->number_individuals);
+  /* Tests for altered functions with mini population 
+  int rands[101];
 
-  AlterList (progenitors[1], 7);
-  AlterList (progenitors[1], 7)
-  */
+  for (i = 0; i <= 100; ++i) {
+    rands[i] = 0;
+  }
+
+  for (i = 0; i < 100000; ++i) {
+    j = (int) (random_number () * 100);
+    rands[j] ++;
+  }
+
+  for (i = 0; i <= 100; ++i) {
+    printf("%d ", (rands[i]));
+  }
+  printf("\n");
+
+  return 0;
+
+  /*/
 
   GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
   gsl_rng_set (GLOBAL_RNG, (int) time(NULL));
 
   info = Set_Parameters();
 
-  n = lim = 1;
+  n = lim = 10;
 
   n = 150*n;
   lim = 150*lim;
@@ -49,7 +59,7 @@ int main()
       time(&t);
       srand (t);
       
-      //printf("*************BEG**************\n%sB = %d, g = %d, mu = %0.5f\n******************************\n", ctime(&t), info->genome_size, info->reproductive_distance, info->mutation);
+      printf("*************BEG**************\n%sB = %d, g = %d, mu = %0.5f\n******************************\n", ctime(&t), info->genome_size, info->reproductive_distance, info->mutation);
       
       sprintf (nome_arq_s, "./data/performance_tests/B/%d/species/numsp_%02d.csv", info->genome_size, l);
       nspecies = fopen (nome_arq_s, "w");
@@ -60,7 +70,7 @@ int main()
       Set_Initial_Values (progenitors, info);
       G = CreateGraph (info->individual_vector_size, info->number_individuals);
 
-      //printf("Sim \t Gen \t nsp \t pop\n");
+      printf("Sim \t Gen \t nsp \t pop\n");
       for (i = 0; i <= info->number_generations; i++) {
         Stablish_Distances (G, progenitors, info);
         if (i%10 == 0) {
@@ -68,10 +78,9 @@ int main()
           fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
         }
         Reproduction  (G, progenitors, offspring, info);
-       /* if (i % 10 == 0) {
+        if (i % 10 == 0) {
           printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, G->U);
         }
-        */
         Swap_Generations (&progenitors, &offspring);
       }
 

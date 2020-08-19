@@ -45,13 +45,7 @@ To compile the R script you may need to install R, here is a tutorial: https://c
 
 ## Questions for next session
 
-Alterations made: genome become a linked list of locus with values different from base. Mutation is made by a binomial.
-Importat functions alterated: Stablish Distances, Create Offspring, Mutation
-Functions created: AlterList (adds if it is not there, delete if it is)
-Problems: is not forming species
-
-Analysis:
-	Is doesn't seem to be AlterList. The function was tested. Stablish Distances, Create Offspring and Mutation were tested
+A linked list genome has been implemented, and the main function was reformed to work with performance testing.
 
 ## References
 
