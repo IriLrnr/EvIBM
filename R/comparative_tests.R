@@ -15,14 +15,15 @@ setwd("./data/test_cp/")
 ##### G ######
 getwd()
 setwd("./g")
-glim <- 6
+folders <- dir()
+glim <- length(folders) - 1
 spp.mn.g <- tibble(.rows = 2001)
 spp.sd.g <- tibble(.rows = 2001)
 for(f in 1:glim){
   setwd(paste0("./", f, "/species"))
   file.names <- dir()
   
-  number.spp=data.frame()
+  number.spp <- data.frame()
   for (i in 1:(length(file.names)-1)){
     dados <- read.csv(paste(file.names[i]), head=TRUE, sep=";")
     number.spp <- rbind(number.spp, dados)
@@ -77,7 +78,8 @@ g.fig
 
 getwd()
 setwd("./mu")
-mulim = 6
+folders <- dir()
+mulim <- length(folders)
 spp.mn.mu <- tibble(.rows = 2001)
 spp.sd.mu <- tibble(.rows = 2001)
 for(f in 1:mulim){
@@ -137,7 +139,8 @@ mu.fig
 ###### RHO ########
 getwd()
 setwd("./rho")
-rholim <- 12
+folders <- dir()
+rholim <- length(folders) - 1 + 7
 spp.mn.p <- tibble(.rows = 2001)
 spp.sd.p <- tibble(.rows = 2001)
 for(f in 7:rholim){
@@ -197,17 +200,17 @@ rho.fig
 ######## B ######
 getwd()
 setwd("./B")
-spp.mn.b <- tibble(.rows = 2001)
-spp.sd.b <- tibble(.rows = 2001)
-bvec <- c(150)#, 1500, 15000)
-for(f in bvec){
+spp.mn.b <- tibble(.rows = 1001)
+spp.sd.b <- tibble(.rows = 1001)
+bvec <- as.vector(dir())
+for(f in bvec[1:3]){
   setwd(paste0("./", f, "/species"))
   file.names <- dir()
   
   number.spp=data.frame()
   for (i in 1:(length(file.names)-1)){
     dados <- read.csv(paste(file.names[i]), head=TRUE, sep=";")
-    number.spp <- rbind(number.spp, dados[1:2001,])
+    number.spp <- rbind(number.spp, dados[1:1001,])
   }
   setwd("../../")
   
