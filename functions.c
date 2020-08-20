@@ -1,17 +1,6 @@
 #include "functions.h"
 
 /* ==================  Functions for randomness  ===================== */
-	/*Generates a random number between 0 and 1 */
-    double random_numberP()
-    {
-      return((double) rand() / ((double) RAND_MAX + 1));
-    }
-
-    int rand_uptoP (int n)
-    {
-      return ((int) floor(random_number() * (n + 1)));
-    }
-
     int rand_1to (int n)
     {
       return ((int) (random_number() * n) + 1);
