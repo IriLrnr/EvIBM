@@ -1,13 +1,13 @@
 /* Libraries */
 #include <time.h>
 #include <math.h>
-//#include <gsl_randist.h>
-//#include <gsl_rng.h>
+#include <gsl_randist.h>
+#include <gsl_rng.h>
 #include "graph.h"
 #include "linkedlist.h"
 
 /* State-keeper of the random number generator*/
-//gsl_rng *GLOBAL_RNG;
+gsl_rng *GLOBAL_RNG;
 
 /* Structures used */
 typedef struct
