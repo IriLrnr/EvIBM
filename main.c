@@ -11,7 +11,6 @@ int main(int argc, char* argv[])
   FILE *nspecies;
   FILE *performance;
   time_t t;
-  double n, x, lim;
 
   GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
   gsl_rng_set (GLOBAL_RNG, (int) time(NULL));
@@ -20,7 +19,7 @@ int main(int argc, char* argv[])
 
   l = atoi(argv[3]);
   if (l == 1) {
-    sprintf (nome_arq_st, "./data/performance_tests/B/performance_%d.txt", (int) n);
+    sprintf (nome_arq_st, "./data/performance_tests/B/performance_%d.txt", (int) atoi(argv[2]));
     performance = fopen(nome_arq_st, "w");
     fprintf (performance, "real;usr;sys\n");
     fclose (performance);
