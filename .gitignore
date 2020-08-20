@@ -25,4 +25,4 @@ figs/tests/
 # information for Eclipse / Flash Builder.
 .Rproj.user
 .Rproj.user/
-out
+out*
