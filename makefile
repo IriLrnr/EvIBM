@@ -1,6 +1,6 @@
-run : main
-
-main :
+main : run
+	
+run :
 	./run.sh
 
 R:
