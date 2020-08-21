@@ -1,4 +1,4 @@
-  #include "functions.h"
+  #include "bib/model.h"
 
 int main(int argc, char* argv[])
 {
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
   progenitors = Alloc_Population (info);
   offspring = Alloc_Population (info);  
-  Set_Initial_Values (progenitors, info);
+  Set_Initial_Position (progenitors, info);
   G = CreateGraph (info->individual_vector_size, info->number_individuals);
 
   printf("Sim \t Gen \t nsp \t pop\n");
