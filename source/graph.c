@@ -1,4 +1,4 @@
-#include "graph.h"
+#include "../include/graph.h"
 
 int** AlocateMatrix (int m, int n, int value)
 {

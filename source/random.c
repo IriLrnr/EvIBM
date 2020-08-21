@@ -1,4 +1,4 @@
-#include "random.h"
+#include "../include/random.h"
 
  int rand_1to (int n)
 {

@@ -1,4 +1,4 @@
-#include "structures.h"
+#include "../include/structures.h"
 
 Population Alloc_Population (Parameters info)
 {

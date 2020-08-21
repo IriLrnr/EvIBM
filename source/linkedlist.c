@@ -1,4 +1,4 @@
-#include "linkedlist.h"
+#include "../include/linkedlist.h"
 
 /* Creates a headed list, where the head holds a value, wich is -(size of the list + 1) */
 List CreateHeadedList ()

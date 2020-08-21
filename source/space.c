@@ -1,4 +1,4 @@
-#include "space.h"
+#include "../include/space.h"
 
 void Set_Initial_Position (Population progenitors, Parameters info)
 {

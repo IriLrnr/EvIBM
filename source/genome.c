@@ -1,8 +1,8 @@
-#include "genome.h"
+#include "../include/genome.h"
 
 void Stablish_Distances (Graph G, Population individuals, Parameters info)
 {
-	int i, j, k, divergences, i_divergences, j_divergences;
+	int i, j, k, divergences, min_divergences;
 	List p, q;
 
 	G->U = info->population_size;
@@ -11,6 +11,7 @@ void Stablish_Distances (Graph G, Population individuals, Parameters info)
 		for (j = i + 1; j < G->U; j++) {
 			divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
 			min_divergences = abs (Verify_Head (&individuals[i]->genome) - Verify_Head (&individuals[j]->genome));
+			//printf("i = %d\n j = %d\nmin_divergences = %d\n", Verify_Head (&individuals[i]->genome), Verify_Head (&individuals[j]->genome), min_divergences);
 			if (min_divergences <= info->reproductive_distance) {
 				if (divergences > info->reproductive_distance) {
 					for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; p != NULL && q != NULL;) {
@@ -23,16 +24,16 @@ void Stablish_Distances (Graph G, Population individuals, Parameters info)
 						else q = q->next;
 					}
 				}
+			}
 
-				if (divergences <= info->reproductive_distance) {
-					if (G->adj[i][j] == 0) InsertArc (G, i, j, 1);
-				}
+			if (divergences <= info->reproductive_distance) {
+				if (G->adj[i][j] == 0) InsertArc (G, i, j, 1);
 			}
 			else if (G->adj[i][j] != 0) {
 				RemoveArc (G, i, j);
 			}	
 		}
-		
+
 		Neighborhood (G, individuals, i, info, 0);
 	}
 }
@@ -77,11 +78,14 @@ void DepthFirstSearch (Graph G, int* counter_adress, Population individuals)
 void Mutation (Population offspring, int baby, Parameters info)
 {
 	unsigned int quantity;
+	int i;
 
 	quantity = gsl_ran_binomial (GLOBAL_RNG, info->mutation, info->genome_size);
-
+	
 	if (quantity > 0) {
-		AlterList (&(offspring[baby]->genome), rand_uptp (info->genome_size - 1));
+		for (i = 0; i < quantity; ++i) {
+			AlterList (&(offspring[baby]->genome), rand_upto (info->genome_size - 1));
+		}
 	}
 }
 
