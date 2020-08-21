@@ -10,24 +10,29 @@ void Stablish_Distances (Graph G, Population individuals, Parameters info)
 	for (i = 0; i < G->U; i++) {
 		for (j = i + 1; j < G->U; j++) {
 			divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
-			if (divergences > info->reproductive_distance) {
-				for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; p != NULL && q != NULL;) {
-					if (p->info == q->info) {
-						divergences -= 2;
-						p = p->next;
-						q = q->next;
+			min_divergences = abs (Verify_Head (&individuals[i]->genome) - Verify_Head (&individuals[j]->genome));
+			if (min_divergences <= info->reproductive_distance) {
+				if (divergences > info->reproductive_distance) {
+					for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; p != NULL && q != NULL;) {
+						if (p->info == q->info) {
+							divergences -= 2;
+							p = p->next;
+							q = q->next;
+						}
+						else if (p->info < q->info) p = p->next;
+						else q = q->next;
 					}
-					else if (p->info < q->info) p = p->next;
-					else q = q->next;
 				}
-			}
-			if (divergences <= info->reproductive_distance) {
-				if (G->adj[i][j] == 0) InsertArc (G, i, j, 1);
+
+				if (divergences <= info->reproductive_distance) {
+					if (G->adj[i][j] == 0) InsertArc (G, i, j, 1);
+				}
 			}
 			else if (G->adj[i][j] != 0) {
 				RemoveArc (G, i, j);
 			}	
 		}
+		
 		Neighborhood (G, individuals, i, info, 0);
 	}
 }
@@ -72,30 +77,11 @@ void DepthFirstSearch (Graph G, int* counter_adress, Population individuals)
 void Mutation (Population offspring, int baby, Parameters info)
 {
 	unsigned int quantity;
-	int locus, i, j, retry;
-	int *loci;
 
 	quantity = gsl_ran_binomial (GLOBAL_RNG, info->mutation, info->genome_size);
 
 	if (quantity > 0) {
-		loci = (int*) malloc (quantity * sizeof(int));
-
-		for (i = 0; i < quantity;) {
-			loci[i] = rand_upto(info->genome_size - 1);
-			for (retry = 0, j = 0; retry == 0 && j < i; ++j) {
-				if (loci[j] == loci[i]) {
-					retry = 1;
-				}
-			}
-			if (retry == 1) {
-				i--;
-			}
-			else {
-				AlterList (&(offspring[baby]->genome), loci[i]);
-				i++;
-			}
-		}
-		free(loci);
+		AlterList (&(offspring[baby]->genome), rand_uptp (info->genome_size - 1));
 	}
 }
 
