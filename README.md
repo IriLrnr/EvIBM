@@ -45,7 +45,10 @@ To compile the R script you may need to install R, here is a tutorial: https://c
 
 ## Questions for next session
 
-A linked list genome has been implemented, and the main function was reformed to work with performance testing.
+Tried to take graphs off and had a big problem with neighborhood expanding and shrinking. Possible solutions are:
+	Missing:
+		- Union_Find ()
+		- Fix list shinking and expansion based on ->neighbors_adress
 
 ## References
 

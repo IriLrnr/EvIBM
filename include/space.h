@@ -1,4 +1,13 @@
-#include "random.h"
+#include "genome.h"
+/*
+	Set simulation parameters
+*/
+Parameters Set_Parameters ();
+
+/*
+	Parameters for testing
+*/
+Parameters Set_Mini_Parameters ();
 
 /*
 	Set the initial values for every progenitor's y and x coordinates

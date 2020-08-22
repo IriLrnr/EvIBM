@@ -4,7 +4,6 @@ int main(int argc, char* argv[])
 {
   int i, j, l, k, number_species, type, deltat, p, genome;
   Population progenitors, offspring;
-  Graph G;
   Parameters info;
   char nome_arq_s[80] = "";
   char nome_arq_st[80] = "";
@@ -48,23 +47,21 @@ int main(int argc, char* argv[])
   progenitors = Alloc_Population (info);
   offspring = Alloc_Population (info);  
   Set_Initial_Position (progenitors, info);
-  G = CreateGraph (info->individual_vector_size, info->number_individuals);
 
   printf("Sim \t Gen \t nsp \t pop\n");
   for (i = 0; i <= info->number_generations; i++) {
-    Stablish_Distances (G, progenitors, info);
+    Stablish_Distances (progenitors, info);
     if (i%10 == 0) {
-      number_species = Count_Species (G, progenitors);
+      number_species = Count_Species (progenitors);
       fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
     }
-    Reproduction  (G, progenitors, offspring, info);
+    Reproduction  (progenitors, offspring, info);
     if (i % 100 == 0) {
-      printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, G->U);
+      printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }
     Swap_Generations (&progenitors, &offspring);
   }
 
-  DestroyGraph(G);
   Free_Population (progenitors, info);
   Free_Population (offspring, info);
   fclose (nspecies);

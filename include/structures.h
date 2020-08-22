@@ -1,9 +1,8 @@
 #include <time.h>
 #include <math.h>
-#include <gsl_randist.h>
-#include <gsl_rng.h>
 #include "graph.h"
 #include "linkedlist.h"
+#include "random.h"
 
 /* Structures used */
 typedef struct
@@ -12,6 +11,7 @@ typedef struct
 	int species;
 	double x;
 	double y;
+	int[6] neighbors_adress;
 	List compatible_neighbors;
 	List spatial_neighbors;
 } individual;
@@ -25,6 +25,7 @@ typedef struct
 	int number_individuals;
 	int individual_vector_size;
 	int population_size;
+	int child_population_size;
 	int genome_size;
 	int reproductive_distance;
 	int number_generations;

@@ -1,17 +1,10 @@
-#include "space.h"
+#include "structures.h"
 
 /*
-	Generates a random first genome for the simulation.
-	It is not being used. First genome is all zero.
+	Here, two genomes are compared. if they are sufficiently simmilar,
+	It is a boolean function
 */
-int* Generate_Genome (int);
-
-/*
-	This function, called by main, compares the genomes and creates a Graph, where vertix are individuals,
-	arches means they can reproduce (similar genomes). The weight of the arch is the distance
-	between genomes.
-*/
-void Stablish_Distances (Graph, Population, Parameters);
+int Compare_Genomes (Population, int, int, Parameters);
 
 /*
 	This function, called by Create_Offspring, allocates the mutation in the genome
@@ -25,17 +18,13 @@ void Mutation (Population, int, Parameters);
 */
 void Create_Offspring (Population, Population, int, int, int, int, Parameters);
 
-void DSFvisit (Graph, Vertix, int*, Population, int);
-
-void DepthFirstSearch (Graph, int*, Population);
-
 /*
 	Calls for DephtFirstSearch to count number of species
 */
-int Count_Species (Graph, Population);
+int Count_Species (Population);
 
 /*
 	Count the size of each species
 */
-void Count_Sizes (Graph, Population, int, Parameters, int*);
+void Count_Sizes (Population, int, Parameters, int*);
 

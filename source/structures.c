@@ -12,6 +12,12 @@ Population Alloc_Population (Parameters info)
 		individuals[i]->genome = CreateHeadedList ();
 		individuals[i]->compatible_neighbors = CreateHeadedList ();
 		individuals[i]->spatial_neighbors = CreateHeadedList ();
+		individuals[i]->neighbors_address = (0, 0, 0, 0, 0, 0);	
+	}
+	printf("Individuals 12 adreessses\n");
+	for (i = 0; i < 6; ++i)
+	{
+		printf("%d\n", individuals[12]->neighbors_address[i]);
 	}
 
 	return individuals;

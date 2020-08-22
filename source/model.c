@@ -60,6 +60,12 @@ Parameters Set_Mini_Parameters ()
 	return info;
 }
 
+void Create_Offspring (Population progenitors, Population offspring,  int baby, int focal, int other, int mate, Parameters info) 
+{
+	Offspring_Position (progenitors, offspring, baby, focal, info);
+	Offspring_Genome (progenitors, offspring, baby, other, info);
+}
+
 
 void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
 {
@@ -108,6 +114,6 @@ void Reproduction (Graph G, Population progenitors, Population offspring, Parame
 			}
 		}
 	}
-	info->population_size = baby;
+	info->child_population_size = baby;
 }
 

@@ -5,8 +5,8 @@ void Set_Initial_Position (Population progenitors, Parameters info)
 	int i;
  
 	for (i = 0; i < info->number_individuals; i++) {
-      progenitors[i]->x = random_number() * info->lattice_width;
-      progenitors[i]->y = random_number() * info->lattice_length;
+    	progenitors[i]->x = random_number() * info->lattice_width;
+    	progenitors[i]->y = random_number() * info->lattice_length;
     }
 }
 
@@ -43,67 +43,6 @@ int Verify_Neighborhood (List neighborhood)
 {
 	return (Verify_Head (&neighborhood));
 }
-
-
-void Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
-{
-	int i;
-
-	RestartList (&progenitors[focal]->compatible_neighbors);
-	RestartList (&progenitors[focal]->spatial_neighbors);
-
-	for (i = G->U - 1; i >= 0; i--) {
-		if (focal != i) {
-			if (Verify_Distance (progenitors, focal, i, info, increase)) {
-				if (G->adj[focal][i] != 0) {
-					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
-				}
-				else {
-					AddCellInOrder(&progenitors[focal]->spatial_neighbors, i);
-				}
-			}
-		}	
-	}
-}
-
-void Expand_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
-{
-	int i;
-
-	for (i = G->U - 1; i >= 0; i--) {
-		if (focal != i) {
-			if (Verify_Distance (progenitors, focal, i, info, increase - 1) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
-				if (G->adj[focal][i] != 0) {
-					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
-				}
-				else {
-					AddCellInOrder(&progenitors[focal]->spatial_neighbors, i);
-				}
-			}
-		}	
-	}
-}
-
-void Shrink_Neighborhood (Graph G, Population progenitors, int focal, Parameters info, int increase)
-{
-	int i;
-
-	if (increase > 0) {
-		for (i = 0; i < G->U; i++) {
-			if (focal != i) {
-				if (Verify_Distance (progenitors, focal, i, info, 0) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
-					if (G->adj[focal][i] != 0) {
-						RemoveCell(&progenitors[focal]->compatible_neighbors, i);
-					}
-					else {
-						RemoveCell(&progenitors[focal]->spatial_neighbors, i);
-					}
-				}
-			}	
-		}
-	}
-}
-
 
 int Sort_Neighbor (Population progenitors, int i) 
 {
@@ -231,8 +170,6 @@ int Choose_Mate (Graph G, int focal, Population progenitors, Parameters info)
 	else mate = -1;
 
 	return mate;;;
-
-
 }
 
 int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, int increase, int changed[])
@@ -286,4 +223,59 @@ int Choose_Other (Graph G, int focal, Population progenitors, Parameters info, i
 	}
 
 	return other;
+}
+
+void Stablish_Distances (Population progenitors, Parameters info) 
+{
+	int i, j, i_compatible, increase;
+
+	RestartList (&progenitors[focal]->compatible_neighbors);
+	RestartList (&progenitors[focal]->spatial_neighbors);
+
+	for (i = 0; i < info->population_size; i++) {
+		for (j = 0; j < info->population_size; j++) {
+			if (Verify_Distance (progenitors, i, j, info, 0)) {
+				if (Compare_Genomes (progenitors, i, j, info)) {
+					AddCellInOrder (&progenitors[i]->compatible_neighbors, j);
+					AddCellInOrder (&progenitors[j]->compatible_neighbors, i);
+					progenitors[i]->neighbors_address[1]++;
+					progenitors[j]->neighbors_address[1]++;
+					progenitors[j]->species = progenitors[i]->species;
+				}
+				else {
+					AddCellInOrder (&progenitors[i]->spatial_neighbors, j);
+					AddCellInOrder (&progenitors[j]->spatial_neighbors, i);
+					progenitors[i]->neighbors_address[0]++;
+					progenitors[j]->neighbors_address[0]++;
+				}
+			}
+		}
+		increase = 0;
+		i_compatible = Verify_Neighborhood (progenitors[i]->compatible_neighbors);
+		while (i_compatible < info->min_neighboors && increase <= info->max_increase) {
+			Expand_Neighborhood (progenitors, i, info, increase);
+		}
+	}
+}
+
+
+
+void Expand_Neighborhood (Population progenitors, int focal, Parameters info, int increase, Parameters info)
+{
+	int i;
+
+	for (i = info->population_size - 1; i >= 0; i--) {
+		if (focal != i) {
+			if (Verify_Distance (progenitors, focal, i, info, increase - 1) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
+				if (Compare_Genomes (progenitors, focal, i, info)) {
+					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
+					progenitors[focal]->neighbors_address[1 + increase] ++;
+				}
+				else {
+					AddCellInOrder(&progenitors[focal]->spatial_neighbors, i);
+					progenitors[focal]->neighbors_address[1 + increase] ++;
+				}
+			}
+		}	
+	}
 }
