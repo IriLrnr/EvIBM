@@ -67,13 +67,13 @@ void Create_Offspring (Population progenitors, Population offspring,  int baby, 
 }
 
 
-void Reproduction (Graph G, Population progenitors, Population offspring, Parameters info)
+void Reproduction (Population progenitors, Population offspring, Parameters info)
 {
 	int focal, mate, other, baby, other_neighborhood, all_neighborhood, compatible_neighborhood, increase, n, occupation, expand, density;
 	int changed[G->U];
 
 	baby = 0;
-	for (focal = 0; focal < (G->U); focal++) {
+	for (focal = 0; focal < info->population_size; focal++) {
 		mate = -1;
 		compatible_neighborhood = Verify_Neighborhood (progenitors[focal]->compatible_neighbors);
 		all_neighborhood = compatible_neighborhood + Verify_Neighborhood (progenitors[focal]->spatial_neighbors);

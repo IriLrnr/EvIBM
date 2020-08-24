@@ -89,3 +89,5 @@ int Choose_Mate (Graph, int, Population, Parameters);
 	 dies before reproducing
 */
 int Choose_Other (Graph, int, Population, Parameters, int, int[]);
+
+void Stablish_Distances (Population, Parameters);

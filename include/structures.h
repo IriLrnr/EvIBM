@@ -11,7 +11,7 @@ typedef struct
 	int species;
 	double x;
 	double y;
-	int[6] neighbors_adress;
+	int* neighbors_adress;
 	List compatible_neighbors;
 	List spatial_neighbors;
 } individual;

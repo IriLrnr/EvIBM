@@ -12,7 +12,8 @@ Population Alloc_Population (Parameters info)
 		individuals[i]->genome = CreateHeadedList ();
 		individuals[i]->compatible_neighbors = CreateHeadedList ();
 		individuals[i]->spatial_neighbors = CreateHeadedList ();
-		individuals[i]->neighbors_address = (0, 0, 0, 0, 0, 0);	
+		individuals[i]->neighbors_address = malloc (6 * sizeof (int));
+		individuals[i]->neighbors_address = (-1, -1, -1, -1, -1, -1);	
 	}
 	printf("Individuals 12 adreessses\n");
 	for (i = 0; i < 6; ++i)
@@ -31,6 +32,7 @@ void Free_Population (Population individuals, Parameters info)
 		DestroyList (&individuals[i]->genome);
 		DestroyList (&individuals[i]->compatible_neighbors);
 		DestroyList (&individuals[i]->spatial_neighbors);
+		free(individuals[i]->neighbors_address);
 		free(individuals[i]);
     }
 
