@@ -1,4 +1,4 @@
-#include "structures.h"
+#include "space.h"
 
 /*
 	Here, two genomes are compared. if they are sufficiently simmilar,
@@ -16,7 +16,7 @@ void Mutation (Population, int, Parameters);
 	The new offspring will have the position of the focal individual (i). The genome of the offspring has, for
 	each loci, 50% chance of coming from either of his parents 
 */
-void Create_Offspring (Population, Population, int, int, int, int, Parameters);
+void Offspring_Genome (Population, Population, int, int, int, Parameters);
 
 /*
 	Calls for DephtFirstSearch to count number of species

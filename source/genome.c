@@ -100,7 +100,7 @@ void Count_Sizes (Population individuals, int total, Parameters info, int sizes[
 		sizes[i] = 0;
 	}
 
-	for (i = 0; i < G->U; ++i) {
+	for (i = 0; i < info->population_size; ++i) {
 		sizes[individuals[i]->species]++;
 		if (individuals[i]->species > total || individuals[i]->species < 0) {
 			printf("species error\n");

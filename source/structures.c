@@ -3,7 +3,7 @@
 Population Alloc_Population (Parameters info)
 {
 	Population individuals;
-	int i;
+	int i, j;
 
 	individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
 
@@ -13,12 +13,9 @@ Population Alloc_Population (Parameters info)
 		individuals[i]->compatible_neighbors = CreateHeadedList ();
 		individuals[i]->spatial_neighbors = CreateHeadedList ();
 		individuals[i]->neighbors_address = malloc (6 * sizeof (int));
-		individuals[i]->neighbors_address = (-1, -1, -1, -1, -1, -1);	
-	}
-	printf("Individuals 12 adreessses\n");
-	for (i = 0; i < 6; ++i)
-	{
-		printf("%d\n", individuals[12]->neighbors_address[i]);
+		for (j = 0; j < 6; ++j) {
+			individuals[i]->neighbors_address[j] = -1;
+		}
 	}
 
 	return individuals;
