@@ -44,8 +44,17 @@ int Verify_Distance (Population progenitors, int focal, int mate, Parameters inf
 
 int Find_Compatible_Neighborhood (Population progenitors, int focal, Parameters info, int increase)
 {
+	int i;
+	printf("%d\n", progenitors[focal]->neighbors_address[increase]);
+	printf("%d\n", progenitors[focal]->neighbors_address[increase + 1]);
 	if (progenitors[focal]->neighbors_address[increase] == -1) {
 		Expand_Neighborhood (progenitors, focal, info, increase);
+		printf("Passou expand\n");
+	}
+
+	for (i = 1; i <= increase; ++i)
+	{
+		
 	}
 	return (progenitors[focal]->neighbors_address[increase + 1]);
 }
@@ -188,6 +197,43 @@ int Choose_Other (Population progenitors, int focal, Parameters info, int increa
 	return other;
 }
 
+void Stablish_Distances (Population progenitors, Parameters info) 
+{
+	int i, j, i_compatible, increase;
+
+	for (i = 0; i < info->population_size; i++) {
+		RestartList (&progenitors[i]->compatible_neighbors);
+		RestartList (&progenitors[i]->spatial_neighbors);
+		increase = 0;
+		progenitors[i]->neighbors_address[0] = 0;
+		progenitors[i]->neighbors_address[1] = 0;
+		for (j = i; j < info->population_size; j++) {
+			if (Verify_Distance (progenitors, i, j, info, 0)) {
+				if (Compare_Genomes (progenitors, i, j, info)) {
+					AddCellInOrder (&progenitors[i]->compatible_neighbors, j);
+					AddCellInOrder (&progenitors[j]->compatible_neighbors, i);
+					progenitors[i]->neighbors_address[1]++;
+					progenitors[j]->neighbors_address[1]++;
+					progenitors[j]->species = progenitors[i]->species; /* will this work? dont know*/
+				}
+				else {
+					AddCellInOrder (&progenitors[i]->spatial_neighbors, j);
+					AddCellInOrder (&progenitors[j]->spatial_neighbors, i);
+					progenitors[i]->neighbors_address[0]++;
+					progenitors[j]->neighbors_address[0]++;
+				}
+			}
+			else {
+				i_compatible = progenitors[i]->neighbors_address[1];
+				for (increase = 1; increase <= info->max_increase && i_compatible < info->min_neighboors; increase++) {
+					Expand
+					i_compatible = Find_Compatible_Neighborhood (progenitors, focal, info, increase);
+				}
+			}
+		}
+	}
+}
+
 void Expand_Neighborhood (Population progenitors, int focal, Parameters info, int increase)
 {
 	int i;
@@ -197,12 +243,12 @@ void Expand_Neighborhood (Population progenitors, int focal, Parameters info, in
 	}
 
 	if (progenitors[focal]->neighbors_address[increase] != -1) {
-		progenitors[i]->neighbors_address[increase] = 0;
-		progenitors[i]->neighbors_address[increase + 1] = 0;
+		progenitors[i]->neighbors_address[increase] = progenitors[i]->neighbors_address[increase - 2];
+		progenitors[i]->neighbors_address[increase + 1] = progenitors[i]->neighbors_address[increase - 1];
 		for (i = info->population_size - 1; i >= 0; i--) {
 			if (focal != i) {
 				if (Verify_Distance (progenitors, focal, i, info, increase - 1) == 0 && Verify_Distance (progenitors, focal, i, info, increase) == 1) {
-					if (progenitors[focal]->species == progenitors[i]->species) {
+					if (Compare_Genomes (progenitors, focal, i, info)) {
 						AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
 						progenitors[focal]->neighbors_address[1 + increase] ++;
 					}

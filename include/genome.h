@@ -1,4 +1,4 @@
-#include "space.h"
+#include "structures.h"
 
 /*
 	Here, two genomes are compared. if they are sufficiently simmilar,

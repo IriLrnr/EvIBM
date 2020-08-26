@@ -7,19 +7,17 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 
 	divergences = info->genome_size + 1;
 
-	if (Verify_Distance(individuals, i, j, info, 0)) {
-		divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
-		min_divergences = abs (Verify_Head (&individuals[i]->genome) - Verify_Head (&individuals[j]->genome));
-		if (min_divergences <= info->reproductive_distance) {
-			for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; (p != NULL && q != NULL) && divergences > info->reproductive_distance;) {
-				if (p->info == q->info) {
-					divergences -= 2;
-					p = p->next;
-					q = q->next;
-				}
-				else if (p->info < q->info) p = p->next;
-				else q = q->next;
+	divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
+	min_divergences = abs (Verify_Head (&individuals[i]->genome) - Verify_Head (&individuals[j]->genome));
+	if (min_divergences <= info->reproductive_distance) {
+		for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; (p != NULL && q != NULL) && divergences > info->reproductive_distance;) {
+			if (p->info == q->info) {
+				divergences -= 2;
+				p = p->next;
+				q = q->next;
 			}
+			else if (p->info < q->info) p = p->next;
+			else q = q->next;
 		}
 	}
 	if (divergences <= info->reproductive_distance) {

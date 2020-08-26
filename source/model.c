@@ -60,53 +60,7 @@ Parameters Set_Mini_Parameters ()
 	return info;
 }
 
-void Stablish_Distances (Population progenitors, Parameters info) 
-{
-	int i, j, i_compatible, increase;
 
-	for (i = 0; i < info->population_size; i++) {
-		RestartList (&progenitors[i]->compatible_neighbors);
-		RestartList (&progenitors[i]->spatial_neighbors);
-		increase = 0;
-		i_compatible = Find_Compatible_Neighborhood (progenitors, i, info, increase);
-		progenitors[i]->neighbors_address[0] = 0;
-		progenitors[i]->neighbors_address[1] = 0;
-		for (j = i; j < info->population_size; j++) {
-			if (Verify_Distance (progenitors, i, j, info, 0)) {
-				if (Compare_Genomes (progenitors, i, j, info)) {
-					AddCellInOrder (&progenitors[i]->compatible_neighbors, j);
-					AddCellInOrder (&progenitors[j]->compatible_neighbors, i);
-					progenitors[i]->neighbors_address[1]++;
-					progenitors[j]->neighbors_address[1]++;
-					progenitors[j]->species = progenitors[i]->species; /* will this work? dont know*/
-				}
-				else {
-					AddCellInOrder (&progenitors[i]->spatial_neighbors, j);
-					AddCellInOrder (&progenitors[j]->spatial_neighbors, i);
-					progenitors[i]->neighbors_address[0]++;
-					progenitors[j]->neighbors_address[0]++;
-				}
-			}
-			else {
-				for (increase; increase <= info->max_increase && i_compatible < info->min_neighboors; increase++) {
-					if (Verify_Distance (progenitors, i, j, info, increase)) {
-						if (Compare_Genomes (progenitors, i, j, info)) {
-							AddCellInOrder (&progenitors[i]->compatible_neighbors, j);
-							if (progenitors[i]->neighbors_address[1 + increase] == -1) progenitors[i]->neighbors_address[1 + increase] = 0;
-							progenitors[i]->neighbors_address[1 + increase]++;
-						}
-						else {
-							AddCellInOrder (&progenitors[i]->spatial_neighbors, j);
-							if (progenitors[i]->neighbors_address [1 + increase] == -1) progenitors[i]->neighbors_address [1 + increase] = 0;
-							progenitors[i]->neighbors_address [0 + increase]++;
-						}
-					}
-					i_compatible = Find_Compatible_Neighborhood (progenitors, i, info, increase);;
-				}
-			}
-		}
-	}
-}
 
 
 void Create_Offspring (Population progenitors, Population offspring,  int baby, int focal, int other, int mate, Parameters info) 
@@ -122,14 +76,19 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 
 	baby = 0;
 	for (focal = 0; focal < info->population_size; focal++) {
+		printf("Flag 1 REP\n");
 		mate = -1;
 		compatible_neighborhood = Find_Compatible_Neighborhood (progenitors, other, info, 0);
+		printf("Passou find compatible\n");
 		all = Find_Neighborhood (progenitors, other, info, 0);
+		printf("Passou find neig\n");
 		if (info->population_size < info->number_individuals && all < info->density) {
 			if (compatible_neighborhood >= info->min_neighboors) {
 				mate = Choose_Mate (progenitors, focal, info);
+				printf("Passou choose mate (if)\n");
 				for (n = 0; n < 2 && mate != -1; n++) {
 					Create_Offspring (progenitors, offspring, baby, focal, focal, mate, info);
+					printf("Passou Create_Offspring (if)\n");
 					baby ++;
 				}
 			}
@@ -137,15 +96,22 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 		else {
 			for (increase = 0; all < 2 && increase < info->max_increase; increase++) {
 				all = Find_Neighborhood (progenitors, focal, info, increase + 1);
+				printf("Flag 1 ELSE\n");
 			}
 			if (all > 1) {
 				other = Choose_Other (progenitors, focal, info, increase);
-				if (other != -1) other_neighborhood = Find_Compatible_Neighborhood (progenitors, other, info, increase);
+				printf("Flag 2 ELSE\n");
+				if (other != -1) {
+					other_neighborhood = Find_Compatible_Neighborhood (progenitors, other, info, increase);
+					printf("Flag 3 ELSE\n");
+				}
 				else other_neighborhood = 0;
 				if (other_neighborhood > 1) {
 					mate = Choose_Mate (progenitors, other, info);
+					printf("Flag 4 ELSE\n");
 					if (mate != -1) {
 						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+						printf("Flag 5 ELSE\n");
 						baby ++;
 					}
 				}

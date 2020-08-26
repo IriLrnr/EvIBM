@@ -1,4 +1,4 @@
-#include "structures.h"
+#include "genome.h"
 /*
 	Set simulation parameters
 */
@@ -35,6 +35,8 @@ int Find_Compatible_Neighborhood (Population, int, Parameters, int);
 */
 int Sort_Neighbor (Population, int, Parameters, int);
 
+void Stablish_Distances (Population, Parameters);
+
 void Expand_Neighborhood (Population, int, Parameters, int);
 
 /*
@@ -54,3 +56,6 @@ int Choose_Mate (Population, int, Parameters);
 	 dies before reproducing
 */
 int Choose_Other (Population, int, Parameters, int);
+
+
+
