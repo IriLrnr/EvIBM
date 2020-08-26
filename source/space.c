@@ -226,8 +226,7 @@ void Stablish_Distances (Population progenitors, Parameters info)
 			else {
 				i_compatible = progenitors[i]->neighbors_address[1];
 				for (increase = 1; increase <= info->max_increase && i_compatible < info->min_neighboors; increase++) {
-					Expand
-					i_compatible = Find_Compatible_Neighborhood (progenitors, focal, info, increase);
+					i_compatible = Find_Compatible_Neighborhood (progenitors, i, info, increase);
 				}
 			}
 		}
