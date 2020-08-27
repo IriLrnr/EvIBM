@@ -26,7 +26,6 @@ int main(int argc, char* argv[])
 
   info->genome_size = atoi(argv[2]);
   info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-  printf("B = %d\n", info->genome_size);
 
   if (info->genome_size > 1500) {
     if (info->genome_size > 15000) info->number_generations = 200;
@@ -51,15 +50,13 @@ int main(int argc, char* argv[])
   printf("Sim \t Gen \t nsp \t pop\n");
   for (i = 0; i <= info->number_generations; i++) {
     Stablish_Distances (progenitors, info);
-
-    if (i%10 == 0) {
+    if (i%1 == 0) {
       number_species = 1;//Count_Species (progenitors);
       fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
     }
     Reproduction  (progenitors, offspring, info);
-    printf("Passou reproduction\n");
 
-    if (i % 100 == 0) {
+    if (i % 5 == 0) {
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }
     Swap_Generations (&progenitors, &offspring);

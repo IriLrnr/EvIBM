@@ -14,7 +14,8 @@ Population Alloc_Population (Parameters info)
 		individuals[i]->spatial_neighbors = CreateHeadedList ();
 		individuals[i]->neighbors_address = malloc (6 * sizeof (int));
 		for (j = 0; j < 6; ++j) {
-			individuals[i]->neighbors_address[j] = -1;
+			if (j < 2) individuals[i]->neighbors_address[j] = -1;
+			else individuals[i]->neighbors_address[j] = -1;
 		}
 	}
 

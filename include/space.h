@@ -30,6 +30,8 @@ int Find_Neighborhood (Population, int, Parameters, int);
 */
 int Find_Compatible_Neighborhood (Population, int, Parameters, int);
 
+void Restart_Neighborhood (Population, Parameters);
+
 /*
 	Sorts a neighbor from neighbors lists combined
 */
