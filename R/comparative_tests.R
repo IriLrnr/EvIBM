@@ -3,43 +3,39 @@ library(dplyr)
 library(RColorBrewer)
 library(reshape2)
 
-theme.all <- theme(text = element_text(size=8, family="Helvetica"),
+theme.all <- theme(text = element_text(size=10, family="Helvetica"),
                    panel.grid.minor = element_blank(),
                    panel.grid.major = element_blank(),
-                   legend.position = "none",
-                   #legend.text=element_text(size=4),
-                   #legend.margin = margin(-4, 4, -1, -1),
+                   legend.text=element_text(size=8),
+                   legend.margin = margin(-4, 4, -1, -1),
                    plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
-setwd("./data/test_cp")
 ##### G ######
-getwd()
-setwd("./g")
-spp.mn.g <- tibble(.rows = 201)
-spp.sd.g <- tibble(.rows = 201)
+spp.g.tbl <- tibble(.rows = 2001)
+spp.mn.g <- tibble(.rows = 2001)
+spp.sd.g <- tibble(.rows = 2001)
 for(f in 1:10){
-  setwd(paste0("./", f, "/species"))
-  file.names <- dir()
-  
+  #setwd(paste0("./data/tests/g/", f, "/species"))
+  file.names <- dir(paste0("./data/test_cp/g/", f, "/species/"))
   number.spp=data.frame()
   for (i in 1:(length(file.names)-1)){
-    dados <- read.csv(paste(file.names[i]), head=TRUE, sep=";")
+    dados <- read.csv(paste0("./data/test_cp/g/", f, "/species/", file.names[i]), head=TRUE, sep=";")
     number.spp <- rbind(number.spp, dados)
   }
-  setwd("../../")
+  #setwd("../../")
   
   # Read data
-  number.spp <- data.frame(number.spp)
   number.data <- aggregate( . ~ gen, FUN=function(x) c(mn=mean(x), sd=sd(x)), data=number.spp)
   sumario <- do.call (data.frame, number.data)
   
-  spp.mn.g <- cbind(spp.mn.g, sumario$sp.mn)
-  spp.sd.g <- cbind(spp.sd.g, sumario$sp.sd)
+  spp.g.tbl <- cbind(spp.g.tbl, sumario[,c(2,3)])
+  #spp.mn.g <- cbind(spp.mn.g, sumario$sp.mn)
+  #spp.sd.g <- cbind(spp.sd.g, sumario$sp.sd)
 }
-setwd("../")
+#setwd("../")
 
-colnames(spp.mn.g) <- seq(1,10,1)
-colnames(spp.sd.g) <- seq(1,10,1)
+colnames(spp.g.tbl) <- seq(1,10,1)
+#colnames(spp.sd.g) <- seq(1,10,1)
 spp.mn.g <- cbind(sumario$gen, spp.mn.g)
 spp.sd.g <- cbind(sumario$gen, spp.sd.g)
 
@@ -53,13 +49,18 @@ melted <- cbind(melted, melted2$value)
 colnames(melted)[3] <- c("sp")
 colnames(melted)[4] <- c("sd")
 
-spp.g <- ggplot(melted, aes(x=gen, y=sp, group=variable, colour=factor(variable))) + 
-        geom_line() +
-        labs (x = "Geração", y = "Número de espécies", color = "g (%)") +
-        theme_bw() +
-        theme.all
+melted = subset(melted, as.numeric(melted$variable)%%2 == 0, c(1, 2, 3, 4))
+
+spp.g <- ggplot(melted) +
+  geom_ribbon(aes(x = gen, ymin=sp-sd, ymax=sp+sd, group=variable, fill=variable), alpha = 0.25, show.legend=F) +
+  geom_line (aes(x=gen, y=sp, group=variable, colour=variable)) + 
+  labs (x = "Geração", y = "Número de espécies", color = "g (%)") +
+  scale_alpha(guide = 'none') +
+  theme_bw() +
+  theme.all
 #spp.g <- spp.g + ggtitle("Especies x tempo para diferentes valores de g")
-#ggsave("../../figs/test/comparative/allsp_g.png", spp.g)
+spp.g
+ggsave("./figs/report/spp_g.png", spp.g)
 
 melted.gen <- subset(melted, gen%%500 == 0)
 g.fig <- ggplot(melted.gen, aes(x=variable, y=sp, group = gen, color = factor(gen))) + 
