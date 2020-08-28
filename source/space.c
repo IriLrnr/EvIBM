@@ -214,6 +214,10 @@ void Expand_Neighborhood (Population progenitors, int focal, Parameters info, in
 				if (Compare_Genomes (progenitors, focal, i, info)) {
 					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
 					progenitors[focal]->neighbors_address[increase*2 + 1] ++;
+					//if (progenitors[i]->species < progenitors[focal]->species)
+					//	progenitors[focal]->species = progenitors[i]->species;
+					//else
+					//		progenitors[i]->species = progenitors[focal]->species;
 				}
 				else {
 					AddCellInOrder(&progenitors[focal]->spatial_neighbors, i);

@@ -8,7 +8,7 @@ void Stablish_Distances (Population, Parameters);
 /*
 	Uses Union-Find heuristics to find number of species
 */
-int Count_Species (Population);  
+int Count_Species (Population, Parameters);  
 
 /*
 	Count the size of each species

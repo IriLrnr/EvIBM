@@ -7,8 +7,6 @@ void Stablish_Distances (Population progenitors, Parameters info)
 	Restart_Neighborhood (progenitors, info);
 
 	for (i = 0; i < info->population_size; i++) {
-		//PrintList(progenitors[i]->compatible_neighbors);
-		//PrintList(progenitors[i]->spatial_neighbors);
 		for (j = info->population_size; j > i; j--) {
 			if (Verify_Distance (progenitors, i, j, info, 0)) {
 				if (Compare_Genomes (progenitors, i, j, info)) {
@@ -16,7 +14,10 @@ void Stablish_Distances (Population progenitors, Parameters info)
 					AddCellInOrder (&progenitors[j]->compatible_neighbors, i);
 					progenitors[i]->neighbors_address[1]++;
 					progenitors[j]->neighbors_address[1]++;
-					progenitors[j]->species = progenitors[i]->species; /* will this work? dont know*/
+					if (progenitors[j]->species < progenitors[i]->species)
+						progenitors[i]->species = progenitors[j]->species;
+					else
+						progenitors[j]->species = progenitors[i]->species;
 				}
 				else {
 					AddCellInOrder (&progenitors[i]->spatial_neighbors, j);
@@ -30,35 +31,64 @@ void Stablish_Distances (Population progenitors, Parameters info)
 		for (increase = 1; increase <= info->max_increase && i_compatible < info->min_neighboors; increase++) {
 			i_compatible = Find_Compatible_Neighborhood (progenitors, i, info, increase);
 		}
-
-		//printf("fim\n");
-		//for (k = 0; k < 6; k++) {
-		//	printf("%d ", progenitors[i]->neighbors_address[k]);
-		//}
-		//printf("\n");
-		//PrintList(progenitors[i]->compatible_neighbors);
-		//PrintList(progenitors[i]->spatial_neighbors);
 	}
 }
 
-int Count_Species (Population individuals)
+int Find (Population individuals, int i) 
 {
-	int counter = 10;
-	return counter;
+	if (individuals[i]->species == i) {
+		return i;
+	}
+	individuals[i]->species = Find(individuals, individuals[i]->species);
+	return (individuals[i]->species);
 }
 
-void Count_Sizes (Population individuals, int total, Parameters info, int sizes[]) 
-{
-	int i;
+void Union (Population individuals, int i, int j, int sizes[]) {
+	int spp_i, spp_j, k;
 
-	for (i = 0; i <= total; ++i) {
-		sizes[i] = 0;
+	spp_i = Find(individuals, i);
+	spp_j = Find(individuals, j);
+
+	if (spp_j != spp_i) {
+		if (sizes[spp_i] < sizes[spp_j]) {
+			k = i;
+			i = j;
+			j = k;
+		}
+	}
+	individuals[j]->species = i;
+	sizes[i] += sizes[j];
+}
+
+int Kruskal (Population individuals, Parameters info) {
+	int i, j, spp_i, spp_j, count;
+	int* sizes;
+
+	sizes = malloc (info->population_size*(sizeof (int)));
+	for (i = 0; i < info->population_size; ++i) {
+		sizes[i] = 1;
 	}
 
 	for (i = 0; i < info->population_size; ++i) {
-		sizes[individuals[i]->species]++;
-		if (individuals[i]->species > total || individuals[i]->species < 0) {
-			printf("species error\n");
+		for (j = i+1; j < info->population_size; j++) {
+			if (Find(individuals, i) == Find(individuals, i)) {
+				Union (individuals, i, j, sizes);
+			}
 		}
 	}
+
+	for (count = 0, i = 0; i < info->population_size; i++) {
+		if (individuals[i]->species == i && sizes[i] > 1) count ++;
+	}
+
+	free (sizes);
+
+	return count;
+}
+
+int Count_Species (Population individuals, Parameters info)
+{
+	int i, j, count;
+
+	return Kruskal (individuals, info);
 }
