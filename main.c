@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
   for (i = 0; i <= info->number_generations; i++) {
     Stablish_Distances (progenitors, info);
     if (i%1 == 0) {
-      number_species = 1;//Count_Species (progenitors);
+      number_species = Count_Species (progenitors);
       fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
     }
     Reproduction  (progenitors, offspring, info);

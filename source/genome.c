@@ -80,28 +80,3 @@ void Offspring_Genome (Population progenitors, Population offspring, int baby, i
 	Mutation (offspring, baby, info);
 }
 
-int Count_Species (Population individuals)
-{
-	int counter;
-
-	//Union_Find (individuals, counter);
-	counter = -1;
-
-	return counter;
-}
-
-void Count_Sizes (Population individuals, int total, Parameters info, int sizes[]) 
-{
-	int i;
-
-	for (i = 0; i <= total; ++i) {
-		sizes[i] = 0;
-	}
-
-	for (i = 0; i < info->population_size; ++i) {
-		sizes[individuals[i]->species]++;
-		if (individuals[i]->species > total || individuals[i]->species < 0) {
-			printf("species error\n");
-		}
-	}
-}

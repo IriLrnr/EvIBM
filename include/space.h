@@ -30,6 +30,9 @@ int Find_Neighborhood (Population, int, Parameters, int);
 */
 int Find_Compatible_Neighborhood (Population, int, Parameters, int);
 
+/*
+	Restarts neighborhood from 0;
+*/
 void Restart_Neighborhood (Population, Parameters);
 
 /*
@@ -37,8 +40,10 @@ void Restart_Neighborhood (Population, Parameters);
 */
 int Sort_Neighbor (Population, int, Parameters, int);
 
-void Stablish_Distances (Population, Parameters);
-
+/*
+	Looks for neighbors in expanded neighborhood, with radius
+	1 unit bigger. 
+*/
 void Expand_Neighborhood (Population, int, Parameters, int);
 
 /*

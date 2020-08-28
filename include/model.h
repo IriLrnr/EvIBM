@@ -1,5 +1,5 @@
 /* Libraries */
-#include "space.h"
+#include "species.h"
 
 /*
 	Set simulation parameters

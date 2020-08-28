@@ -17,14 +17,3 @@ void Mutation (Population, int, Parameters);
 	each loci, 50% chance of coming from either of his parents 
 */
 void Offspring_Genome (Population, Population, int, int, int, Parameters);
-
-/*
-	Calls for DephtFirstSearch to count number of species
-*/
-int Count_Species (Population);
-
-/*
-	Count the size of each species
-*/
-void Count_Sizes (Population, int, Parameters, int*);
-

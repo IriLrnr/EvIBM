@@ -61,8 +61,6 @@ Parameters Set_Mini_Parameters ()
 }
 
 
-
-
 void Create_Offspring (Population progenitors, Population offspring,  int baby, int focal, int other, int mate, Parameters info) 
 {
 	Offspring_Position (progenitors, offspring, baby, focal, info);
