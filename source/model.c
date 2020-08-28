@@ -66,6 +66,7 @@ void Create_Offspring (Population progenitors, Population offspring,  int baby, 
 	Offspring_Position (progenitors, offspring, baby, focal, info);
 	Offspring_Genome (progenitors, offspring, baby, other, mate, info);
 	offspring[baby]->species = baby;
+	offspring[baby]->species_size = 1;
 }
 
 

@@ -9,6 +9,7 @@ typedef struct
 {
 	List genome;
 	int species;
+	int species_size;
 	double x;
 	double y;
 	int* neighbors_address;

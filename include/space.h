@@ -65,4 +65,4 @@ int Choose_Mate (Population, int, Parameters);
 int Choose_Other (Population, int, Parameters, int);
 
 
-
+int Compared (Population, int, int, Parameters);

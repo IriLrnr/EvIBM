@@ -14,10 +14,14 @@ void Stablish_Distances (Population progenitors, Parameters info)
 					AddCellInOrder (&progenitors[j]->compatible_neighbors, i);
 					progenitors[i]->neighbors_address[1]++;
 					progenitors[j]->neighbors_address[1]++;
-					if (progenitors[j]->species < progenitors[i]->species)
+					if (progenitors[j]->species < progenitors[i]->species) {
 						progenitors[i]->species = progenitors[j]->species;
-					else
+						progenitors[j]->species_size += progenitors[i]->species_size;
+					}
+					else {
 						progenitors[j]->species = progenitors[i]->species;
+						progenitors[i]->species_size += progenitors[j]->species_size;
+					}
 				}
 				else {
 					AddCellInOrder (&progenitors[i]->spatial_neighbors, j);
@@ -43,52 +47,63 @@ int Find (Population individuals, int i)
 	return (individuals[i]->species);
 }
 
-void Union (Population individuals, int i, int j, int sizes[]) {
-	int spp_i, spp_j, k;
+void Union (Population individuals, int i, int j) {
+	int k;
 
-	spp_i = Find(individuals, i);
-	spp_j = Find(individuals, j);
+	i = Find(individuals, i);
+	j = Find(individuals, j);
 
-	if (spp_j != spp_i) {
-		if (sizes[spp_i] < sizes[spp_j]) {
-			k = i;
-			i = j;
-			j = k;
-		}
+	if (i == j)  return;
+	if (individuals[i]->species_size > individuals[j]->species_size) {
+		k = i;
+		i = j;
+		j = k;
 	}
-	individuals[j]->species = i;
-	sizes[i] += sizes[j];
+	individuals[i]->species = j;
+	individuals[j]->species_size += individuals[i]->species_size;
 }
 
 int Kruskal (Population individuals, Parameters info) {
 	int i, j, spp_i, spp_j, count;
-	int* sizes;
-
-	sizes = malloc (info->population_size*(sizeof (int)));
-	for (i = 0; i < info->population_size; ++i) {
-		sizes[i] = 1;
-	}
+	List p, q;
 
 	for (i = 0; i < info->population_size; ++i) {
 		for (j = i+1; j < info->population_size; j++) {
-			if (Find(individuals, i) == Find(individuals, i)) {
-				Union (individuals, i, j, sizes);
+			if (Find(individuals, i) == Find(individuals, j)) {
+				Union (individuals, i, j);
+			}
+			else {
+				if (!Compared (individuals, i, j, info)) {
+					if (Compare_Genomes (individuals, i, j, info)) {
+						Union (individuals, i, j);
+					}
+				}
 			}
 		}
 	}
 
 	for (count = 0, i = 0; i < info->population_size; i++) {
-		if (individuals[i]->species == i && sizes[i] > 1) count ++;
+		if (individuals[i]->species == i) count ++;
 	}
-
-	free (sizes);
 
 	return count;
 }
 
 int Count_Species (Population individuals, Parameters info)
 {
-	int i, j, count;
+	/*int i, j;
+	printf("antes\n");
+	for (i = 0; i < info->population_size; i++) {
+		printf("%d ", individuals[i]->species_size);
+	}
+	printf("\ndps\n");
+	j = Kruskal(individuals, info);
+	for (i = 0; i < info->population_size; i++) {
+		printf("%d ", individuals[i]->species_size);
+	}
+	printf("\n");
+
+	return j;*/
 
 	return Kruskal (individuals, info);
 }

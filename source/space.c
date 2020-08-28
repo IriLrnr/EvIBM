@@ -179,8 +179,7 @@ int Choose_Other (Population progenitors, int focal, Parameters info, int increa
 	if (random_number() < 0.37 || focal_neighbors < info->min_neighboors) {
 		other = Sort_Neighbor (progenitors, focal, info, increase);
 		compatible_neighbors = Find_Compatible_Neighborhood (progenitors, other, info, 0);
-		all = Find_Neighborhood (progenitors, other, info, 0);
-		while (compatible_neighbors < info->min_neighboors && radius_increase < info->max_increase) {
+		while (compatible_neighbors < 2 && radius_increase < info->max_increase) {
 			if (n > 1) {
 				radius_increase ++;
 				n = 0;
@@ -190,7 +189,6 @@ int Choose_Other (Population progenitors, int focal, Parameters info, int increa
 			other = Sort_Neighbor (progenitors, other, info, radius_increase);
 			if (other != -1) {
 				compatible_neighbors = Find_Compatible_Neighborhood (progenitors, other, info, radius_increase);
-				all = Find_Neighborhood (progenitors, other, info, radius_increase);
 			}
 			n++;
     	}
@@ -214,10 +212,14 @@ void Expand_Neighborhood (Population progenitors, int focal, Parameters info, in
 				if (Compare_Genomes (progenitors, focal, i, info)) {
 					AddCellInOrder(&progenitors[focal]->compatible_neighbors, i);
 					progenitors[focal]->neighbors_address[increase*2 + 1] ++;
-					//if (progenitors[i]->species < progenitors[focal]->species)
-					//	progenitors[focal]->species = progenitors[i]->species;
-					//else
-					//		progenitors[i]->species = progenitors[focal]->species;
+					if (progenitors[i]->species < progenitors[focal]->species) {
+						progenitors[focal]->species = progenitors[i]->species;
+						progenitors[i]->species_size += progenitors[focal]->species_size;
+					}
+					else {
+						progenitors[i]->species = progenitors[focal]->species;
+						progenitors[focal]->species_size += progenitors[i]->species_size;
+					}
 				}
 				else {
 					AddCellInOrder(&progenitors[focal]->spatial_neighbors, i);
@@ -228,4 +230,12 @@ void Expand_Neighborhood (Population progenitors, int focal, Parameters info, in
 	}
 }
 
-
+int Compared (Population individuals, int i, int j, Parameters info)
+{
+	int increase;
+	for (increase = 2; i > 0; increase++) {
+		if (individuals[i]->neighbors_address[increase*2] != -1 || individuals[i]->neighbors_address[increase*2] != -1)
+			return Verify_Distance (individuals, i, j, info, increase);
+	}
+	return Verify_Distance (individuals, i, j, info, 0);
+}
