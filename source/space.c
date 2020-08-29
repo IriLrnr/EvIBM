@@ -173,15 +173,18 @@ int Choose_Other (Population progenitors, int focal, Parameters info, int increa
 
 	if (random_number() < 0.37 || focal_neighbors < info->min_neighboors) {
 		other = Sort_Neighbor (progenitors, focal, info, increase);
+		progenitors[other]->radius = info->radius + radius_increase;
 		compatible_neighbors = Find_Compatible_Neighborhood (progenitors, other, info, 0);
 		while (compatible_neighbors < 2 && radius_increase < info->max_increase) {
 			if (n > 1) {
 				radius_increase ++;
+				progenitors[focal]->radius = info->radius + radius_increase;
 				n = 0;
 				other = focal;
 				compatible_neighbors = Find_Compatible_Neighborhood (progenitors, focal, info, radius_increase);
 			}
 			other = Sort_Neighbor (progenitors, other, info, radius_increase);
+			progenitors[other]->radius = info->radius + radius_increase;
 			if (other != -1) {
 				compatible_neighbors = Find_Compatible_Neighborhood (progenitors, other, info, radius_increase);
 			}
