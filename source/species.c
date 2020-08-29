@@ -4,6 +4,8 @@ void Stablish_Distances (Population progenitors, Parameters info)
 {
 	int i, j, k, i_compatible, increase;
 
+	info->population_size = info->child_population_size;
+
 	Restart_Neighborhood (progenitors, info);
 
 	for (i = 0; i < info->population_size; i++) {
