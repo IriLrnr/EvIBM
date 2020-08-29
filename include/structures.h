@@ -10,6 +10,7 @@ typedef struct
 	List genome;
 	int species;
 	int species_size;
+	int radius;
 	double x;
 	double y;
 	int* neighbors_address;
@@ -48,3 +49,7 @@ Population Alloc_Population (Parameters);
 void Free_Population (Population, Parameters);
 
 void Swap_Generations (Population*, Population*);
+
+int min (int, int);
+
+int max (int, int);

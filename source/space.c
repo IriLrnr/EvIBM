@@ -41,17 +41,11 @@ int Verify_Distance (Population progenitors, int focal, int mate, Parameters inf
 
 int Find_Compatible_Neighborhood (Population progenitors, int focal, Parameters info, int increase)
 {
-	if (progenitors[focal]->neighbors_address[increase*2] == -1) {
-		Expand_Neighborhood (progenitors, focal, info, increase);
-	}
 	return (progenitors[focal]->neighbors_address[increase*2 + 1]);
 }
 
 int Find_Neighborhood (Population progenitors, int focal, Parameters info, int increase)
 {
-	if (progenitors[focal]->neighbors_address[increase*2] == -1) {
-		Expand_Neighborhood (progenitors, focal, info, increase);
-	}
 	return (progenitors[focal]->neighbors_address[increase*2] + progenitors[focal]->neighbors_address[increase*2 + 1]);
 }
 
@@ -62,10 +56,8 @@ void Restart_Neighborhood (Population progenitors, Parameters info)
 	for (i = 0; i < info->population_size; ++i) {
 		RestartList (&progenitors[i]->compatible_neighbors);
 		RestartList (&progenitors[i]->spatial_neighbors);
-		progenitors[i]->neighbors_address[0] = 0;
-		progenitors[i]->neighbors_address[1] = 0;
-		for (j = 2; j < 6; j++) {
-			progenitors[i]->neighbors_address[j] = -1;
+		for (j = 0; j < 6; j++) {
+			progenitors[i]->neighbors_address[j] = 0;
 		}
 	}
 }
@@ -80,7 +72,7 @@ int Sort_Neighbor (Population progenitors, int i, Parameters info, int increase)
 	compatible_neighbors = Find_Compatible_Neighborhood (progenitors, i, info, increase);
 	all = Find_Neighborhood (progenitors, i, info, increase);
 
-	if (all) {
+	if (all > 0) {
 		k = rand_1to (all);
 		if (k <= compatible_neighbors)
 			for (j = 1, p = progenitors[i]->compatible_neighbors->next; p != NULL && j < k; p = p->next, j++);
@@ -95,6 +87,8 @@ int Sort_Neighbor (Population progenitors, int i, Parameters info, int increase)
 		else other = -1;
 	}
 	else other = -1;
+
+	//printf("sort neig = %d\n vd = ", other, Verify_Distance(progenitors, i, other, info, increase));
 
 	return other;
 }
@@ -145,10 +139,9 @@ int Choose_Mate (Population progenitors, int focal, Parameters info)
 
 	mate = -1;
 
-	for (increase = 1; increase <= info->max_increase; ++increase)
-		if (progenitors[focal]->neighbors_address[increase*2] == -1) break;
+	increase = progenitors[focal]->radius - info->radius;
 
-	neighbors = Find_Compatible_Neighborhood (progenitors, focal, info, increase - 1);
+	neighbors = Find_Compatible_Neighborhood (progenitors, focal, info, increase);
 
 	if (neighbors) {
 		k = rand_1to (neighbors);
@@ -161,6 +154,8 @@ int Choose_Mate (Population progenitors, int focal, Parameters info)
 		else mate = -1;
 	}
 	else mate = -1;
+
+	//printf("mate = %d\n", mate);
 
 	return mate;
 }
@@ -194,12 +189,16 @@ int Choose_Other (Population progenitors, int focal, Parameters info, int increa
     	}
 	}
 
+	//printf("other = %d\n", other);
+
 	return other;
 }
 
 void Expand_Neighborhood (Population progenitors, int focal, Parameters info, int increase)
 {
 	int i;
+
+	printf("HAI\n");
 
 	if (increase > 2) {
 		printf ("Error in Expand_Neighborhood (increase > 2)");	

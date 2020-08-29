@@ -15,9 +15,9 @@ Population Alloc_Population (Parameters info)
 		individuals[i]->neighbors_address = malloc (6 * sizeof (int));
 		individuals[i]->species = i;
 		individuals[i]->species_size = 1;
+		individuals[i]->radius = info->radius;
 		for (j = 0; j < 6; ++j) {
-			if (j < 2) individuals[i]->neighbors_address[j] = -1;
-			else individuals[i]->neighbors_address[j] = -1;
+			individuals[i]->neighbors_address[j] = 0; 
 		}
 	}
 
@@ -40,10 +40,22 @@ void Free_Population (Population individuals, Parameters info)
 }
 
 void Swap_Generations (Population* progenitors_pointer, Population* offspring_pointer)
-	{
-		Population helper;
+{
+	Population helper;
 
-		helper = (*progenitors_pointer);
-		(*progenitors_pointer) = (*offspring_pointer);
-		(*offspring_pointer) = helper;
-	}
+	helper = (*progenitors_pointer);
+	(*progenitors_pointer) = (*offspring_pointer);
+	(*offspring_pointer) = helper;
+}
+
+int max (int i, int j) 
+{
+	if (i >= j) return i;
+	return j;
+}
+
+int min (int i, int j) 
+{
+	if (i >= j) return j;
+	return i;
+}

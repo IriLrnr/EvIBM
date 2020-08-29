@@ -12,6 +12,26 @@ List CreateHeadedList ()
   return head;
 }
 
+void AddCell (List *list, int value)
+{
+  List add, p;
+
+  add = malloc (sizeof (Cell));
+  add->info = value;
+  add->next = NULL;
+
+  if (*list == NULL) {
+    printf("ERRO\n");
+  }
+
+  else {
+    p = (*list)->next;
+    (*list)->next = add;
+    ((*list)->next)->next = p;
+    (*list)->info --;
+  }
+}
+
 /* This function add a cell to the list, if and only if it is not on the list already, and in order
 it also updates the size of the list */
 void AddCellInOrder (List *list, int value)
@@ -101,16 +121,6 @@ void PrintList (List cell)
   }
   else
   printf(".\n");
-}
-
-void AlterListW (List *list, int value)
-{
-  if (FindValue (value, list) == NULL) {
-    AddCellInOrder (list, value);
-  }
-  else {
-    RemoveCell (list, value);
-  }
 }
 
 void AlterList (List *list, int value)

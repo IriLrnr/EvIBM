@@ -74,7 +74,7 @@ void Create_Offspring (Population progenitors, Population offspring,  int baby, 
 void Reproduction (Population progenitors, Population offspring, Parameters info)
 {
 	int focal, mate, other, baby, other_neighborhood, all, compatible_neighborhood, increase, n, occupation, expand, density;
-
+	
 	baby = 0;
 	for (focal = 0; focal < info->population_size; focal++) {
 		mate = -1;
@@ -92,20 +92,19 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 		else {
 			for (increase = 0; all < 2 && increase < info->max_increase; increase++) {
 				all = Find_Neighborhood (progenitors, focal, info, increase);
+				progenitors[focal]->radius = info->radius + increase;
 			}
-			if (all > 1) {
-				other = Choose_Other (progenitors, focal, info, increase);
-				if (other == -1) printf("ERRO\n");
-				if (other != -1) {
-					other_neighborhood = Find_Compatible_Neighborhood (progenitors, other, info, increase);
-				}
-				else other_neighborhood = 0;
-				if (other_neighborhood > 1) {
-					mate = Choose_Mate (progenitors, other, info);
-					if (mate != -1) {
-						Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
-						baby ++;
-					}
+			if (all < 2) continue;
+			other = Choose_Other (progenitors, focal, info, increase);
+			if (other != -1) {
+				other_neighborhood = Find_Compatible_Neighborhood (progenitors, other, info, increase);
+			}
+			else other_neighborhood = 0;
+			if (other_neighborhood > 1) {
+				mate = Choose_Mate (progenitors, other, info);
+				if (mate != -1) {
+					Create_Offspring (progenitors, offspring, baby, focal, other, mate, info);
+					baby ++;
 				}
 			}
 		}

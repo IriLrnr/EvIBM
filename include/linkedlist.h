@@ -12,6 +12,7 @@ typedef Cell* List;
 /* functions from linkedlist.h */
 
 List CreateHeadedList ();
+void AddCell (List*, int);
 void AddCellInOrder (List*, int);
 void RemoveCell (List*, int);
 List FindValue (int, List*);
