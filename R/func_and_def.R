@@ -11,13 +11,15 @@ theme.all <- theme(text = element_text(size=10, family="Helvetica"),
                    plot.margin = unit(c(0.1,2,0.1,0.1), "cm"))
 
 
-plot.parameter <- function (spp.info, type, legend) {
+plot.parameter <- function (spp.info, type, legend, c) {
   spp.info$variable <- as.factor(spp.info$variable)
   spp <- ggplot(spp.info) +
     geom_ribbon(aes(x = gen, ymin=sp.mn-sp.sd, ymax=sp.mn+sp.sd, group=variable, fill=variable), alpha = 0.25, show.legend=F) +
     geom_line (aes(x=gen, y=sp.mn, group=variable, colour=variable)) + 
     labs (x = "Geração", y = "Número de espécies", color = legend) +
     scale_alpha(guide = 'none') +
+    scale_color_brewer(palette = c) + 
+    scale_fill_brewer(palette = c) +
     theme_bw() +
     theme.all
   #ggsave(paste0("./figs/report/spp_", type, ".png"), spp)
@@ -25,11 +27,12 @@ plot.parameter <- function (spp.info, type, legend) {
 }
 
 
-weird.plot <- function (spp.info, type, legend) {
+weird.plot <- function (spp.info, type, legend, c) {
   fig <- ggplot(spp.info, aes(x=as.factor(variable), y=sp.mn, group = gen, color = factor(gen))) + 
     geom_point() + geom_line() + geom_errorbar(aes(ymin = sp.mn-sp.sd, ymax = sp.mn+sp.sd), width = 0.2) + 
     #scale_x_discrete(labels=seq(1,10,by=1)) +
     labs (x = legend, y = "Número de espécies", color = "geração") +
+    scale_color_brewer(palette = c) + 
     theme_bw() +
     theme.all
   #ggsave(paste0("./figs/report/", type, "_fig.png"), spp)
