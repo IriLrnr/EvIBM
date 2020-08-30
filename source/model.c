@@ -8,8 +8,8 @@ Parameters Set_Parameters ()
 	info = (Parameters) malloc (sizeof (parameters));
 
 	info->number_individuals     = 1000;
-	info->population_size        = 1000;
-	info->child_population_size  = 1000;
+	info->population_size        = info->number_individuals;
+	info->child_population_size  = info->number_individuals;
 	/* The population can grow and sink. Here we estimate the grown aoround 20% */
 	info->individual_vector_size = (int)(info->number_individuals * 1.05);
 	info->genome_size            = 150;
@@ -78,8 +78,9 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 	baby = 0;
 	for (focal = 0; focal < info->population_size; focal++) {
 		mate = -1;
-		compatible_neighborhood = Find_Compatible_Neighborhood (progenitors, focal, info, 0);
-		all = Find_Neighborhood (progenitors, focal, info, 0);
+		progenitors[focal]->radius_increase = 0;
+		compatible_neighborhood = Find_Compatible_Neighborhood (progenitors, focal, info);
+		all = Find_Neighborhood (progenitors, focal, info);
 		if (info->population_size < info->number_individuals && all < info->density) {
 			if (compatible_neighborhood >= info->min_neighboors) {
 				mate = Choose_Mate (progenitors, focal, info);
@@ -91,13 +92,13 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 		}
 		else {
 			for (increase = 0; all < 2 && increase < info->max_increase; increase++) {
-				all = Find_Neighborhood (progenitors, focal, info, increase);
-				progenitors[focal]->radius = info->radius + increase;
+				progenitors[focal]->radius_increase = increase + 1;
+				all = Find_Neighborhood (progenitors, focal, info);
 			}
 			if (all < 2) continue;
-			other = Choose_Other (progenitors, focal, info, increase);
+			other = Choose_Other (progenitors, focal, info);
 			if (other != -1) {
-				other_neighborhood = Find_Compatible_Neighborhood (progenitors, other, info, increase);
+				other_neighborhood = Find_Compatible_Neighborhood (progenitors, other, info);
 			}
 			else other_neighborhood = 0;
 			if (other_neighborhood > 1) {

@@ -23,12 +23,12 @@ int Verify_Distance (Population, int, int, Parameters, int);
 	Through this function both lists of neighbors can verified 
 	at the same time
 */
-int Find_Neighborhood (Population, int, Parameters, int);
+int Find_Neighborhood (Population, int, Parameters);
 
 /*
 	Through this function both lists of neighbors can be verifies 
 */
-int Find_Compatible_Neighborhood (Population, int, Parameters, int);
+int Find_Compatible_Neighborhood (Population, int, Parameters);
 
 /*
 	Restarts neighborhood from 0;
@@ -38,13 +38,7 @@ void Restart_Neighborhood (Population, Parameters);
 /*
 	Sorts a neighbor from neighbors lists combined
 */
-int Sort_Neighbor (Population, int, Parameters, int);
-
-/*
-	Looks for neighbors in expanded neighborhood, with radius
-	1 unit bigger. 
-*/
-void Expand_Neighborhood (Population, int, Parameters, int);
+int Sort_Neighbor (Population, int, Parameters);
 
 /*
 	This function, called by Reproduction, defines the offspring position, that is, 
@@ -62,7 +56,7 @@ int Choose_Mate (Population, int, Parameters);
 	 Chooses an individual to replace when a focal 
 	 dies before reproducing
 */
-int Choose_Other (Population, int, Parameters, int);
+int Choose_Other (Population, int, Parameters);
 
 
 int Compared (Population, int, int, Parameters);

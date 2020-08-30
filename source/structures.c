@@ -15,7 +15,7 @@ Population Alloc_Population (Parameters info)
 		individuals[i]->neighbors_address = malloc (6 * sizeof (int));
 		individuals[i]->species = i;
 		individuals[i]->species_size = 1;
-		individuals[i]->radius = info->radius;
+		individuals[i]->radius_increase = 0;
 		for (j = 0; j < 6; ++j) {
 			individuals[i]->neighbors_address[j] = 0; 
 		}
@@ -58,4 +58,29 @@ int min (int i, int j)
 {
 	if (i >= j) return j;
 	return i;
+}
+
+int Find (Population individuals, int i) 
+{
+	if (individuals[i]->species == i) {
+		return i;
+	}
+	individuals[i]->species = Find (individuals, individuals[i]->species);
+	return (individuals[i]->species);
+}
+
+void Union (Population individuals, int i, int j) {
+	int k;
+
+	i = Find(individuals, i);
+	j = Find(individuals, j);
+
+	if (i == j)  return;
+	if (individuals[i]->species_size > individuals[j]->species_size) {
+		k = i;
+		i = j;
+		j = k;
+	}
+	individuals[i]->species = j;
+	individuals[j]->species_size += individuals[i]->species_size;
 }

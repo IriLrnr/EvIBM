@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
   printf("Sim \t Gen \t nsp \t pop\n");
   for (i = 0; i <= info->number_generations; i++) {
     Stablish_Distances (progenitors, info);
-    if (i%100 == 0) {
+    if (i%10 == 0) {
       number_species = Count_Species (progenitors, info);
       fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
     }

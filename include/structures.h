@@ -1,6 +1,5 @@
 #include <time.h>
 #include <math.h>
-#include "graph.h"
 #include "linkedlist.h"
 #include "random.h"
 
@@ -10,7 +9,7 @@ typedef struct
 	List genome;
 	int species;
 	int species_size;
-	int radius;
+	int radius_increase;
 	double x;
 	double y;
 	int* neighbors_address;
@@ -53,3 +52,7 @@ void Swap_Generations (Population*, Population*);
 int min (int, int);
 
 int max (int, int);
+
+int Find (Population, int);
+
+void Union (Population, int, int);
