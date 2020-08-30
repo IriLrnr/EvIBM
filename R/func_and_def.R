@@ -53,3 +53,26 @@ create.tbl <- function (interval, type) {
   }
   return (spp.tbl)
 }
+
+PerformanceBoxplot <- function (list1, list2) {
+  df <- do.call(rbind,list1)
+  df$name <- rep(names(list1),times=sapply(list1,nrow))
+  version <- rep("sem otimização", nrow(df))
+  df <- cbind(version, df)
+  df2 <- do.call(rbind,list2)
+  df2$name <- rep(names(list2),times=sapply(list2,nrow))
+  version <- rep("otimização no genoma", nrow(df2))
+  df2 <- cbind(version, df2)
+  df <- rbind (df, df2)
+  
+  #df$real = as.difftime(df$real)
+  df$usr = as.numeric(df$usr)
+  df$sys = as.numeric(df$sys)
+  
+  fig <- ggplot(df, aes(x = name, y = usr+sys, color = version)) +
+    geom_boxplot(outlier.shape=16, outlier.size=2, notch=FALSE) +
+    theme_bw()+
+    theme.all 
+  fig <- fig + labs (x = "Tamanho do genoma B", y = "Tempo (usr + sys)", color ="versão")
+  return (fig)
+}

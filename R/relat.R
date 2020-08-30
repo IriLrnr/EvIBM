@@ -1,5 +1,6 @@
 library (gridExtra)
 library(reshape)
+library (ggplot2)
 
 source ("./R/func_and_def.R")
 
@@ -58,17 +59,12 @@ b.fig
 
 #### PERFORMANCE COMPARISON
 genomes = c(150, 1500, 15000)
-
 files.path <- paste0("./data/performance_tests/B/done/correct!/validation/performance_", genomes, ".txt")
 no.opt <- lapply(files.path, FUN = read.table, sep = ";", header = T)
+names(no.opt) <- genomes
 
 files.path <- paste0("./data/performance_tests/B/done/correct!/binomial_mut/performance_", genomes, ".txt")
 opt.1 <- lapply(files.path, FUN = read.table, sep = ";", header = T)
+names(opt.1) <- genomes
 
-data.no.opt <- cbind (rep(150, 20), no.opt[[1]])
-colnames(data.no.opt)[1] <- c("id")
-data.no.opt <- melt (data.no.opt, id.vars = c("id"))
-
-p.150 <- ggplot(melt(data.no.opt, id.vars = c("id")), aes(factor(variable), value)) +
-    geom_boxplot() + facet_wrap(~variable, scale="free")
-p.150
+comp.boxplot <- PerformanceBoxplot(no.opt, opt1)
