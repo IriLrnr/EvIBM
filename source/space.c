@@ -16,10 +16,10 @@ int Verify_Distance (Population individuals, int i, int j, Parameters info, int 
 	
 	r = info->radius + increase;
 
-	x0 = progenitors[i]->x;
-	y0 = progenitors[i]->y;
-	x = progenitors[j]->x;
-	y = progenitors[j]->y;
+	x0 = individuals[i]->x;
+	y0 = individuals[i]->y;
+	x = individuals[j]->x;
+	y = individuals[j]->y;
 
 	if (y0 >= info->lattice_length - r && y <= r)
 		y = y + info->lattice_length;
