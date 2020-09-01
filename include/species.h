@@ -14,3 +14,5 @@ int Count_Species (Population, Parameters);
 	Count the size of each species
 */
 void Count_Sizes (Population, int, Parameters);
+
+void Find_Species (Population, Parameters);

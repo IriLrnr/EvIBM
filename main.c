@@ -1,6 +1,6 @@
   #include "include/model.h"
 
-int main(int argc, char* argv[])
+int main (int argc, char* argv[])
 {
   int i, j, l, k, number_species, type, deltat, p, genome;
   Population progenitors, offspring;
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
   offspring = Alloc_Population (info);  
   Set_Initial_Position (progenitors, info);
 
-  printf("Sim \t Gen \t nsp \t pop\n");
+  printf("Sim \t Gen \t nsp\t pop\n");
   for (i = 0; i <= info->number_generations; i++) {
     Stablish_Distances (progenitors, info);
     if (i%10 == 0) {
@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
       fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
     }
     Reproduction  (progenitors, offspring, info);
-
     if (i % 100 == 0) {
+      //if (info->genome < 15000) FindSpecies (progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }
     Swap_Generations (&progenitors, &offspring);
