@@ -1,6 +1,6 @@
 #include "../include/random.h"
 
- int rand_1to (int n)
+int rand_1to (int n)
 {
   return ((int) (random_number() * n) + 1);
 }
