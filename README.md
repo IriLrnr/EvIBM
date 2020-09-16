@@ -12,18 +12,14 @@ This branch is used to test and analise the situation of the aglutination of ind
 
 To compile this code you may have to install some programs before. See [instalation](#install) for more information.
 
-### Just compile with gcc
+The simplest way is with make.
 
-This won't create the cvs, png and gifs, just print out the generation and number of species.
-
-```bash
-$ gcc main.c -I /usr/include/gsl/ -o -lgsl -lgslcblas -lm out
-$ ./out
-```
-
-The best way to compile is with `make`:
 ```bash
 $ make
+```
+If you want the exec files deleted, type
+```bash
+$ make clean
 ```
 
 ## Installation <a name="install"></a>
@@ -42,13 +38,6 @@ $ sudo apt install build.essentials
 ```
 
 To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/, but if you don't want the graphics, you won't need R.
-
-## Questions for next session
-
-Tried to take graphs off and had a big problem with neighborhood expanding and shrinking. Possible solutions are:
-	Missing:
-		- Union_Find ()
-		- Fix list shinking and expansion based on ->neighbors_adress
 
 ## References
 
