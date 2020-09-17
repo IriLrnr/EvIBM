@@ -24,7 +24,7 @@ $ make clean
 
 ## Installation <a name="install"></a>
 
-First, install GLS
+First, install Gnu Scientific Library
 
 ~~~bash
 $ sudo apt update
