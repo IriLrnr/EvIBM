@@ -30,10 +30,9 @@ typedef struct
 	int genome_size;
 	int reproductive_distance;
 	int number_generations;
-	int density;
 	int min_neighboors;
 	int max_increase;
-	int max_spot_density;
+	double density;
 	double lattice_width;
 	double lattice_length;
 	double radius;
