@@ -12,6 +12,7 @@ typedef struct
 	int radius_increase;
 	double x;
 	double y;
+	int local_density;
 	int* neighbors_address;
 	List compatible_neighbors;
 	List spatial_neighbors;

@@ -11,7 +11,7 @@ Parameters Set_Parameters ()
 	info->population_size        = info->number_individuals;
 	info->child_population_size  = info->number_individuals;
 	/* The population can grow and sink. Here we estimate the grown aoround 20% */
-	info->individual_vector_size = (int)(info->number_individuals * 1.05);
+	info->individual_vector_size = (int)(info->number_individuals * 2);
 	info->genome_size            = 150;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
 	info->number_generations     = 1000;
@@ -53,7 +53,7 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 	double occupation;
 
 	occupation = ((double) info->population_size) / ((double) info->number_individuals);
-	density = (int) (info->density*info->radius*info->radius*3.1416 / (1 + exp(5*(occupation - 1.075))));
+	density = (int) (info->density*25*3.1416 / (1 + exp(5*(occupation - 1.075))));
 	
 	baby = 0;
 	for (focal = 0; focal < info->population_size; focal++) {
@@ -61,7 +61,8 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 		progenitors[focal]->radius_increase = 0;
 		compatible_neighborhood = Find_Compatible_Neighborhood (progenitors, focal, info);
 		all = Find_Neighborhood (progenitors, focal, info);
-		if (info->population_size < info->number_individuals && all < density) {
+		//printf("local_density = %d\n", progenitors[focal]->local_density);
+		if (info->population_size < info->number_individuals && progenitors[focal]->local_density < density) {
 			if (compatible_neighborhood >= info->min_neighboors) {
 				mate = Choose_Mate (progenitors, focal, info);
 				for (n = 0; n < 2 && mate != -1; n++) {

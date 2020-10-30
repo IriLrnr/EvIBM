@@ -16,6 +16,7 @@ Population Alloc_Population (Parameters info)
 		individuals[i]->species = i;
 		individuals[i]->species_size = 1;
 		individuals[i]->radius_increase = 0;
+		individuals[i]->local_density = 0;
 		for (j = 0; j < 6; ++j) {
 			individuals[i]->neighbors_address[j] = 0; 
 		}

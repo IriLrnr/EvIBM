@@ -33,6 +33,10 @@ void Stablish_Distances (Population progenitors, Parameters info)
 		}
 		for (i = 0; i < info->population_size; i++) {
 			for (j = i + 1; j < info->population_size; j++) {
+				if (increase == 0 && Verify_Distance (progenitors, i, j, info, 5 - info->radius)) {
+					progenitors[i]->local_density ++;
+					progenitors[j]->local_density ++;
+				}
 				if (increase > 0 && Verify_Distance (progenitors, i, j, info, increase - 1)) continue;
 				if (Verify_Distance (progenitors, i, j, info, increase)) {
 					if (Compare_Genomes (progenitors, i, j, info)) {

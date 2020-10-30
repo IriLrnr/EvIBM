@@ -101,6 +101,7 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 
 	offspring[baby]->x = progenitors[focal]->x;
 	offspring[baby]->y = progenitors[focal]->y;
+	offspring[baby]->local_density = 0;
 
 	if (random_number() <= info->dispersion) {
 		while (movement_x == 0 && movement_y == 0) {
