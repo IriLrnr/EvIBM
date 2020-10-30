@@ -166,7 +166,6 @@ int Choose_Other (Population progenitors, int focal, Parameters info)
 	radius_increase = 0;
 	compatible_neighbors = all = 0;
 
-
 	focal_neighbors = Find_Compatible_Neighborhood (progenitors, focal, info);
 
 	if (random_number() < 0.37 || focal_neighbors < info->min_neighboors) {

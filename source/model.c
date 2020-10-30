@@ -23,11 +23,14 @@ Parameters Set_Parameters ()
 	info->min_neighboors         = 3;
 	info->max_increase           = 2;
 	info->max_spot_density       = 100;
+	
 	/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 	individuals that mark the density limit (60% of the original density) */
-	rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
-	info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
-	
+	//rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+	//info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
+
+	info->density = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+
 	return info;
 }
 
