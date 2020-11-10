@@ -41,8 +41,6 @@ int main (int argc, char* argv[])
   nspecies = fopen (nome_arq_s, "w");
   fprintf (nspecies, "gen;sp;pop;sim\n");
 
-  printf("oi\n");
-
   progenitors = Alloc_Population (info);
   offspring = Alloc_Population (info);  
   Set_Initial_Position (progenitors, info);
