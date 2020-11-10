@@ -18,30 +18,30 @@ int main (int argc, char* argv[])
 
   l = atoi(argv[3]);
   if (l == 1) {
-    sprintf (nome_arq_st, "./data/performance_tests/B/performance_%d.txt", (int) atoi(argv[2]));
+    sprintf (nome_arq_st, "./data/sizes_tests/performance_%d.txt", (int) atoi(argv[2]));
     performance = fopen(nome_arq_st, "w");
     fprintf (performance, "real;usr;sys\n");
     fclose (performance);
   }
 
-  info->genome_size = atoi(argv[2]);
-  info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-
-  if (info->genome_size > 1500) {
-    if (info->genome_size > 15000) info->number_generations = 200;
-    else info->number_generations = 500;
-  }
-  info->population_size = info->number_individuals;
-
+  info->lattice_length         = atof(argv[2]);
+  info->lattice_width          = info->lattice_length;
+  info->number_individuals     = (int) info->lattice_length*info->lattice_width*info->density;
+  info->population_size        = info->number_individuals;
+  info->child_population_size  = info->number_individuals;
+  info->individual_vector_size = (int)(info->number_individuals * 1.15);
+  info->density                = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
 
   time(&t);
   srand (t);
   
-  printf("*************BEG**************\n%sB = %d, g = %d, mu = %0.5f\n******************************\n", ctime(&t), info->genome_size, info->reproductive_distance, info->mutation);
+  printf("*************BEG**************\n%sB = %d, N = %d, L = %.f\n******************************\n", ctime(&t), info->genome_size, info->number_individuals, info->lattice_length);
   
-  sprintf (nome_arq_s, "./data/performance_tests/B/%d/species/numsp_%02d.csv", info->genome_size, l);
+  sprintf (nome_arq_s, "./data/sizes_tests/%.f/species/numsp_%02d.csv", info->lattice_length, l);
   nspecies = fopen (nome_arq_s, "w");
-  fprintf (nspecies, "gen;sp;sim\n");
+  fprintf (nspecies, "gen;sp;pop;sim\n");
+
+  printf("oi\n");
 
   progenitors = Alloc_Population (info);
   offspring = Alloc_Population (info);  
@@ -52,10 +52,10 @@ int main (int argc, char* argv[])
     Stablish_Distances (progenitors, info);
     if (i%1 == 0) {
       number_species = Count_Species (progenitors, info);
-      fprintf (nspecies, "%d;%d;%d\n", i, number_species, l);
+      fprintf (nspecies, "%d;%d;%d;%d\n", i, number_species, info->population_size, l);
     }
     Reproduction  (progenitors, offspring, info);
-    if (i % 1 == 0) {
+    if (i % 25 == 0) {
       //if (info->genome < 15000) FindSpecies (progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }

@@ -11,8 +11,8 @@ Parameters Set_Parameters ()
 	info->population_size        = info->number_individuals;
 	info->child_population_size  = info->number_individuals;
 	/* The population can grow and sink. Here we estimate the grown aoround 20% */
-	info->individual_vector_size = (int)(info->number_individuals * 2);
-	info->genome_size            = 150;
+	info->individual_vector_size = (int)(info->number_individuals * 1.15);
+	info->genome_size            = 1500;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
 	info->number_generations     = 1000;
 	info->lattice_length         = 100;
