@@ -1,9 +1,10 @@
 #!/bin/sh
 
-for l in 120 150 180 200 220 250
+for l in 120 150 180 200 220 250 300 350
 do
 	l_dir=./data/sizes_tests/$l
 	mkdir -p $l_dir/species
+	mkdir -p $l_dir/sizes
 	touch ./data/sizes_tests/performance_$l.txt
 
 	gcc -g -c main.c source/*.c -I /usr/include/gsl/

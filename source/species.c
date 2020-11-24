@@ -63,14 +63,17 @@ void Stablish_Distances (Population progenitors, Parameters info)
 }
 
 
-int Count_Species (Population individuals, Parameters info)
+int Count_Species (Population individuals, Parameters info, int sizes[])
 {
 	int count, i;
 
 	//FindSpecies (individuals, info);
 
 	for (count = 0, i = 0; i < info->population_size; i++) {
-		if (individuals[i]->species == i && individuals[i]->species_size > 1) count ++;
+		if (individuals[i]->species == i && individuals[i]->species_size > 1) {
+			sizes[count] = individuals[i]->species_size;
+			count ++;
+		}
 	}
 
 
