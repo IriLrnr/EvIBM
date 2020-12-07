@@ -144,10 +144,7 @@ To keep the random numbers in a desired interval, the following functions can be
 When a random number between 0 and 1, excluding both 0 and 1, is needed:
 
 ```c
-double random_number()
-{
-  return((double) rand() / ((double) RAND_MAX + 1));
-}
+>>> random_number@source/random.c
 ```
 
 <a name="rand_upto"></a>
