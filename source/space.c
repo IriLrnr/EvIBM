@@ -1,5 +1,6 @@
 #include "../include/space.h"
 
+/* @ Set_Initial_Position */
 void Set_Initial_Position (Population individuals, Parameters info)
 {
 	int i;
@@ -9,7 +10,9 @@ void Set_Initial_Position (Population individuals, Parameters info)
     	individuals[i]->y = random_number() * info->lattice_length;
     }
 }
+/* @ */
 
+/* @ Verify_Distance */
 int Verify_Distance (Population individuals, int i, int j, Parameters info, int increase)
 {
 	double x, x0, y, y0, r;
@@ -38,19 +41,25 @@ int Verify_Distance (Population individuals, int i, int j, Parameters info, int 
 	else 
 		return 0;
 }
+/* @ */
 
+/* @ Find_Compatible_Neighborhood */
 int Find_Compatible_Neighborhood (Population individuals, int i, Parameters info)
 {
 	int increase = individuals[i]->radius_increase;
 	return (individuals[i]->neighbors_address[increase*2 + 1]);
 }
+/* @ */
 
+/* @ Find_Neighborhood */
 int Find_Neighborhood (Population individuals, int i, Parameters info)
 {
 	int increase = individuals[i]->radius_increase;
 	return (individuals[i]->neighbors_address[increase*2] + individuals[i]->neighbors_address[increase*2 + 1]);
 }
+/* @ */
 
+/* @ Restart_Neighborhood */
 void Restart_Neighborhood (Population individuals, Parameters info)
 {
 	int i, j;
@@ -63,7 +72,9 @@ void Restart_Neighborhood (Population individuals, Parameters info)
 		}
 	}
 }
+/* @ */
 
+/* @ Sort_Neighbor */
 int Sort_Neighbor (Population progenitors, int i, Parameters info) 
 {
 	int j, k, compatible_neighbors, all, neighbor;
@@ -92,7 +103,9 @@ int Sort_Neighbor (Population progenitors, int i, Parameters info)
 
 	return neighbor;
 }
+/* @ */
 
+/* @ Offspring_Position */
 void Offspring_Position (Population progenitors, Population offspring, int baby, int focal, Parameters info)
 {
 	double movement_x, movement_y, r, theta;
@@ -132,7 +145,9 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 			offspring[baby]->y = offspring[baby]->y + movement_y + info->lattice_length;
 	}
 }
+/* @ */
 
+/* @ Choose_Mate */
 int Choose_Mate (Population progenitors, int focal, Parameters info)
 {
 	int j, k, neighbors, mate;
@@ -158,7 +173,9 @@ int Choose_Mate (Population progenitors, int focal, Parameters info)
 
 	return mate;
 }
+/* @ */
 
+/* @ Choose_Other */
 int Choose_Other (Population progenitors, int focal, Parameters info)
 {
 	int j, i, all, compatible_neighbors, radius_increase, other, n, focal_neighbors;
@@ -192,3 +209,4 @@ int Choose_Other (Population progenitors, int focal, Parameters info)
 
 	return other;
 }
+/* @ */

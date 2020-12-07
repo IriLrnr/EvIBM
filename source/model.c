@@ -1,5 +1,6 @@
 #include "../include/model.h"
 
+/* @ Set_Parameters */
 Parameters Set_Parameters () 
 {
 	Parameters info;
@@ -32,12 +33,9 @@ Parameters Set_Parameters ()
 
 	return info;
 }
+/* @ */
 
-Parameters Set_Mini_Parameters () 
-{
-}
-
-
+/* @ Create_Offspring */
 void Create_Offspring (Population progenitors, Population offspring,  int baby, int focal, int other, int mate, Parameters info) 
 {
 	Offspring_Position (progenitors, offspring, baby, focal, info);
@@ -45,8 +43,9 @@ void Create_Offspring (Population progenitors, Population offspring,  int baby, 
 	offspring[baby]->species = baby;
 	offspring[baby]->species_size = 1;
 }
+/* @ */
 
-
+/* @ Reproduction */
 void Reproduction (Population progenitors, Population offspring, Parameters info)
 {
 	int focal, mate, other, baby, other_neighborhood, all, compatible_neighborhood, increase, n, expand, density;
@@ -93,4 +92,4 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 	}
 	info->child_population_size = baby;
 }
-
+/* @ */

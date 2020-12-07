@@ -1,5 +1,6 @@
 #include "../include/species.h"
 
+/* @ Find_Species */
 void Find_Species (Population individuals, Parameters info) 
 {
 	int i, j, count = 0;
@@ -17,7 +18,9 @@ void Find_Species (Population individuals, Parameters info)
 	}
 	//printf("%d genomes compared\n", count);
 }
+/* @ */
 
+/* @ Stablish_Distances */
 void Stablish_Distances (Population progenitors, Parameters info) 
 {
 	int i, j, i_compatible, increase;
@@ -61,8 +64,9 @@ void Stablish_Distances (Population progenitors, Parameters info)
 		}
 	}
 }
+/* @ */
 
-
+/* @ Count_Species */
 int Count_Species (Population individuals, Parameters info, int sizes[])
 {
 	int count, i;
@@ -79,3 +83,4 @@ int Count_Species (Population individuals, Parameters info, int sizes[])
 
 	return count;
 }
+/* @ */

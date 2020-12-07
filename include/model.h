@@ -7,12 +7,8 @@
 Parameters Set_Parameters ();
 
 /*
-	Parameters for testing
+	Creates genome and position of offspring
 */
-Parameters Set_Mini_Parameters ();
-
-
-
 void Create_Offspring (Population, Population, int, int, int, int, Parameters);
 
 /*

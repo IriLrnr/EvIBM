@@ -1,5 +1,6 @@
 #include "../include/genome.h"
 
+/* @ Compare_Genomes */
 int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 {
 	int divergences, min_divergences;
@@ -27,7 +28,9 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 		return 0;
 	}	
 }
+/* @ */
 
+/* @ Mutation */
 void Mutation (Population offspring, int baby, Parameters info)
 {
 	unsigned int quantity;
@@ -41,7 +44,9 @@ void Mutation (Population offspring, int baby, Parameters info)
 		}
 	}
 }
+/* @ */
 
+/* @ Offspring_Genome */
 void Offspring_Genome (Population progenitors, Population offspring, int baby, int other, int mate, Parameters info)
 {
 	int i;
@@ -79,4 +84,4 @@ void Offspring_Genome (Population progenitors, Population offspring, int baby, i
 
 	Mutation (offspring, baby, info);
 }
-
+/* @ */
