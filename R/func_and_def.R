@@ -32,7 +32,7 @@ create.tbl <- function (interval, type) {
 }
 
 plot.parameter <- function (spp.info, type, legend) {
-  spp.info <- subset(spp.info, as.numeric(spp.info$variable)%%2 == 0, c(1, 2, 3, 4))
+  #spp.info <- subset(spp.info, as.numeric(spp.info$variable)%%2 == 0, c(1, 2, 3, 4))
   spp.info$variable <- as.factor(spp.info$variable)
   spp <- ggplot(spp.info) +
     geom_ribbon(aes(x = gen, ymin=(sp.mn-sp.sd), ymax=sp.mn+sp.sd, group=variable, fill=variable), alpha = 0.25, show.legend=F) +
@@ -192,4 +192,66 @@ SpacePlot <- function (loc, ger) {
           panel.grid.minor = element_blank(),panel.grid.major = element_blank(),
           plot.margin = unit(c(0,1,0,0), "cm"))+
     ggtitle(paste("geração", ger))
+}
+
+create.L.tbl <- function (interval) {
+  spp.tbl <- tibble()
+  sumario <- tibble()
+  for(f in interval) {
+    file.names <- paste0("./data/Completed/sizes_tests/", f, "/species/", dir(paste0("./data/Completed/sizes_tests/", f, "/species/"))[])
+    number.spp <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
+    number.spp <- number.spp[,-3]
+    # Read data
+    number.spp <- aggregate( . ~ gen, FUN=function(x) c(mn=mean(x), sd=sd(x)), data=number.spp)
+    sumario <- cbind(do.call (data.frame, number.spp[,-3]), rep(f, nrow(number.spp)))
+    colnames(sumario)[4] = "variable"
+    spp.tbl <- rbind(spp.tbl, sumario)
+  }
+  return (spp.tbl)
+}
+
+plot.L.parameter <- function (spp.info, legend) {
+  max.spp = max(spp.info$sp.mn)
+  #spp.info <- subset(spp.info, as.numeric(spp.info$variable)%%2 == 0, c(1, 2, 3, 4))
+  spp.info$variable <- as.factor(spp.info$variable)
+  spp <- ggplot(spp.info) +
+    geom_ribbon(aes(x = gen, ymin=(sp.mn-sp.sd), ymax=sp.mn+sp.sd, group=variable, fill=variable), alpha = 0.25, show.legend=F) +
+    geom_line (aes(x=gen, y=sp.mn, group=variable, colour=variable)) +
+    scale_alpha(guide = 'none') +
+    scale_color_viridis_d() +
+    scale_fill_viridis_d() +
+    #ylim (0, max.spp) +
+    labs (x = "Geração", y = "Número de espécies", color = legend) +
+    theme_bw() +
+    #theme (legend.title = element_text(legend)) +
+    theme.all
+  #ggsave(paste0("./figs/report/spp_", type, ".png"), spp)
+  return (spp)
+}
+
+sizes.histogram <- function (L) {
+  file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
+  pop.info <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
+  
+  breaks <- seq(1, 1000, 2)
+  
+  sizes.hist <- ggplot(pop.info, aes(x = size, fill = factor(gen))) +
+    geom_histogram(breaks = breaks, position = "identity") +
+    scale_fill_viridis_d(alpha = 0.6, option = "magma") +
+    labs(x = "size", y = "", fill = "generation") +
+    xlim(0, 150) +
+    ggtitle(paste("N =", L^2*0.1)) +
+    theme_bw()+
+    theme.all
+  
+  return (sizes.hist)
+}
+
+sizes.hitogram <- function () {}
+
+get.legend<-function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
 }
