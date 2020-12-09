@@ -229,25 +229,21 @@ plot.L.parameter <- function (spp.info, legend) {
   return (spp)
 }
 
-sizes.histogram <- function (L) {
+sizes.histogram <- function (L, g, c) {
   file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
   pop.info <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
   
   breaks <- seq(1, 1000, 2)
-  
-  sizes.hist <- ggplot(pop.info, aes(x = size, fill = factor(gen))) +
-    geom_histogram(breaks = breaks, position = "identity") +
-    scale_fill_viridis_d(alpha = 0.6, option = "magma") +
-    labs(x = "size", y = "", fill = "generation") +
+  sizes.hist <- ggplot(pop.info, aes(x = size)) +
+    geom_histogram(data = subset(pop.info, gen == g), breaks = breaks, position = "identity", fill = c) +
+    labs(x = "size", y = "") +
     xlim(0, 150) +
     ggtitle(paste("N =", L^2*0.1)) +
     theme_bw()+
-    theme.all
+    theme.all + theme(legend.position = "none")
   
   return (sizes.hist)
 }
-
-sizes.hitogram <- function () {}
 
 get.legend<-function(myggplot){
   tmp <- ggplot_gtable(ggplot_build(myggplot))
