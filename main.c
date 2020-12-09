@@ -64,7 +64,7 @@ int main (int argc, char* argv[])
       //if (info->genome < 15000) FindSpecies (progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }
-    if (i % 100 == 0) {
+    if (i % 20 == 0) {
       for (j = 0; j < number_species; ++j) {
         fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], info->population_size);
       }
