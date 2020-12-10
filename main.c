@@ -27,13 +27,13 @@ int main (int argc, char* argv[])
     fclose (performance);
   }
 
+  info->density                = 0.1;
   info->lattice_length         = atof(argv[2]);
   info->lattice_width          = info->lattice_length;
   info->number_individuals     = (int) info->lattice_length*info->lattice_width*info->density;
   info->population_size        = info->number_individuals;
   info->child_population_size  = info->number_individuals;
   info->individual_vector_size = (int)(info->number_individuals * 1.15);
-  info->density                = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
 
   time(&t);
   srand (t);
