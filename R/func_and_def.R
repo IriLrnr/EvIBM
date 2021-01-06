@@ -232,7 +232,7 @@ plot.L.parameter <- function (spp.info, legend) {
 sizes.histogram <- function (L, g, c) {
   file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
   pop.info <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
-  
+  #pop.info <- read.csv(paste0("./data/Completed/sizes_tests/", L, "/sizes/sizes_01.csv" ), head = T, sep = ";")
   breaks <- seq(1, 1000, 2)
   sizes.hist <- ggplot(pop.info, aes(x = size)) +
     geom_histogram(data = subset(pop.info, gen == g), breaks = breaks, position = "identity", fill = c) +
