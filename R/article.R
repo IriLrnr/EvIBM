@@ -3,7 +3,6 @@ library(gridExtra)
 source ("./R/func_and_def.R")
 
 # Histograms
-
 n <- 40
 qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
 c = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
@@ -30,6 +29,4 @@ L.plot <- plot.L.parameter(create.L.tbl(L), "L")
 ggsave("./figs/sizes/sizes_spp.png", L.plot)
 
 # Equilibrium time
-
-
-
+eq.times <- equilibration.times (L)

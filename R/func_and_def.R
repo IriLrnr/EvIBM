@@ -251,3 +251,31 @@ get.legend<-function(myggplot){
   legend <- tmp$grobs[[leg]]
   return(legend)
 }
+
+# Again, equilibration time for varying pop size <- I don't know if this is right
+equilibration.times <- function (interval) {
+  sim <- seq(1, 20, 1)
+  equilibria.times <- data.frame(matrix(ncol = 3, nrow = 0))
+  for(f in interval) {
+    file.names <- paste0("./data/Completed/sizes_tests/", f, "/species/", dir(paste0("./data/Completed/sizes_tests/", f, "/species/"))[])
+    eq.times <- vector()
+    for (j in sim) {
+      number.spp <- read.csv(file.names[j], header = T, sep = ";")
+      eq.spp <- mean(number.spp[900:1001,2])
+      i = 1
+      while (number.spp[i,2] < eq.spp) {
+        i <- i+1
+      }
+      begin = number.spp[i,1]
+      while (number.spp[i,2] > eq.spp) {
+        i <- i+1
+      }
+      end = number.spp[i,1]
+      eq.times[j] <- (end+begin)/2
+    }
+    row <- c(f^2*0.1, mean(eq.times), sd(eq.times))
+    equilibria.times <- rbind (equilibria.times, row)
+  }
+  colnames(equilibria.times) <- c("pop", "eq.times.mn", "eq.times.sd")
+  return (equilibria.times)
+}
