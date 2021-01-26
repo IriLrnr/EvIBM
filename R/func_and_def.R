@@ -96,7 +96,7 @@ plot.B.parameter <- function (spp.info) {
   return (spp)
 }
 
-PerformancePlot <- function () {
+performance.plot <- function () {
   df <- data.frame()
   for (v in versions) {
     files.path <- paste0("./data/performance_tests/B/", v, "/performance_", genomes, ".txt")
@@ -165,7 +165,7 @@ create.stab.tbl <- function (ngen) {
   return (all.eq.time)
 }
 
-StabTimePlot <- function (tbl) {
+stab.time.plot <- function (tbl) {
   fig <- ggplot(tbl, aes(x = as.factor(genome), y = eq.time)) +
     geom_boxplot(aes(color = version, fill = version, alpha=0.4), outlier.shape=16, outlier.size=1, notch=F) +
     #geom_jitter(aes(color=version),position = position_jitter(width = .2)) +
@@ -180,7 +180,7 @@ StabTimePlot <- function (tbl) {
   return (fig)
 }
 
-SpacePlot <- function (loc, ger) {
+space.plot <- function (loc, ger) {
   max.space=100
   fig1 <- ggplot() +
     geom_point(data = subset(loc, gen == ger), aes(x = x, y = y, color= factor(sp)), size=0.5, alpha=0.5, show.legend = FALSE)+
@@ -230,6 +230,41 @@ plot.L.parameter <- function (spp.info, legend) {
   return (spp)
 }
 
+compare.L.parameter <- function (L, n) {
+  spp.info <- tibble()
+  sumario <- tibble()
+  for(f in 1:length(L)) {
+    file.names <- paste0("./data/Completed/sizes_tests/", L[f], "/species/", dir(paste0("./data/Completed/sizes_tests/", L[f], "/species/"))[])
+    number.spp <- do.call(rbind, lapply(file.names[1:n[f]], FUN = read.csv, head = T, sep=";"))
+    number.spp <- number.spp
+    # Read data
+    number.spp <- aggregate( . ~ gen, FUN=function(x) c(s=sum(x)), data=number.spp)
+    sumario <- cbind(do.call (data.frame, number.spp), rep(L[f], nrow(number.spp)))
+    colnames(sumario)[5] = "variable"
+    #colnames(spp.info)[5] = "variable"
+    spp.info <- rbind(spp.info, sumario)
+  }
+  
+  max.spp = max(spp.info$sp)
+  #spp.info <- subset(spp.info, as.numeric(spp.info$variable)%%2 == 0, c(1, 2, 3, 4))
+  spp.info$variable <- as.factor(spp.info$variable)
+  spp <- ggplot(spp.info) +
+    #geom_ribbon(aes(x = gen, ymin=(sp.mn-sp.sd[]), ymax=sp.mn+sp.sd, group=variable, fill=variable), alpha = 0.25, show.legend=F) +
+    geom_line (aes(x=gen, y=sp, group=variable, colour=variable)) +
+    #scale_alpha(guide = 'none') +
+    scale_color_viridis_d() +
+    scale_fill_viridis_d() +
+    ylim (0, max.spp) +
+    labs (x = "Geração", y = "Número de espécies", color = "L") +
+    theme_bw() +
+    #theme (legend.title = element_text(legend)) +
+    theme.all
+  #ggsave(paste0("./figs/report/spp_", type, ".png"), spp)
+  return (spp)
+}
+
+
+
 sizes.histogram <- function (L, g, c) {
   file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
   pop.info <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
@@ -246,6 +281,25 @@ sizes.histogram <- function (L, g, c) {
     theme_bw()+
     theme.all + theme(legend.position = "none")
 
+  return (sizes.hist)
+}
+
+sizes.histogram.compare <- function (L, g, c, n) {
+  file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
+  pop.info <- do.call(rbind, lapply(file.names[1:n], FUN = read.csv, head = T, sep=";"))
+  breaks <- seq(1, 1000, 1)
+  pop.info <- subset(pop.info, gen == g)
+  fit <- fitdistr(pop.info$size, "lognormal")
+  sizes.hist <- ggplot(pop.info, aes(x = size)) +
+    geom_histogram(aes(y=..density..), breaks = breaks, position = "identity", fill = c) +
+    stat_function(fun = dlnorm, size = 0.5, color = 'darkgrey',
+                  args = list(mean = fit$estimate[1], sd = fit$estimate[2])) +
+    labs(x = "size", y = "") +
+    xlim(0, 150) +
+    ggtitle(paste("N =", L^2*0.1)) +
+    theme_bw()+
+    theme.all + theme(legend.position = "none")
+  
   return (sizes.hist)
 }
 
