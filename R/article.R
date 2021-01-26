@@ -3,13 +3,13 @@ library(gridExtra)
 source ("./R/func_and_def.R")
 
 # Histograms
-n <- 40
+n <- 21
 qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
 c = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
 
 g <- seq(100, 500, 20)
 
-for (i in 1:40) {
+for (i in 1:n) {
   hist <- grid.arrange(sizes.histogram(100, g[i], c[i]),
                            sizes.histogram(120, g[i], c[i]), 
                            sizes.histogram(150, g[i], c[i]),
@@ -20,7 +20,7 @@ for (i in 1:40) {
                            sizes.histogram(300, g[i], c[i]),
                            sizes.histogram(350, g[i], c[i]),
                            ncol = 3, top=(paste("generation", g[i])))
-  ggsave(paste0("./figs/sizes/hist_", g[i], ".png"), hist)
+  ggsave(paste0("./figs/sizes/hist_ln_", g[i], ".png"), hist, height = 6)
 }
 
 # Plot species x time

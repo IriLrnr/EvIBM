@@ -3,6 +3,7 @@ library(dplyr)
 library(RColorBrewer)
 library(reshape2)
 library(viridis)
+library(MASS)
 
 theme.all <- theme(text = element_text(size=10, family="Helvetica"),
                    panel.grid.minor = element_blank(),
@@ -232,16 +233,19 @@ plot.L.parameter <- function (spp.info, legend) {
 sizes.histogram <- function (L, g, c) {
   file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
   pop.info <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
-  #pop.info <- read.csv(paste0("./data/Completed/sizes_tests/", L, "/sizes/sizes_01.csv" ), head = T, sep = ";")
-  breaks <- seq(1, 1000, 2)
+  breaks <- seq(1, 1000, 1)
+  pop.info <- subset(pop.info, gen == g)
+  fit <- fitdistr(pop.info$size, "lognormal")
   sizes.hist <- ggplot(pop.info, aes(x = size)) +
-    geom_histogram(data = subset(pop.info, gen == g), breaks = breaks, position = "identity", fill = c) +
+    geom_histogram(aes(y=..density..), breaks = breaks, position = "identity", fill = c) +
+    stat_function(fun = dlnorm, size = 0.5, color = 'darkgrey',
+                  args = list(mean = fit$estimate[1], sd = fit$estimate[2])) +
     labs(x = "size", y = "") +
     xlim(0, 150) +
     ggtitle(paste("N =", L^2*0.1)) +
     theme_bw()+
     theme.all + theme(legend.position = "none")
-  
+
   return (sizes.hist)
 }
 
