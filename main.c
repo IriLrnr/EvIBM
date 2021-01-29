@@ -21,7 +21,7 @@ int main (int argc, char* argv[])
 
   l = atoi(argv[3]);
   if (l == 1) {
-    sprintf (nome_arq_st, "./data/sizes_tests/performance_%d.txt", (int) atoi(argv[2]));
+    sprintf (nome_arq_st, "./data/sizes_tests/%.f/performance_%d.txt", info->radius, (int) atoi(argv[2]));
     performance = fopen(nome_arq_st, "w");
     fprintf (performance, "real;usr;sys\n");
     fclose (performance);
@@ -34,17 +34,19 @@ int main (int argc, char* argv[])
   info->population_size        = info->number_individuals;
   info->child_population_size  = info->number_individuals;
   info->individual_vector_size = (int)(info->number_individuals * 1.15);
+  info->radius                 = atof(argv[4]);
+
 
   time(&t);
   srand (t);
   
-  printf("*************BEG**************\n%sB = %d, N = %d, L = %.f\n******************************\n", ctime(&t), info->genome_size, info->number_individuals, info->lattice_length);
+  printf("*************BEG**************\n%sB = %d, N = %d, L = %.f, R = %.f\n******************************\n", ctime(&t), info->genome_size, info->number_individuals, info->lattice_length, info->radius);
   
-  sprintf (nome_arq_s, "./data/sizes_tests/%.f/species/numsp_%02d.csv", info->lattice_length, l);
+  sprintf (nome_arq_s, "./data/sizes_tests/%.f/%.f/species/numsp_%02d.csv", info->radius, info->lattice_length, l);
   nspecies = fopen (nome_arq_s, "w");
   fprintf (nspecies, "gen;sp;pop;sim\n");
 
-  sprintf (nome_arq_ss, "./data/sizes_tests/%.f/sizes/sizes_%02d.csv", info->lattice_length, l);
+  sprintf (nome_arq_ss, "./data/sizes_tests/%.f/%.f/sizes/sizes_%02d.csv", info->radius, info->lattice_length, l);
   size = fopen (nome_arq_ss, "w");
   fprintf (size, "sim;gen;sp;size;pop\n");
 

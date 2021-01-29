@@ -8,7 +8,7 @@ Parameters Set_Parameters ()
 
 	info = (Parameters) malloc (sizeof (parameters));
 
-	info->number_individuals     = 600;
+	info->number_individuals     = 1000;
 	info->population_size        = info->number_individuals;
 	info->child_population_size  = info->number_individuals;
 	/* The population can grow and sink. Here we estimate the grown aoround 20% */
