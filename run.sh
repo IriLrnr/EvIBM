@@ -2,7 +2,7 @@
 
 for l in 100 120 150 180 200 220 250 300 350
 do
-	for r in 10 20 #different radius
+	for r in 15 #different radius
 	do
 
 		l_dir=./data/sizes_tests//$r/$l
