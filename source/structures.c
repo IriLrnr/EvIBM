@@ -25,7 +25,7 @@ Population Alloc_Population (Parameters info)
 
 	return individuals;
 }
-/* @ */
+/* @ end */
 
 /* @ Free_Population*/
 void Free_Population (Population individuals, Parameters info)
@@ -42,7 +42,7 @@ void Free_Population (Population individuals, Parameters info)
 
     free (individuals);
 }
-/* @ */
+/* @ end */
 
 /* @ Swap_Generations */
 void Swap_Generations (Population* progenitors_pointer, Population* offspring_pointer)
@@ -91,4 +91,4 @@ void Union (Population individuals, int i, int j) {
 	individuals[i]->species = j;
 	individuals[j]->species_size += individuals[i]->species_size;
 }
-/* @ */
+/* @ end */

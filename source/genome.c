@@ -28,9 +28,9 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 		return 0;
 	}	
 }
-/* @ */
+/* @ end */
 
-/* @ Mutation */
+/* @ mutation */
 void Mutation (Population offspring, int baby, Parameters info)
 {
 	unsigned int quantity;
@@ -44,7 +44,7 @@ void Mutation (Population offspring, int baby, Parameters info)
 		}
 	}
 }
-/* @ */
+/* @ end */
 
 /* @ Offspring_Genome */
 void Offspring_Genome (Population progenitors, Population offspring, int baby, int other, int mate, Parameters info)
@@ -84,4 +84,4 @@ void Offspring_Genome (Population progenitors, Population offspring, int baby, i
 
 	Mutation (offspring, baby, info);
 }
-/* @ */
+/* @ end */

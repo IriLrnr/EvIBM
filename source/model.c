@@ -33,7 +33,7 @@ Parameters Set_Parameters ()
 
 	return info;
 }
-/* @ */
+/* @ end */
 
 /* @ Create_Offspring */
 void Create_Offspring (Population progenitors, Population offspring,  int baby, int focal, int other, int mate, Parameters info) 
@@ -43,7 +43,7 @@ void Create_Offspring (Population progenitors, Population offspring,  int baby, 
 	offspring[baby]->species = baby;
 	offspring[baby]->species_size = 1;
 }
-/* @ */
+/* @ end */
 
 /* @ Reproduction */
 void Reproduction (Population progenitors, Population offspring, Parameters info)
@@ -92,4 +92,4 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 	}
 	info->child_population_size = baby;
 }
-/* @ */
+/* @ end */

@@ -144,7 +144,7 @@ To keep the random numbers in a desired interval, the following functions can be
 When a random number between 0 and 1, excluding both 0 and 1, is needed:
 
 ```c
->>> random_number@source/random.c
+>>> random_number source/random.c
 ```
 
 <a name="rand_upto"></a>

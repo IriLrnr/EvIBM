@@ -18,7 +18,7 @@ void Find_Species (Population individuals, Parameters info)
 	}
 	//printf("%d genomes compared\n", count);
 }
-/* @ */
+/* @ end */
 
 /* @ Stablish_Distances */
 void Stablish_Distances (Population progenitors, Parameters info) 
@@ -64,7 +64,7 @@ void Stablish_Distances (Population progenitors, Parameters info)
 		}
 	}
 }
-/* @ */
+/* @ end */
 
 /* @ Count_Species */
 int Count_Species (Population individuals, Parameters info, int sizes[])
@@ -83,4 +83,4 @@ int Count_Species (Population individuals, Parameters info, int sizes[])
 
 	return count;
 }
-/* @ */
+/* @ end */
