@@ -3,17 +3,14 @@
 int main (int argc, char* argv[])
 {
   int i, j, l, k, number_species, type, deltat, p, genome;
+  int sizes[1000];
+  char nome_arq_s[80] = "", nome_arq_st[80] = "", nome_arq_ss[80] = "";
+  time_t t;
   Population progenitors, offspring;
   Parameters info;
-  int sizes[1000];
-  char nome_arq_s[80] = "";
-  char nome_arq_st[80] = "";
-  char nome_arq_ss[80] = "";
-  FILE *nspecies;
-  FILE *performance;
-  FILE *size;
-  time_t t;
+  FILE *nspecies, *performance, *size;
 
+  srand (time(&t));
   GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
   gsl_rng_set (GLOBAL_RNG, (int) time(NULL));
 
@@ -36,10 +33,6 @@ int main (int argc, char* argv[])
   info->individual_vector_size = (int)(info->number_individuals * 1.15);
   info->radius                 = atof(argv[4]);
 
-
-  time(&t);
-  srand (t);
-  
   printf("*************BEG**************\n%sB = %d, N = %d, L = %.f, R = %.f\n******************************\n", ctime(&t), info->genome_size, info->number_individuals, info->lattice_length, info->radius);
   
   sprintf (nome_arq_s, "./data/sizes_tests/%.f/%.f/species/numsp_%02d.csv", info->radius, info->lattice_length, l);

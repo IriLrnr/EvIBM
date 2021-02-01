@@ -7,6 +7,7 @@ This is a computational model for evolution and speciation. Firt, the model is d
 	- [Overview](#Overview)
 		- [Simplifications](#simplifications)
 - [The code](#code)
+	- [main.c](#main)
 	- [Randomness](#random)
 	- [Parameters](#parameters)
 	- [Structures](#structure)
@@ -38,13 +39,13 @@ This is a computational model for evolution and speciation. Firt, the model is d
 		- [Offspring_Position](#offspring_position)
 
 ## The model <a name="model"></a>
-This is an evolutive model. It is used to explore the mechanisms that allow speciation, and it's limits. 
+This is an evolutionary model. It is used to explore the mechanisms that allow speciation. 
 
-When the genetic flow between populations stop, as the time passes, populations reproduce only within. They accumulate mutations until the point where the genetic pool is so far apart, no one in one population can reproduce with anyone from the other. The process of isolation occurs because of distance in space. 
+When genetic flow between two populations stop, as the time passes, populations reproduce only within. They accumulate mutations until the point where the genetic pool is so far apart, no one in one population can reproduce with anyone from the other. The process of isolation occurs because of distance in space. 
 
-Isolation could happen due to a barrier, like rivers, mountains or seas, or just due to distance. But could a population with genetic flow within give rise to species? Theory says yes, but has never been. That is simpatric speciation.
+Isolation could happen due to a barrier, like rivers, mountains or seas, or just due to distance. But could a population with genetic flow within give rise to new species? Theory says yes. That is simpatric speciation.
 
-There are a lot of questions still waiting for an answer, that an evolutive model can help. For example, how long does this process takes in different scenarios? Can two species become one again? Can speciation occurs without stopping the genetic flow? How does the size of the genome affects the speciation? And many, many others.
+There are a lot of questions still waiting for an answer, that an evolutionary model can help. For example, how long does this process takes in different scenarios? Can two species become one again? Can speciation occurs without putting geographic barriers to stop genetic flow? How does the size of the genome affects the speciation? And many, many others.
 
 ### Overview <a name="overview"></a>
 
@@ -70,72 +71,35 @@ Any model needs simplifications and assumptions. The goal is to have simplificat
 <img src="./figs/toroid.png" width="40%">
 
 ## Code <a name="code"></a>
-Code structure is as follows
+File structure is as follows
 
 ```bash
 main.c
-	functions.h
-		graph.h
-		linkedlist.h
+	model.h
+		species.h
+			genome.h
+				structures.h
+					time.h
+					math.h
+					linkedlist.h
+					random.h
+						gsl_randist.h # for random distributions
+						gsl_rng.h     # for random number generation
 ```
+The `.h` files are included in `include/`, and the corresponding `.c` file is included in `source/`.
 
-The `main` function keeps the skeleton of the code, while the `functions` library store the inner parts. Two libraries were built: one to work with graphs, and another one to word with linked lists. They are included in `functions.h`.
-
-```c
-//in functions.h
-/* Libraries */
-#include <time.h>
-#include <math.h>
-#include <gsl_randist.h>
-#include <gsl_rng.h>
-#include "graph.h"
-#include "linkedlist.h"
-
-//in main.c
-#include "functions.h"
-```
-That way, the libraries declared in `functions.h` can be used in `main.c`. The full `graph.h` and `linkedlist.h` code will not be displayed here, for brevity, but you are welcome to look at the source.
-
-It is also necessary to initialize a global variable to use with the gsl library. It is the "state keeper" of the random number generator.
-
-```c
-//in functions.h
-gsl_rng *GLOBAL_RNG;
-```
-
-The main file will appear in order, so every code part beginning with `//main` in this file, is exactly in the same order as it appears in the main section. This order cannot be applied for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
-
-I will leave here the variables' declaration for reference.
-```c
-//in main.c
-int main() {...
-//...
-	int i, j, k, l, number_species, type, deltat, p, count;
-	int sizes[50];
-	Population progenitors, offspring;
-	Graph G;
-	Parameters info;
-	char nome_arq_s[80] = "";
-	char nome_arq_p[80] = "";
-	char nome_arq_st[80] = "";
-	FILE *position;
-	FILE *nspecies;
-	FILE *size;
-	FILE *stats;
-	time_t t, ti, tf;
-	clock_t start, end;
-	double cpu_time_used_sim, total_cpu_time = 0;
-
-	time(&ti);
-	...}
-```
+To begin understanding the code, three features must be explaned. The randomness, the parametrization and the structures.
 
 ### Randomness <a name="random"></a>
-To keep the model neutral, randomness is necessary. To do that, we are using the `C` random number generator, `rand()`. Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value. For multiple simulations, we use the time as seed for the function
+To keep the model neutral, randomness is necessary. To do that, we are using the `C` random number generator, `rand()`, and `gsl_rng`, the random number generator of Gnu Scientific Library (Ref). Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value. For multiple simulations, we use the time as seed for the function
+
+parei aqui
+
 ```c
 //in main
-srand (t);
-GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
+srand (time(&t));
+GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
+gsl_rng_set (GLOBAL_RNG, (int) time(NULL));
 ```
 To keep the random numbers in a desired interval, the following functions can be used.
 
@@ -378,6 +342,59 @@ typedef struct {
 typedef graph * Graph;
 ```
 **A** is the number of arcs in the graph, **V** is the total of vertices available, and **U** is the number of used vertices. This way, the population can vary without having to create and destroy new graphs. In the next generation, if the population grows or shrinks, the U parameter will change and the graph also grows or shrinks.
+
+
+### main.c
+
+```c
+//in functions.h
+/* Libraries */
+#include <time.h>
+#include <math.h>
+#include <gsl_randist.h>
+#include <gsl_rng.h>
+#include "graph.h"
+#include "linkedlist.h"
+
+//in main.c
+#include "functions.h"
+```
+That way, the libraries declared in `functions.h` can be used in `main.c`. The full `graph.h` and `linkedlist.h` code will not be displayed here, for brevity, but you are welcome to look at the source.
+
+It is also necessary to initialize a global variable to use with the gsl library. It is the "state keeper" of the random number generator.
+
+```c
+//in functions.h
+gsl_rng *GLOBAL_RNG;
+```
+
+The main file will appear in order, so every code part beginning with `//main` in this file, is exactly in the same order as it appears in the main section. This order cannot be applied for presenting the functions' library, because the same function can be used more than once. The most complicated parts of the functions library will be presented, and the rest is docummented in the last section.
+
+I will leave here the variables' declaration for reference.
+```c
+//in main.c
+int main() {...
+//...
+	int i, j, k, l, number_species, type, deltat, p, count;
+	int sizes[50];
+	Population progenitors, offspring;
+	Graph G;
+	Parameters info;
+	char nome_arq_s[80] = "";
+	char nome_arq_p[80] = "";
+	char nome_arq_st[80] = "";
+	FILE *position;
+	FILE *nspecies;
+	FILE *size;
+	FILE *stats;
+	time_t t, ti, tf;
+	clock_t start, end;
+	double cpu_time_used_sim, total_cpu_time = 0;
+
+	time(&ti);
+	...}
+```
+
 
 ### Simulating <a name="simulation"></a>
 After initializing the values and creating our structure, the actual program can be written.
