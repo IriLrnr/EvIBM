@@ -8,7 +8,6 @@ This is a computational model for evolution and speciation. Firt, the model is d
 		- [Simplifications](#simplifications)
 - [The code](#code)
 	- [main.c](#main)
-	- [Randomness](#random)
 	- [Parameters](#parameters)
 	- [Structures](#structure)
 		- [The individual](#individual)
@@ -37,6 +36,7 @@ This is a computational model for evolution and speciation. Firt, the model is d
 		- [Choose_Mate](#choose_mate)
 		- [Create_Offspring](#create_offspring)
 		- [Offspring_Position](#offspring_position)
+	- [Randomness](#random)
 
 ## The model <a name="model"></a>
 This is an evolutionary model. It is used to explore the mechanisms that allow speciation. 
@@ -83,53 +83,11 @@ main.c
 					math.h
 					linkedlist.h
 					random.h
-						gsl_randist.h # for random distributions
-						gsl_rng.h     # for random number generation
+						gsl_randist.h 
+						gsl_rng.h  
 ```
 The `.h` files are included in `include/`, and the corresponding `.c` file is included in `source/`.
 
-To begin understanding the code, three features must be explaned. The randomness, the parametrization and the structures.
-
-### Randomness <a name="random"></a>
-To keep the model neutral, randomness is necessary. To do that, we are using the `C` random number generator, `rand()`, and `gsl_rng`, the random number generator of Gnu Scientific Library (Ref). Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value. For multiple simulations, we use the time as seed for the function
-
-parei aqui
-
-```c
-//in main
-srand (time(&t));
-GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
-gsl_rng_set (GLOBAL_RNG, (int) time(NULL));
-```
-To keep the random numbers in a desired interval, the following functions can be used.
-
-<a name="random_number"></a>
-
-When a random number between 0 and 1, excluding both 0 and 1, is needed:
-
-```c
->>> random_number source/random.c
-```
-
-<a name="rand_upto"></a>
-
-To achieve an integer between 0 and a value, this function that generates an integer up to n cam be used.
-```c
-int rand_upto (int n)
-{
-  return ((int) floor(random_number() * (n + 1)));
-}
-```
-
-<a name="rand_1ton"></a>
-
-To achieve an integer between 0 and a value, this function that generates an integer up to n cam be used.
-```c
-int rand_1ton (int n)
-{
-  return ((int) (random_number() * n) + 1);
-}
-```
 
 ### Parameters <a name="parameters"></a>
 
@@ -143,62 +101,15 @@ info = Set_Parameters();
 This structure `Parametes`is used to easily pass the values between functions. The names of the parameters are very self-explanatory.
 
 ```c
-//in functions.h
-typedef struct
-{
-	int number_individuals;
-	int individual_vector_size;
-	int population_size;
-	int genome_size;
-	int reproductive_distance;
-	int number_generations;
-	int density;
-	int min_neighboors;
-	int max_increase;
-	int max_spot_density;
-	double lattice_width;
-	double lattice_length;
-	double radius;
-	double mutation;
-	double dispersion;
-} parameters;
-
-typedef parameters * Parameters;
+//in structures.h
+>>> parameters include/structures.h
 ```
 These parameters can be manually set to the desired values. To make simulation and tests, we are using the following:
 
 <a name="set_parameters"></a>
 ```c
-//in functions.h
-Parameters Set_Parameters () 
-{
-	Parameters info;
-	double rho, epslon = 0.74;
-
-	info = (Parameters) malloc (sizeof (parameters));
-
-	info->number_individuals     = 1000;
-	info->population_size        = 1000;
-	/* The population can grow and sink. Here we estimate the grown aoround 20% */
-	info->individual_vector_size = (int)(info->number_individuals * 1.05);
-	info->genome_size            = 150;
-	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-	info->number_generations     = 2000;
-	info->lattice_length         = 100;
-	info->lattice_width          = 100;
-	info->radius                 = 5;
-	info->mutation               = 0.00025;
-	info->dispersion             = 0.01;
-	info->min_neighboors         = 3;
-	info->max_increase           = 2;
-	info->max_spot_density       = 100;
-	/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
-	individuals that mark the density limit (60% of the original density) */
-	rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
-	info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
-	
-	return info;
-}
+//in model.c
+>>> set_parameters source/structures.c
 ```
 First, the structure info is allocated dynamically, and then the values are set. It returns a "Parameters" structure. The hideous calculation for the neighborhood corresponds to an integer representing 60% of the average density of the system. In this case, the value is 2.
 
@@ -225,38 +136,27 @@ First, the structure info is allocated dynamically, and then the values are set.
 An individual has the following structure.
 
 ```c
-//in functions.h
-typedef struct
-{
-	int* genome;
-	int species;
-	double x;
-	double y;
-	List compatible_neighbors;
-	List spatial_neighbors;
-} individual;
-
-typedef individual * Individual;
+//in structures.h
+>>> individual include/structures.h
 ```
 It has a binary genome, with the parameterized size, an indicatior to which species it belongs, it's coordinates in space and a list of possible mates those who are geneticaly compatible *and* inside it's range (the radius).
 
 #### The population <a name="population"></a>
 A population is just a vector of individuals.
 ```c
-//in functions.h
-typedef Individual * Population;
+//in structures.h
+>>> population include/structures.h
 ```
 Inside the model, there are only two populations held in memory at a time. In the following code, we declare and allocate this structures.
 
 ```c
-//in main.c
+//in main
 Population progenitors;
 Population offspring;
 
 progenitors = Alloc_Population (info);
 offspring = Alloc_Population (info);
-
-Set_Initial_Values (progenitors, info);
+Set_Initial_Position (progenitors, info);
 ```
 
 #### Set first values<a name="alloc"></a>
@@ -264,50 +164,14 @@ Now we have the population vectors, with empty individuals structures in it. For
 
 For each individual in the vector of the population 0, the values of their characteristics need to be set. That is allocated as the first “progenitors”
 
-<a name="set_initial_values"></a>
+<a name="set_initial_position"></a>
 
 ```c
-//in functions.h
-void Set_Initial_Values (Population progenitors, Parameters info)
-{
-	int i, j;
-	int* first_genome;
-
-	first_genome = Generate_Genome(info->genome_size);
-
-	for (i = 0; i < info->individual_vector_size; i++) {
-		for (j = 0; j < info->genome_size; j++) {
-        	progenitors[i]->genome[j] = first_genome[j];
-    	}
-	}
-
-	for (i = 0; i < info->number_individuals; i++) {
-      progenitors[i]->x = random_number() * info->lattice_width;
-      progenitors[i]->y = random_number() * info->lattice_length;
-    }
-
-    free (first_genome);
-}
+//in space.c
+>>> Set_Initial_Position source/space.c
 ```
-This function receives a Population, a Parametes structure and fills the information of the genome, copying the same one to each individual. Then, it sorts a spot for this individual. To generate this genome, we call the following function
+This function receives a Population, a Parametes structure and fills the information of the genome, copying the same one to each individual. Then, it sorts a spot for this individual. 
 
-<a name="generate_genome"></a>
-```c
-//in functions.h
-int* Generate_Genome (int genome_size)
-{
-	int i;
-	int* first_genome;
-
-	first_genome = (int*) malloc (genome_size * sizeof(int));
-
-	for (i = 0; i < genome_size; i++) {
-		first_genome[i] = rand_upto(1);
-	}
-	return first_genome;
-}
-```
-Generate_genome recieves a vector, and an integer corresponding to the vector's size. The genome is allocated.For each spot in the genome, it draws a value between 0 and 1 with equal chance.
 
 #### The graph <a name="graph"></a>
 It begins with one population with individuals, that have a genome, coordinates and a species (and it's list of compatible and spatial neighbors. At first, the individuals are identical, so **genetic flow** exists between all individuals. But further in time, the individuals accumulate diffences. In that case, genetic flow can be constructed as **graph**.
@@ -1002,3 +866,36 @@ void mutation (Population offspring, int baby, int mutation)
 ```
 
 This function flips the bit at the "mutation" spot in the genome of the baby.
+
+## Randomness <a name="random"></a>
+To keep the model neutral, randomness is necessary. To do that, we are using the `C` random number generator, `rand()`, and `gsl_rng`, the random number generator of Gnu Scientific Library (Ref). Beggining from one specific value, `rand()` returns the same "random numbers" in the same order. So, to test the model, we can seed a fixed value. For multiple simulations, we use the time as seed for the function
+
+```c
+//in main
+srand (time(&t));
+GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
+gsl_rng_set (GLOBAL_RNG, (int) time(NULL));
+```
+To keep the random numbers in a desired interval, the following functions can be used. They are in `source/random.c`
+
+<a name="random_number"></a>
+
+When a random number between 0 and 1, excluding both 0 and 1, is needed:
+
+```c
+>>> random_number source/random.c
+```
+
+<a name="rand_upto"></a>
+
+To achieve an integer between 0 and a value, this function that generates an integer up to n cam be used.
+```c
+>>> rand_upto source/random.c
+```
+
+<a name="rand_1ton"></a>
+
+To achieve an integer between 0 and a value, this function that generates an integer up to n cam be used.
+```c
+>>> rand_1ton source/random.c
+```

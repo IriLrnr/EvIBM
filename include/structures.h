@@ -3,7 +3,7 @@
 #include "linkedlist.h"
 #include "random.h"
 
-/* Structures used */
+/* @ individual */
 typedef struct
 {
 	List genome;
@@ -19,9 +19,13 @@ typedef struct
 } individual;
 
 typedef individual * Individual;
+/* @ end */
 
+/* @ population */
 typedef Individual * Population;
+/* @ end */
 
+/* @ parameters */
 typedef struct
 {
 	int number_individuals;
@@ -42,6 +46,7 @@ typedef struct
 } parameters;
 
 typedef parameters * Parameters;
+/* @ end */
 
 Population Alloc_Population (Parameters);
 
