@@ -10,9 +10,11 @@ int main (int argc, char* argv[])
   Parameters info;
   FILE *nspecies, *performance, *size;
 
+  /* @ main_rand */
   srand (time(&t));
   GLOBAL_RNG = gsl_rng_alloc (gsl_rng_taus);
   gsl_rng_set (GLOBAL_RNG, (int) time(NULL));
+  /* @ end */
 
   info = Set_Parameters();
 
@@ -43,10 +45,13 @@ int main (int argc, char* argv[])
   size = fopen (nome_arq_ss, "w");
   fprintf (size, "sim;gen;sp;size;pop\n");
 
+  /* @ main_alloc */
   progenitors = Alloc_Population (info);
   offspring = Alloc_Population (info);  
   Set_Initial_Position (progenitors, info);
+  /* @ end */
 
+  /* @ main_loop */
   printf("Sim \t Gen \t nsp\t pop\n");
   for (i = 0; i <= info->number_generations; i++) {
     Stablish_Distances (progenitors, info);
@@ -59,20 +64,23 @@ int main (int argc, char* argv[])
       //if (info->genome < 15000) FindSpecies (progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }
-    if (i % 20 == 0) {
+    if (i % 20 == 0) {  
       for (j = 0; j < number_species; ++j) {
         fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], info->population_size);
       }
     }
     Swap_Generations (&progenitors, &offspring);
   }
+  /* @ end */
+  
+  /* @ main_free*/
   Free_Population (progenitors, info);
   Free_Population (offspring, info);
   fclose (nspecies);
   fclose (size);
-
   gsl_rng_free (GLOBAL_RNG);
   free (info);
+  /* @ main_alloc */
 
   return 0;
 }

@@ -37,7 +37,13 @@ Here's how to install make
 $ sudo apt install build.essentials
 ```
 
-To compile the R script you may need to install R, here is a tutorial: https://cran.r-project.org/, but if you don't want the graphics, you won't need R.
+To compile the R scripts you may need to install R, here is a tutorial: https://cran.r-project.org/, but if you don't want the graphics, you won't need R.
+
+## Situation
+
+The program works perfectly for G >= 1500, but it still lacks interface.
+
+Currently, I am updating the documentation. Some functions are missing and the function's descriptions are poor.
 
 ## References
 
