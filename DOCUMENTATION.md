@@ -12,7 +12,6 @@ This is a computational model for evolution and speciation. Firt, the model is d
 	- [Structures](#structure)
 		- [The individual](#individual)
 		- [The population](#population)
-		- [First Values](#alloc)
 		- [The graph](#graph)
 	- [Simulating](#simulation)
 		- [Stablish_Distances](#stablish_distances)
@@ -88,7 +87,6 @@ main.c
 ```
 The `.h` files are included in `include/`, and the corresponding `.c` file is included in `source/`.
 
-
 ### Parameters <a name="parameters"></a>
 
 To begin the simulation, we have to tell the program what we want it to simulate, so in the main file we create an structure called `Parameters`, and set the initial values we want to
@@ -159,10 +157,7 @@ offspring = Alloc_Population (info);
 Set_Initial_Position (progenitors, info);
 ```
 
-#### Set first values<a name="alloc"></a>
-Now we have the population vectors, with empty individuals structures in it. For each individual in the vector of the population we have to alloc their "internal structures" and set values to the generation 0, that is allocated as the first `progenitors`
-
-For each individual in the vector of the population 0, the values of their characteristics need to be set. That is allocated as the first “progenitors”
+A place is defined in the lattice for each individual in the beggining of the simulation.
 
 <a name="set_initial_position"></a>
 
@@ -174,11 +169,9 @@ This function receives a Population, a Parametes structure and fills the informa
 
 
 #### The graph <a name="graph"></a>
-It begins with one population with individuals, that have a genome, coordinates and a species (and it's list of compatible and spatial neighbors. At first, the individuals are identical, so **genetic flow** exists between all individuals. But further in time, the individuals accumulate diffences. In that case, genetic flow can be constructed as **graph**.
+It begins with one population with individuals, that have a genome, coordinates and a species (and it's list of compatible and spatial neighbors. At first, the individuals are identical, so **genetic flow** exists between all individuals. But further in time, the individuals accumulate diffences. In that case, genetic flow can be constructed as a **graph**, where the vertices corespond to individuals, and an edge exists between two vertices if the two individuals are genetically compatible (independently of geography), if they're compared.
 
-In this graph, the vertices corespond to individuals, and an edge exists between two vertices if the two individuals are genetically compatible (independently of geography).
-
-To make the correspondence between the graph and the individual, each vertex has an index that is the same as the `Population` vector's index of its corresponding individual. As the generations pass, species connect and disconnect, as shown bellow (it can be seen forward or backwards)
+Each vertix of the graph correpond to an individual. When two individuals are compared, if they are compatible, an edge between those individual is added. 
 
 ![](./figs/species.png)
 
@@ -186,26 +179,8 @@ In the image, each set of dots of the same color compose a species. As soon as g
 
 In graph theory, a subgraph that is not connected to anyone else, is a _**maximal connected component**_, as are the collection of dots of the same color and their arcs in the image above. That is what we are going to call a **species**.
 
-In the code, because of the included library `graph.h`, we can easily manipulate and set a graph for each population.
+In the implementation of this concept, the graph is not created as a separate structure, but it is 
 
-```c
-//in main
-G = CreateGraph (info->individual_vector_size, info->number_individuals);
-```
-
-The graph is dynamical, it is created once and modified along with the generations. To acomplish this, it's structure has three values
-```c
-//in graphs.h
-typedef struct {
-  int V;
-  int U;
-  int A;
-  int (**adj);
-} graph;
-
-typedef graph * Graph;
-```
-**A** is the number of arcs in the graph, **V** is the total of vertices available, and **U** is the number of used vertices. This way, the population can vary without having to create and destroy new graphs. In the next generation, if the population grows or shrinks, the U parameter will change and the graph also grows or shrinks.
 
 
 ### main.c
