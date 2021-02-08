@@ -73,14 +73,14 @@ int main (int argc, char* argv[])
   }
   /* @ end */
   
-  /* @ main_free*/
+  /* @ main_free */
   Free_Population (progenitors, info);
   Free_Population (offspring, info);
   fclose (nspecies);
   fclose (size);
   gsl_rng_free (GLOBAL_RNG);
   free (info);
-  /* @ main_alloc */
+  /* @ end */
 
   return 0;
 }

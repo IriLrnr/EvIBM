@@ -53,6 +53,7 @@ void Swap_Generations (Population* progenitors_pointer, Population* offspring_po
 	(*progenitors_pointer) = (*offspring_pointer);
 	(*offspring_pointer) = helper;
 }
+/* @ end */
 
 int max (int i, int j) 
 {

@@ -7,4 +7,4 @@ clean:
 	rm *.o out* run
 
 doc:
-	slip merge DOCUMENTATION.md > doc.md
+	slip merge .source_doc.md > DOCUMENTATION.md
