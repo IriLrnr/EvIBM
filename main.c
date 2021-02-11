@@ -32,7 +32,6 @@ int main (int argc, char* argv[])
   info->number_individuals     = (int) info->lattice_length*info->lattice_width*info->density;
   info->population_size        = info->number_individuals;
   info->child_population_size  = info->number_individuals;
-  info->individual_vector_size = (int)(info->number_individuals * 1.15);
   info->radius                 = atof(argv[4]);
 
   printf("*************BEG**************\n%sB = %d, N = %d, L = %.f, R = %.f\n******************************\n", ctime(&t), info->genome_size, info->number_individuals, info->lattice_length, info->radius);

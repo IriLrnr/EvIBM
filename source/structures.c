@@ -4,11 +4,13 @@
 Population Alloc_Population (Parameters info)
 {
 	Population individuals;
-	int i, j;
+	int i, j, all_individuals;
 
-	individuals  = (Population) malloc (info->individual_vector_size * sizeof (Individual));
+	all_individuals = (int)(info->number_individuals*1.05);
 
-	for (i = 0; i < info->individual_vector_size; i++) {
+	individuals  = (Population) malloc (all_individuals * sizeof (Individual));
+
+	for (i = 0; i < all_individuals; i++) {
 		individuals[i] = (Individual) malloc (sizeof (individual));
 		individuals[i]->genome = CreateHeadedList ();
 		individuals[i]->compatible_neighbors = CreateHeadedList ();
@@ -30,9 +32,11 @@ Population Alloc_Population (Parameters info)
 /* @ Free_Population*/
 void Free_Population (Population individuals, Parameters info)
 {
-	int i;
+	int i, all_individuals;
 
-	for (i = 0; i < info->individual_vector_size; i++) {
+	all_individuals = (int)(info->number_individuals*1.05);
+
+	for (i = 0; i < all_individuals; i++) {
 		DestroyList (&individuals[i]->genome);
 		DestroyList (&individuals[i]->compatible_neighbors);
 		DestroyList (&individuals[i]->spatial_neighbors);

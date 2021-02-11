@@ -29,7 +29,6 @@ typedef Individual * Population;
 typedef struct
 {
 	int number_individuals;
-	int individual_vector_size;
 	int population_size;
 	int child_population_size;
 	int genome_size;
