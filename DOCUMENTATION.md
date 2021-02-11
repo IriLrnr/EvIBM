@@ -1,4 +1,4 @@
-# Model and Code Documentation for V0
+# Model and Code Documentation for V2
 
 This is a computational model for evolution and speciation. Firt, the model is described, and following is the code. The order is not as it appear in the files, but as is used when compiling.
 
