@@ -11,30 +11,26 @@ This is a computational model for evolution and speciation. Firt, the model is d
 	- [Structures](#structure)
 		- [The individual](#individual)
 		- [The population](#population)
-		- [The graph](#graph) parei aqui
+		- [The graph](#graph)
 	- [Simulating](#simulation)
 		- [Stablish_Distances](#stablish_distances)
-		- [Reproduction](#reproduction)
+		- [Reproduction](#reproduction) Parei aqui
 		- [Count_Species](#count_species)
 		- [Swap_Generations](#swap_generations)
 - [Libraries](#libraries)
-	- [functions.h](#functionsh)
-		- [random_number](#random_number)
-		- [rand_upto](#rand_upto)
-		- [rand_1ton](#rand_1ton)
 		- [Set_Parameters](#set_parameters)
 		- [Alloc_Population](#alloc_population)
 		- [Set_Initial_Values](#set_initial_values)
 		- [Generate_Genome](#generate_genome)
 		- [Verify_Distance](#verify_distance)
-		- [Neighborhood](#neighborhood)
-		- [Expand_Neighborhood](#expand_neighborhood)
-		- [Shrink_Neighborhood](#shrink_neighborhood)
 		- [Mutation](#mutation)
 		- [Choose_Mate](#choose_mate)
 		- [Create_Offspring](#create_offspring)
 		- [Offspring_Position](#offspring_position)
 	- [Randomness](#random)
+		- [random_number](#random_number)
+		- [rand_upto](#rand_upto)
+		- [rand_1ton](#rand_1ton)
 
 ## The model <a name="model"></a>
 
@@ -58,6 +54,9 @@ It looks like this, initially:
 Any model needs simplifications and assumptions. The goal is to have simplifications that maintain the model meaningful. In the present work, simplifications are:
 
 1. The genomes are a binary string
+	
+	_The first genome is a size B string composed of all 0. It is ommited in the program._
+
 2. The generations don't overlap (mates come from the same generation)
 3. There is no fitness
 4. The population is in a stable state, it doesn't grow or shrink much
@@ -249,11 +248,11 @@ void Set_Initial_Position (Population individuals, Parameters info)
 ```
 This function receives a Population, a Parametes structure and assigns a position to each of the individuals in the initial population.
 
-parei aqui
 #### The graph <a name="graph"></a>
-It begins with one population with individuals, that have a genome, coordinates and a species (and it's list of compatible and spatial neighbors. At first, the individuals are identical, so **genetic flow** exists between all individuals. But further in time, the individuals accumulate diffences. In that case, genetic flow can be constructed as a **graph**, where the vertices corespond to individuals, and an edge exists between two vertices if the two individuals are genetically compatible (independently of geography), if they're compared.
 
-Each vertix of the graph correpond to an individual. When two individuals are compared, if they are compatible, an edge between those individual is added. 
+The graph was described in the Overview. Each vertix of the graph correpond to an individual. When two individuals are compared, if they are compatible, an edge between those individual is added. There is one graph per generation, and currently, it cannot be recycled between populations.
+
+At first, the individuals are identical, so **genetic flow** exists between all individuals. The graph is a complete graph. But further in time, the individuals accumulate diffences. Because of this process, the graph slowly disconects, forming components that are isolated from one another, that we call species. The process is ilustrated below:
 
 ![](./figs/species.png)
 
@@ -261,6 +260,7 @@ In the image, each set of dots of the same color compose a species. As soon as g
 
 In graph theory, a subgraph that is not connected to anyone else, is a _**maximal connected component**_, as are the collection of dots of the same color and their arcs in the image above. That is what we are going to call a **species**.
 
+.........
 In the implementation of this concept, the graph is not created as a separate structure, but works in form of linked-lists through representatives. The algorithim used to work with the graph is the `Union-Find`, where, if two individuals are compatible, we perorm the `Union`, where one individual's representative is assigned to be the other. This constructs a tree, as shown below:
 
 ![](./figs/UF.png)
@@ -295,6 +295,7 @@ void Union (Population individuals, int i, int j) {
 }
 ```
 The algorithm is recursive, and it finds the representative of each class and unite classes if any pair of two given classes are compatible. It is the fastest way to find components of a graph.
+...........
 
 ### Simulating <a name="simulation"></a>
 After initializing the values and creating our structure, the actual program can be written in a few lines:
@@ -322,11 +323,11 @@ After initializing the values and creating our structure, the actual program can
   }
   ```
 
-The `for` loop will iterate in the generations. First, `Stablish_Distances` compare each individual with everyone in it's radius and starts connecting the population as a graph. Then, the progenitors will reproduce among themselves, and their children will be put in the "offspring" population vector. Then, `Count_Species()` will count how many species compose the progenitors population, and then swap the offspring and progenitors vectors, which can be interpreted as the progenitors dying and the offspring growing up to be progenitors. The parent's data is not stored at this point.
+The `for` loop will iterate in the generations. First, `Stablish_Distances` compares each individual with everyone in it's radius and starts connecting the population through the `species` tag in each individual, forming a graph. If two individuals are the same species, the individual from the smaller species is assigned to the same species as the other individual. This begins building the genetic flow graph. Then, the progenitors will reproduce among themselves, and their children will be put in the "offspring" population vector. Then, `Count_Species` will count how many species compose the progenitors population, and then swap the offspring and progenitors vectors, which can be interpreted as the progenitors dying and the offspring growing up to be progenitors. The parent's data is not stored at this point.
 
 ### Stablish_Distances <a name="stablish_distances"></a>
 
-The function "Stablish_Distances" is redundant, and not at all at it's final state.
+The function receives a Population and the Parameters. It compares each of the individuals in the population with it's neighbors, looking for differences in their genome. If two individuals are sufficiently similar, an arc will be inserted between their vertices. If not, there will be no arc between them (if there were, in the previous population, this arc will be removed). Durting this process, it creates the list of possible partners in their range.
 
 ```c
 //in species.c
@@ -374,7 +375,6 @@ void Stablish_Distances (Population progenitors, Parameters info)
 	}
 }
 ```
-The function receives a Population and the Parameters. It compares each of the individuals in the population with it's neighbors, looking for differences in their genome. If two individuals are sufficiently similar, an arc will be inserted between their vertices. If not, there will be no arc between them (if there were, in the previous population, this arc will be removed). Durting this process, it creates the list of possible partners in their range.
 
 The time it takes to run this function is O(n^2).
 
@@ -382,7 +382,7 @@ The time it takes to run this function is O(n^2).
 
 ##### Verify_Distance <a name="verify_distance"></a>
 
-To find out if two individuals are in the range of one another should be simple, just comparing coordinates, right? WRONG! The space is toroid! So that is important to check out.
+To see if individuals are spacially close, this boolean function is used. It receives the names of the individuals to compare, the population and the parameters, and returns 1 if the individuals are in the range of one another, and 0 if they're not. Because the lattice is a toroid, one individual could be in range of the other, but in the other side of the lattice. The distance is Euclidean so it can be calculated by square difference.
 
 ```c
 //in space.c
@@ -416,9 +416,16 @@ int Verify_Distance (Population individuals, int i, int j, Parameters info, int 
 }
 ```
 
-This is a boolean function, it returns 1 if the individuals are in the range of one another, and 0 if they're not. It receives the names of the individuals to compare, the population and the parameters, and returns 0 or 1. Because the lattice is a toroid, it one individual could be in range of the other, but in the other side of the lattice, it needs to be checked. With a simple circle equation, we can, at the end, determine if one individual is in range of the other. The focal's coordinates are `x0` and `y0`, and the mate's are `x` and `y`.
-
 ##### Compare_Genomes <a name="compare_genomes"></a>
+
+
+This is a boolean function, it returns 1 if the individuals are compatible, and 0 otherwise. It receives the names of the individuals to compare, the population and the parameters. Each genome is a linked list with a head. Since the original genome is a string composed of B zeros (ommited), the linked list stores the _loci_ wehere the individual's genome is different from the original, and stores the number of differences in a head.
+When comparing individuals `i` and `j` and their differences from the original genome (`d_i` and `d_j`), we can fall in three cases:
+1. abs(d_i - d_j) > G, that is, the minimum difference between `i` and `j` is bigger than the maximum distance for reproduction
+2. d_i + d_j < G, that is, the maximum differences between `i` and `j` is smaller than the maximum distance for reproduction
+3. abs(d_i - d_j) < G < d_i + d_j 
+
+In cases 1 and 2, there is no need to compare genomes, because in case 1, it is impossible for `i` and `j` to be compatible, and in case 2, it is impossible for them to not be compatible. The comparison between genomes is only needed in case 3.
 
 ```c
 //in genome.c
@@ -450,8 +457,6 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 	}	
 }
 ```
-
-This is a boolean function, it returns 1 if the individuals are compatible, and 0 otherwise. It receives the names of the individuals to compare, the population and the parameters, and returns 0 or 1.
 
 ### Reproduction <a name="reproduction"></a>
 
@@ -508,10 +513,11 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 ```
 The function for Reproduction receives two population vectors and the Parameters. For every individual, if the population is at carry capacity and the individual in question is in a low density region, it can reproduce twice. If one or both conditions are violated, it will have only one offspring with a probability of 63%. With 37% chance, it will not reproduce, giving a chance to another individual in it's neighborhood to reproduce. This could be interpreted as another individual using the resources spared by the focal's death, occuping it's niche.
 
-The function "Find_Neighborhood" just returns the number of possible partners in its range an individual has, because it is a headed linked list, and the head keeps the size of the list.
+The function `Find_Neighborhood` just returns the number of possible partners in its range an individual has, because it is a headed linked list, and the head keeps the size of the list.
 
 The subtle balance of parameters, in this function, indicates who lives and dies in the model, shaping all of the other characteristics of the population as a whole. 
 
+Parei aqui
 #### Subfunctions
 
 ##### Choose_Mate <a name="choose_mate"></a>
