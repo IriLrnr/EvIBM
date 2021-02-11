@@ -17,7 +17,7 @@ This is a computational model for evolution and speciation. Firt, the model is d
 		- [Reproduction](#reproduction) 
 		- [Count_Species](#count_species)
 		- [Swap_Generations](#swap_generations)
-- [Libraries](#libraries)
+	- [Libraries](#libraries)
 		- [Set_Parameters](#set_parameters)
 		- [Alloc_Population](#alloc_population)
 		- [Set_Initial_Values](#set_initial_values)
