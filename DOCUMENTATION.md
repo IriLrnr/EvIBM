@@ -14,7 +14,7 @@ This is a computational model for evolution and speciation. Firt, the model is d
 		- [The graph](#graph)
 	- [Simulating](#simulation)
 		- [Stablish_Distances](#stablish_distances)
-		- [Reproduction](#reproduction) Parei aqui
+		- [Reproduction](#reproduction) 
 		- [Count_Species](#count_species)
 		- [Swap_Generations](#swap_generations)
 - [Libraries](#libraries)
