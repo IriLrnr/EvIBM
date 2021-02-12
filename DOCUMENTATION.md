@@ -517,12 +517,12 @@ The function `Find_Neighborhood` just returns the number of possible partners in
 
 The subtle balance of parameters, in this function, indicates who lives and dies in the model, shaping all of the other characteristics of the population as a whole. 
 
-Parei aqui
+
 #### Subfunctions
 
 ##### Choose_Mate <a name="choose_mate"></a>
 
-The function `Choose_Mate` sorts one of those neighbors out:
+The function `Choose_Mate` sorts a compatible individual in the focal's neighborhood for ir to reproduce with
 ```c
 //in space.c
 int Choose_Mate (Population progenitors, int focal, Parameters info)
@@ -552,9 +552,9 @@ int Choose_Mate (Population progenitors, int focal, Parameters info)
 }
 ```
 
-Each individual has a linked list of compatible neighbors. This function just randomly chooses between one of them, and returns it. If the list is empty, then mate = -1. A similar function is this one:
+The function recieves a population, the focal's index and the parameters, and returns a mate in it's range. The function uses the `compatible_neighbors` list from the individual's struct and sorts a number between 0 and the size of this list, and from then choose a mate. It returns -1 if the individual has no neighboors.
 
-<a name="sort_neighbor"></a>
+##### Sort_Neighbor <a name="sort_neighbor"></a>
 
 ```c
 //in space.c
@@ -568,7 +568,7 @@ int Sort_Neighbor (Population progenitors, int i, Parameters info)
 	compatible_neighbors = Find_Compatible_Neighborhood (progenitors, i, info);
 	all = Find_Neighborhood (progenitors, i, info);
 
-	if (all > 0) {
+	if (all) {
 		k = rand_1to (all);
 		if (k <= compatible_neighbors)
 			for (j = 1, p = progenitors[i]->compatible_neighbors->next; p != NULL && j < k; p = p->next, j++);
@@ -587,10 +587,11 @@ int Sort_Neighbor (Population progenitors, int i, Parameters info)
 	return neighbor;
 }
 ```
+This function is similar to the `Choose_Mate` function. It recieves a population, the focal's index and the parameters and sorts a number between 1 and the sum of the sizes of `compatible_neighbors` and `spatial_neighbors` listis. Then, it chooses a neighbor. The lists are complementary. If the individual has no neighbors, it returns -1,
 
-where this function is used to sort a neighbor in all the neighborhood, not just in the compatible one.
+##### Choose_Other <a name="choose_other"></a>
 
-Another function that is necessary for 
+If an individual cannot reproduce, other individual is choosen on it's place. The offspring will be put in the original parent position (can be interpreted as an "available niche").
 
 ```c
 //in space.c
@@ -629,9 +630,9 @@ int Choose_Other (Population progenitors, int focal, Parameters info)
 }
 ```
 
-This function chooses another individual around the focal to reproduce in its place. It looks twice for each increase in the radius, until it finds someone or increases the radius too much. It also looks one time more in the default radius.
+This funcition recieves a population, an individual and the parameters. It can return with 63% chance the focal individual. But 37% of the individuals will die randomly, or are too isolated to reproduce, so the function looks around the individual, firts in the original range, for a substitute. If it cannot find a neighbor in two steps of distance (`n > 1`), it will increase the radius for seaching, twice.
 
-Back to the reproduction, after choosing a mate, we ...
+After choosing a mate, we
 
 ##### Create_Offspring <a name="create_offspring"></a>
 
@@ -646,7 +647,7 @@ void Create_Offspring (Population progenitors, Population offspring,  int baby, 
 }
 ```
 
-This function defines the offspring's position and genome:
+This function recieves a population, both parents, and the focal of the round, and assigns a position, a genome, and the species of each individual, with species size. For now, it recieves it's own name as species, and 1 as the size.
 
 ###### Offspring_Position <a name="offspring_position"></a>
 
@@ -693,9 +694,7 @@ void Offspring_Position (Population progenitors, Population offspring, int baby,
 }
 ```
 
-With 99% chance, the baby will be in the exact same spot as the focal parent. But it can move with 1% chance. If it moves, it sorts a radius `r` and an angle `theta`, so the whole area of the circle around the focal is covered. 
-
-note: I don't know if sorting `theta` like this is the best option, if all the distribuitions are equally possible.
+With 99% chance, the baby will be in the exact same spot as the focal parent. But it can move with 1% chance. If it moves, it sorts a radius `r` and an angle `theta`, so the whole area of the circle around the focal is covered. Again, because the lattice is a toroid, the borders are considered.
 
 ###### Offspring_Genome <a name="offspring_genome"></a>
 
@@ -740,10 +739,31 @@ void Offspring_Genome (Population progenitors, Population offspring, int baby, i
 }
 ```
 
-The offspring gets each loci from any of its parents, with 50% chance from each.
+The offspring gets each loci from any of its parents, with 50% chance from each, and each _loci_ has an independent \mu rate of mutation.
+
+<a name="mutation"></a>
+
+```c
+void Mutation (Population offspring, int baby, Parameters info)
+{
+	unsigned int quantity;
+	int i;
+
+	quantity = gsl_ran_binomial (GLOBAL_RNG, info->mutation, info->genome_size);
+	
+	if (quantity > 0) {
+		for (i = 0; i < quantity; ++i) {
+			AlterList (&(offspring[baby]->genome), rand_upto (info->genome_size - 1));
+		}
+	}
+}
+```
+
+For creating change we use this function, that recieves a population, an individual and the parameters. Using GSL's binomial distribution, and the values _n = B_ and _p = \mu_, we choose how many mutations the individual's genome shoud have and then sort the places for each of this mutations.
 
 After reproduction, we have two populations, the progenitors and the offspring.
 
+Parei aqui
 ### Count_Species <a name="count_species"></a>
 
 To count how many species we have on the progenitors population, we will use the graph, and analise how many **maximal connected components** there are. For this, we use the algorithm `Union-Find`.

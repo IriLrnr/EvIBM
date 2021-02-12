@@ -30,7 +30,7 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 }
 /* @ end */
 
-/* @ mutation */
+/* @ Mutation */
 void Mutation (Population offspring, int baby, Parameters info)
 {
 	unsigned int quantity;

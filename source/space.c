@@ -85,7 +85,7 @@ int Sort_Neighbor (Population progenitors, int i, Parameters info)
 	compatible_neighbors = Find_Compatible_Neighborhood (progenitors, i, info);
 	all = Find_Neighborhood (progenitors, i, info);
 
-	if (all > 0) {
+	if (all) {
 		k = rand_1to (all);
 		if (k <= compatible_neighbors)
 			for (j = 1, p = progenitors[i]->compatible_neighbors->next; p != NULL && j < k; p = p->next, j++);
