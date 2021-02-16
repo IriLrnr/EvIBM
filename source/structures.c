@@ -6,7 +6,7 @@ Population Alloc_Population (Parameters info)
 	Population individuals;
 	int i, j, all_individuals;
 
-	all_individuals = (int)(info->number_individuals*1.05);
+	all_individuals = (int)(info->number_individuals*1.15);
 
 	individuals  = (Population) malloc (all_individuals * sizeof (Individual));
 
@@ -34,7 +34,7 @@ void Free_Population (Population individuals, Parameters info)
 {
 	int i, all_individuals;
 
-	all_individuals = (int)(info->number_individuals*1.05);
+	all_individuals = (int)(info->number_individuals*1.15);
 
 	for (i = 0; i < all_individuals; i++) {
 		DestroyList (&individuals[i]->genome);
