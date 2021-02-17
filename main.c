@@ -1,10 +1,12 @@
-  #include "include/model.h"
+#include "include/model.h"
+
+extern gsl_rng *GLOBAL_RNG;
 
 int main (int argc, char* argv[])
 {
   int i, j, l, k, number_species, type, deltat, p, genome;
   int sizes[1000];
-  char nome_arq_s[80] = "", nome_arq_st[80] = "", nome_arq_ss[80] = "";
+  char nome_arq_s[100] = "", nome_arq_st[100] = "", nome_arq_ss[100] = "";
   time_t t;
   Population progenitors, offspring;
   Parameters info;
@@ -19,12 +21,6 @@ int main (int argc, char* argv[])
   info = Set_Parameters();
 
   l = atoi(argv[3]);
-  if (l == 1) {
-    sprintf (nome_arq_st, "./data/sizes_tests/%.f/performance_%d.txt", info->radius, (int) atoi(argv[2]));
-    performance = fopen(nome_arq_st, "w");
-    fprintf (performance, "real;usr;sys\n");
-    fclose (performance);
-  }
 
   info->density                = 0.1;
   info->lattice_length         = atof(argv[2]);
@@ -38,7 +34,7 @@ int main (int argc, char* argv[])
   
   sprintf (nome_arq_s, "./data/sizes_tests/%.f/%.f/species/numsp_%02d.csv", info->radius, info->lattice_length, l);
   nspecies = fopen (nome_arq_s, "w");
-  fprintf (nspecies, "gen;sp;pop;sim\n");
+  fputs ("gen;sp;pop;sim\n", nspecies);
 
   sprintf (nome_arq_ss, "./data/sizes_tests/%.f/%.f/sizes/sizes_%02d.csv", info->radius, info->lattice_length, l);
   size = fopen (nome_arq_ss, "w");

@@ -7,7 +7,7 @@ do
 		l_dir=./data/sizes_tests//$r/$l
 		mkdir -p $l_dir/species
 		mkdir -p $l_dir/sizes
-		touch ./data/sizes_tests/$r/performance_$l.txt
+		echo "real;usr;sys" > $l_dir/performance_$l.txt 
 
 		gcc -g -c main.c source/*.c -I /usr/include/gsl/
 		gcc -ansi -pedantic -Wall *.o -lgsl -lgslcblas -lm -o out
