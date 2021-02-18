@@ -1,5 +1,5 @@
 /* Libraries */
-#include "species.h"
+#include "data.h"
 
 /*
 	Set simulation parameters

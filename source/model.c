@@ -1,24 +1,25 @@
 #include "../include/model.h"
 
 /* @ Set_Parameters */
-Parameters Set_Parameters () 
+Parameters Set_Parameters (char *argv[]) 
 {
 	Parameters info;
 	double rho, epslon = 0.74;
 
 	info = (Parameters) malloc (sizeof (parameters));
 
-	info->number_individuals     = 1000;
+	info->density                = 0.1;
+  	info->lattice_length         = atof(argv[2]);
+	info->lattice_width          = info->lattice_length;
+	info->number_individuals     = (int)info->lattice_length*info->lattice_width*info->density;
 	info->population_size        = info->number_individuals;
 	info->child_population_size  = info->number_individuals;
-	/* The population can grow and sink. Here we estimate the grown aoround 20% */
+	info->radius                 = atof(argv[4]);
+	
 	info->genome_size            = 1500;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
 	info->number_generations     = 1000;
-	info->lattice_length         = 100;
-	info->lattice_width          = 100;
-	info->radius                 = 5;
-	info->mutation               = 0.00025;
+	info->mutation               = 0.0017;
 	info->dispersion             = 0.01;
 	info->min_neighboors         = 3;
 	info->max_increase           = 2;
@@ -28,7 +29,7 @@ Parameters Set_Parameters ()
 	//rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
 	//info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
 
-	info->density = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+	//info->density = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
 
 	return info;
 }
