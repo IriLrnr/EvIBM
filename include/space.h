@@ -19,6 +19,8 @@ void Set_Initial_Position (Population, Parameters);
 */
 int Verify_Distance (Population, int, int, Parameters, int);
 
+double Calculate_Spatial_Distance (Population, int, int, Parameters);
+
 /*
 	Through this function both lists of neighbors can verified 
 	at the same time

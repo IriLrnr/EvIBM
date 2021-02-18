@@ -43,6 +43,20 @@ int Verify_Distance (Population individuals, int i, int j, Parameters info, int 
 }
 /* @ end */
 
+/* @ Calculate_Spatial_Distance */
+double Calculate_Spatial_Distance (Population individuals, int i, int j, Parameters info)
+{
+	double x, x0, y, y0, r;
+	
+	x0 = individuals[i]->x;
+	y0 = individuals[i]->y;
+	x = individuals[j]->x;
+	y = individuals[j]->y;
+ 	
+ 	return sqrt((x - x0) * (x - x0) + (y - y0) * (y - y0));
+}
+/* @ end */
+
 /* @ Find_Compatible_Neighborhood */
 int Find_Compatible_Neighborhood (Population individuals, int i, Parameters info)
 {
