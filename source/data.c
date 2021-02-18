@@ -54,7 +54,9 @@ void Write_Distance_Data (FILE ** distances, Population progenitors, int i, int 
 {
   int j, k;
 
-  for (j = 1; j < info->population_size; j++) {
-    fprintf(*distances, "%d;%d;%f;%d\n", l, i, Calculate_Spatial_Distance (progenitors, 1, j, info), Calculate_Genetic_Distance (progenitors, i, j, info));
+  if (i == info->number_generation - 1) {
+    for (j = 1; j < info->population_size; j++) {
+      fprintf(*distances, "%d;%d;%f;%d\n", l, i, Calculate_Spatial_Distance (progenitors, 1, j, info), Calculate_Genetic_Distance (progenitors, i, j, info));
+    }
   }
 }
