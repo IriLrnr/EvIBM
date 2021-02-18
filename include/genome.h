@@ -6,6 +6,8 @@
 */
 int Compare_Genomes (Population, int, int, Parameters);
 
+int Calculate_Genetic_Distance (Population, int, int, Parameters);
+
 /*
 	This function, called by Create_Offspring, allocates the mutation in the genome
 */

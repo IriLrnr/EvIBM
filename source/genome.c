@@ -6,8 +6,6 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 	int divergences, min_divergences;
 	List p, q;
 
-	divergences = info->genome_size + 1;
-
 	divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
 	min_divergences = abs (Verify_Head (&individuals[i]->genome) - Verify_Head (&individuals[j]->genome));
 	if (min_divergences <= info->reproductive_distance) {
@@ -29,6 +27,24 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 	}	
 }
 /* @ end */
+
+int Calculate_Genetic_Distance (Population individuals, int i, int j, Parameters info) 
+{
+ 	int divergences;
+	List p, q;
+
+	divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
+	for (p = individuals[i]->genome->next, q = individuals[j]->genome->next; (p != NULL && q != NULL);) {
+		if (p->info == q->info) {
+			divergences -= 2;
+			p = p->next;
+			q = q->next;
+		}
+		else if (p->info < q->info) p = p->next;
+		else q = q->next;
+	}
+	return divergences;
+}
 
 /* @ Mutation */
 void Mutation (Population offspring, int baby, Parameters info)
