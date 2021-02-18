@@ -41,22 +41,13 @@ void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances)
   fclose (*distances);
 }
 
-double Calculate_Spatial_Distance (Population progenitors, int i, int j, Parameters info)
-{
-  return 1;
-}
-
-int Calculate_Genetic_Distance (Population progenitors, int i, int j, Parameters info) {
-  return 1;
-}
-
 void Write_Distance_Data (FILE ** distances, Population progenitors, int i, int l, Parameters info)
 {
   int j, k;
 
   if (i == info->number_generations - 1) {
-    for (j = 1; j < info->population_size; j++) {
-      fprintf(*distances, "%d;%d;%f;%d\n", l, i, Calculate_Spatial_Distance (progenitors, 1, j, info), Calculate_Genetic_Distance (progenitors, i, j, info));
+    for (j = 0; j < info->population_size; j++) {
+      fprintf(*distances, "%d;%d;%d;%f\n", l, j, Calculate_Genetic_Distance (progenitors, 0, j, info), Calculate_Spatial_Distance (progenitors, 0, j, info));
     }
   }
 }
