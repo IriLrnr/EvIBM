@@ -23,12 +23,15 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, Parameters i
 
   sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/species/numsp_%02d.csv", info->radius, info->lattice_length, l);
   *nspecies = fopen (nome_arq, "w");
+  fputs ("gen;sp;pop;sim\n", *nspecies);
 
   sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/sizes/sizes_%02d.csv", info->radius, info->lattice_length, l);
   *size = fopen (nome_arq, "w");
+  fputs ("sim;gen;sp;size;pop\n", *size);
 
   sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/distances/distances_%02d.csv", info->radius, info->lattice_length, l);
   *distances = fopen (nome_arq, "w");  
+  fputs ("sim;i;dg;ds\n", *distances);
 }
 
 void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances)
