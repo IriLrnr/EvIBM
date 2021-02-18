@@ -126,24 +126,25 @@ These parameters can be manually set to the desired values. To make simulation a
 <a name="set_parameters"></a>
 ```c
 //in model.c
-Parameters Set_Parameters () 
+Parameters Set_Parameters (char *argv[]) 
 {
 	Parameters info;
 	double rho, epslon = 0.74;
 
 	info = (Parameters) malloc (sizeof (parameters));
 
-	info->number_individuals     = 1000;
+	info->density                = 0.1;
+  	info->lattice_length         = atof(argv[2]);
+	info->lattice_width          = info->lattice_length;
+	info->number_individuals     = (int)info->lattice_length*info->lattice_width*info->density;
 	info->population_size        = info->number_individuals;
 	info->child_population_size  = info->number_individuals;
-	/* The population can grow and sink. Here we estimate the grown aoround 20% */
-	info->genome_size            = 15000;
+	info->radius                 = atof(argv[4]);
+	
+	info->genome_size            = 1500;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-	info->number_generations     = 500;
-	info->lattice_length         = 100;
-	info->lattice_width          = 100;
-	info->radius                 = 5;
-	info->mutation               = 0.00025;
+	info->number_generations     = 1000;
+	info->mutation               = 0.0017;
 	info->dispersion             = 0.01;
 	info->min_neighboors         = 3;
 	info->max_increase           = 2;
@@ -153,7 +154,7 @@ Parameters Set_Parameters ()
 	//rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
 	//info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
 
-	info->density = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+	//info->density = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
 
 	return info;
 }
@@ -225,9 +226,9 @@ Inside the model, there are only two populations held in memory at a time. In th
 Population progenitors;
 Population offspring;
 
-  progenitors = Alloc_Population (info);
-  offspring = Alloc_Population (info);  
-  Set_Initial_Position (progenitors, info);
+  progenitors = Alloc_Population(info);
+  offspring = Alloc_Population(info);  
+  Set_Initial_Position(progenitors, info);
   ```
 
 A place is defined in the lattice for each individual in the beggining of the simulation.
@@ -303,22 +304,12 @@ After initializing the values and creating our structure, the actual program can
 ```c
 //in main
   printf("Sim \t Gen \t nsp\t pop\n");
-  for (i = 0; i <= info->number_generations; i++) {
-    Stablish_Distances (progenitors, info);
-    if (i%1 == 0) {
-      number_species = Count_Species (progenitors, info, sizes);
-      fprintf (nspecies, "%d;%d;%d;%d\n", i, number_species, info->population_size, l);
-    }
+  for(i = 0; i <= info->number_generations; i++) {
+    Stablish_Distances(progenitors, info);
+    number_species = Count_Species(progenitors, info, sizes);
     Reproduction  (progenitors, offspring, info);
-    if (i % 25 == 0) {
-      //if (info->genome < 15000) FindSpecies (progenitors, info);
-      printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
-    }
-    if (i % 20 == 0) {  
-      for (j = 0; j < number_species; ++j) {
-        fprintf (size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], info->population_size);
-      }
-    }
+    Write_Data(&nspecies, &size, &distances, sizes, number_species, i, l, progenitors, info);
+    Write_Distance_Data (&distances, progenitors, i, l, info);
     Swap_Generations (&progenitors, &offspring);
   }
   ```
@@ -433,8 +424,6 @@ int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 {
 	int divergences, min_divergences;
 	List p, q;
-
-	divergences = info->genome_size + 1;
 
 	divergences = Verify_Head (&individuals[i]->genome) + Verify_Head (&individuals[j]->genome);
 	min_divergences = abs (Verify_Head (&individuals[i]->genome) - Verify_Head (&individuals[j]->genome));
@@ -846,10 +835,10 @@ After finnishing all the simulation, we need to free the stack.
 //in main
   Free_Population (progenitors, info);
   Free_Population (offspring, info);
-  fclose (nspecies);
-  fclose (size);
   gsl_rng_free (GLOBAL_RNG);
   free (info);
+
+  Close_Files (&nspecies, &size, &distances);
   ```
 There has to be the same numbers of `alloc`s~ and `free`s, and finish the program.
 ```c
