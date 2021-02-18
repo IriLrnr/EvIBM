@@ -4,7 +4,7 @@ extern gsl_rng *GLOBAL_RNG;
 
 int main(int argc, char* argv[])
 {
-  int i, j, l, k, number_species, type, deltat, p, genome;
+  int i, l,  number_species;
   int sizes[1000];
   time_t t;
   Population progenitors, offspring;
