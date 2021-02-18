@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for r in  10
+for r in  5	
 do
 	for l in 100 #200 300 400
 	do
@@ -15,12 +15,9 @@ do
 
 		for i in $(seq -f "%02g" 1 4)
 		do 
-			echo "gen;sp;pop;sim" > $dir/species/numsp_$i.csv
-			echo "sim;gen;sp;size;pop" > $dir/sizes/sizes_$i.csv
-			echo "sim;i;dg;ds" > $dir/distances/distances_$i.csv
 			/usr/bin/time -o ./data/sizes_tests/$r/$l/performance_$l.txt -a -f "%E; %U; %S" ./out 4 $l $i $r
 			#gdb out
 		done
 	done
 done
-
+rm *.o out
