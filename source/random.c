@@ -1,5 +1,7 @@
 #include "../include/random.h"
 
+gsl_rng *GLOBAL_RNG;
+
 /* @ rand_1ton */
 int rand_1to (int n)
 {
