@@ -4,7 +4,7 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE ** distances, int sizes[],
 {
   int j;
 
-  if (i % 1 == 0) {
+  if (i % 25 == 0) {
       //if (info->genome < 15000) FindSpecies (progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
   }
