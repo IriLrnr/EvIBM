@@ -1,8 +1,19 @@
+#include <unistd.h>
 #include "include/model.h"
 
 #define HEADER "*************BEG**************\n%sB = %d, M = %d, L = %.f, S = %.f\n******************************\n"
 
 extern gsl_rng *GLOBAL_RNG;
+
+/* @ main_rand */
+void Setup_Rng(time_t *t) {
+  time(t);
+  srand(*t);
+  GLOBAL_RNG = gsl+rng_alloc(gsl_rng_taus);
+  gsl_rng_set(GLOBAL_RNG, (int)(*t));
+}
+/* @ end */
+
 
 int main(int argc, char* argv[])
 {
@@ -14,12 +25,7 @@ int main(int argc, char* argv[])
   FILE *nspecies, *distances, *size;
   char *timestring;
 
-  /* @ main_rand */
-  srand(time(&t));
-  timestring = ctime(&t);
-  GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
-  gsl_rng_set(GLOBAL_RNG, (int)time(NULL));
-  /* @ end */
+  Setup_Rng();
 
   info = Set_Parameters(argv);
 
