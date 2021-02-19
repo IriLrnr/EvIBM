@@ -1,5 +1,7 @@
 #include "include/model.h"
 
+#define HEADER "*************BEG**************\n%sB = %d, M = %d, L = %.f, S = %.f\n******************************\n"
+
 extern gsl_rng *GLOBAL_RNG;
 
 int main(int argc, char* argv[])
@@ -10,9 +12,11 @@ int main(int argc, char* argv[])
   Population progenitors, offspring;
   Parameters info;
   FILE *nspecies, *distances, *size;
+  char *timestring;
 
   /* @ main_rand */
   srand(time(&t));
+  timestring = ctime(&t);
   GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
   gsl_rng_set(GLOBAL_RNG, (int)time(NULL));
   /* @ end */
@@ -21,7 +25,13 @@ int main(int argc, char* argv[])
 
   l = atoi(argv[3]);
 
-  HEADER(ctime(&t), info->genome_size, info->number_individuals, info->lattice_length, info->radius); /*Code in structures.h*/
+  printf(HEADER,
+	 timestring,
+	 info->genome_size,
+	 info->number_individuals,
+	 info->lattice_length,
+	 info->radius
+	 );
 
   Open_Files (&nspecies, &size, &distances, info, l);
 
