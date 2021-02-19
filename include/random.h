@@ -5,7 +5,7 @@
 /* 
 	State-keeper of the random number generator
 */
-gsl_rng *GLOBAL_RNG;
+extern gsl_rng *GLOBAL_RNG;
 
 /*
 	Returns a random number between 0 and 1
