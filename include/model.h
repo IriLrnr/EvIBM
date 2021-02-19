@@ -4,7 +4,7 @@
 /*
 	Set simulation parameters
 */
-Parameters Set_Parameters ();
+Parameters Set_Parameters (float,float);
 
 /*
 	Creates genome and position of offspring

@@ -1,7 +1,7 @@
 #include "../include/model.h"
 
 /* @ Set_Parameters */
-Parameters Set_Parameters (char *argv[]) 
+Parameters Set_Parameters (float side, float radius) 
 {
 	Parameters info;
 	double rho, epslon = 0.74;
@@ -9,12 +9,12 @@ Parameters Set_Parameters (char *argv[])
 	info = (Parameters) malloc (sizeof (parameters));
 
 	info->density                = 0.1;
-  	info->lattice_length         = atof(argv[2]);
-	info->lattice_width          = info->lattice_length;
+  	info->lattice_length         = side;
+	info->lattice_width          = side;
 	info->number_individuals     = (int)info->lattice_length*info->lattice_width*info->density;
 	info->population_size        = info->number_individuals;
 	info->child_population_size  = info->number_individuals;
-	info->radius                 = atof(argv[4]);
+	info->radius                 = radius;
 	
 	info->genome_size            = 1500;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);

@@ -1,7 +1,10 @@
 #include <unistd.h>
+#include <stdio.h>
 #include "include/model.h"
 
 #define HEADER "*************BEG**************\n%sB = %d, M = %d, L = %.f, S = %.f\n******************************\n"
+#define COLS "Sim\tGen\tnsp\tpop"
+#define OPTSTRING "h"
 
 extern gsl_rng *GLOBAL_RNG;
 
@@ -9,27 +12,52 @@ extern gsl_rng *GLOBAL_RNG;
 void Setup_Rng(time_t *t) {
   time(t);
   srand(*t);
-  GLOBAL_RNG = gsl+rng_alloc(gsl_rng_taus);
+  GLOBAL_RNG = gsl_rng_alloc(gsl_rng_taus);
   gsl_rng_set(GLOBAL_RNG, (int)(*t));
 }
 /* @ end */
 
+void help() {
+  puts("Usage: main side radius");
+  puts("Arguments:");
+  puts("    side The side-length of the lattice.");
+  puts("  radius Maximum distance between reproducing individuals.");
+}
 
 int main(int argc, char* argv[])
 {
-  int i, l,  number_species;
-  int sizes[1000];
-  time_t t;
-  Population progenitors, offspring;
-  Parameters info;
   FILE *nspecies, *distances, *size;
-  char *timestring;
+  float side, radius;
+  Parameters info;
+  Population progenitors, offspring;
+  char *timestring, option;
+  int i, l,  number_species, sizes[1000];
+  time_t t;
 
-  Setup_Rng();
+  Setup_Rng(&t);
+  timestring = ctime(&t);
 
-  info = Set_Parameters(argv);
+  while ((option = getopt(argc, argv, OPTSTRING)) != -1) {
+    switch (option) {
+    case 'h':
+      help();
+      exit(0);
+      break;
+    case '?':
+      break;
+    }
+  }
+  if (argc - optind < 3) {
+    help();
+    exit(1);
+  }
 
-  l = atoi(argv[3]);
+  /* TODO Error checking */
+  /* TODO Remove the l arg. It should be handled in run.sh */
+  side   = atof(argv[optind]);
+  l      = atoi(argv[optind+1]);
+  radius = atof(argv[optind+2]);
+  info   = Set_Parameters(side, radius);
 
   printf(HEADER,
 	 timestring,
@@ -48,7 +76,7 @@ int main(int argc, char* argv[])
   /* @ end */
 
   /* @ main_loop */
-  printf("Sim \t Gen \t nsp\t pop\n");
+  puts(COLS);
   for(i = 0; i <= info->number_generations; i++) {
     Stablish_Distances(progenitors, info);
     number_species = Count_Species(progenitors, info, sizes);
@@ -64,7 +92,6 @@ int main(int argc, char* argv[])
   Free_Population (offspring, info);
   gsl_rng_free (GLOBAL_RNG);
   free (info);
-
   Close_Files (&nspecies, &size, &distances);
   /* @ end */
 
