@@ -6,6 +6,12 @@
 #define COLS "Sim\tGen\tnsp\tpop"
 #define OPTSTRING "h"
 
+typedef struct {
+  float side;
+  float radius;
+  int sim_id;
+} config;
+
 extern gsl_rng *GLOBAL_RNG;
 
 /* @ main_rand */
@@ -18,49 +24,52 @@ void Setup_Rng(time_t *t) {
 /* @ end */
 
 void help() {
-  puts("Usage: main side radius");
-  puts("Arguments:");
-  puts("    side The side-length of the lattice.");
-  puts("  radius Maximum distance between reproducing individuals.");
+  puts("Usage: main SIDE RADIUS\n"
+       "Arguments:\n"
+       "    SIDE The side-length of the lattice.\n"
+       "  RADIUS Maximum distance between reproducing individuals.");
 }
 
-int main(int argc, char* argv[])
-{
-  FILE *nspecies, *distances, *size;
-  float side, radius;
-  Parameters info;
-  Population progenitors, offspring;
-  char *timestring, option;
-  int i, l,  number_species, sizes[1000];
-  time_t t;
+config Parse_Options (int argc, char **argv) {
+  char o;
+  config conf;
 
-  Setup_Rng(&t);
-  timestring = ctime(&t);
-
-  while ((option = getopt(argc, argv, OPTSTRING)) != -1) {
-    switch (option) {
+  while ((o = getopt(argc, argv, OPTSTRING)) != -1) {
+    switch (o) {
     case 'h':
       help();
       exit(0);
-      break;
-    case '?':
-      break;
     }
   }
+
   if (argc - optind < 3) {
     help();
     exit(1);
   }
 
-  /* TODO Error checking */
-  /* TODO Remove the l arg. It should be handled in run.sh */
-  side   = atof(argv[optind]);
-  l      = atoi(argv[optind+1]);
-  radius = atof(argv[optind+2]);
-  info   = Set_Parameters(side, radius);
+  conf.side   = atof(argv[optind]);
+  conf.sim_id = atoi(argv[optind+1]);
+  conf.radius = atof(argv[optind+2]);
+
+  return conf;
+}
+
+int main(int argc, char* argv[]) {
+  FILE *nspecies, *distances, *size;
+  Parameters info;
+  Population progenitors, offspring;
+  int i, l,  number_species, sizes[1000];
+  time_t t;
+  config conf;
+
+  Setup_Rng(&t);
+
+  conf = Parse_Options(argc, argv);
+  info = Set_Parameters(conf.side, conf.radius);
+  l = conf.sim_id;
 
   printf(HEADER,
-	 timestring,
+	 ctime(&t),
 	 info->genome_size,
 	 info->number_individuals,
 	 info->lattice_length,
@@ -78,10 +87,10 @@ int main(int argc, char* argv[])
   /* @ main_loop */
   puts(COLS);
   for(i = 0; i <= info->number_generations; i++) {
-    Stablish_Distances(progenitors, info);
-    number_species = Count_Species(progenitors, info, sizes);
-    Reproduction  (progenitors, offspring, info);
-    Write_Data(&nspecies, &size, &distances, sizes, number_species, i, l, progenitors, info);
+    Stablish_Distances (progenitors, info);
+    number_species = Count_Species (progenitors, info, sizes);
+    Reproduction (progenitors, offspring, info);
+    Write_Data (&nspecies, &size, &distances, sizes, number_species, i, l, progenitors, info);
     Write_Distance_Data (&distances, progenitors, i, l, info);
     Swap_Generations (&progenitors, &offspring);
   }
