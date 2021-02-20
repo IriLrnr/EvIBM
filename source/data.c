@@ -11,7 +11,7 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE ** position, int sizes[], 
 
   if (l == 1 && i % 100 == 0) {
     for (j = 0; j < info->population_size; j++) {
-      fprintf(position, "%d;%d;%f;%f;%d;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
+      fprintf(*position, "%d;%d;%f;%f;%d;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
     }
   }
 
@@ -23,7 +23,7 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE ** position, int sizes[], 
   } 
 }
 
-void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, Parameters info, int l)
+void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** position, Parameters info, int l)
 {
   char nome_arq[100] = "";
 
@@ -39,12 +39,12 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, Parameters i
   *distances = fopen (nome_arq, "w");  
   fputs ("sim;i;dg;ds\n", *distances);
 
-  sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/ṕosition/indloc_%02d.csv", info->radius, info->lattice_length, l);
+  sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/position/indloc_%02d.csv", info->radius, info->lattice_length, l);
   *position = fopen (nome_arq, "w");  
   fputs ("sim;i;x;y;sp;gen\n", *position);
 }
 
-void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances)
+void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** position)
 {
   fclose (*nspecies);
   fclose (*size);

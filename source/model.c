@@ -19,7 +19,7 @@ Parameters Set_Parameters (char *argv[])
 	info->genome_size            = 1500;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
 	info->number_generations     = 1000;
-	info->mutation               = 0.0025;
+	info->mutation               = 0.001;
 	info->dispersion             = 0.01;
 	info->min_neighboors         = 3;
 	info->max_increase           = 2;
@@ -36,7 +36,7 @@ Parameters Set_Parameters (char *argv[])
 /* @ end */
 
 /* @ Create_Offspring */
-void Create_Offspring (Population progenitors, Population offspring,  int baby, int focal, int other, int mate, Parameters info) 
+void Create_Offspring (Population progenitors, Population offspring, int baby, int focal, int other, int mate, Parameters info) 
 {
 	Offspring_Position (progenitors, offspring, baby, focal, info);
 	Offspring_Genome (progenitors, offspring, baby, other, mate, info);
