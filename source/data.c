@@ -1,12 +1,18 @@
 #include "../include/data.h"
 
-void Write_Data (FILE ** nspecies, FILE ** size, FILE ** distances, int sizes[], int number_species, int i, int l, Population progenitors, Parameters info) 
+void Write_Data (FILE ** nspecies, FILE ** size, FILE ** position, int sizes[], int number_species, int i, int l, Population progenitors, Parameters info) 
 {
   int j;
 
   if (i % 25 == 0) {
       //if (info->genome < 15000) FindSpecies (progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
+  }
+
+  if (l == 1 && i % 100 == 0) {
+    for (j = 0; j < info->population_size; j++) {
+      fprintf(position, "%d;%d;%f;%f;%d;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
+    }
   }
 
   fprintf (*nspecies, "%d;%d;%d;%d\n", i, number_species, info->population_size, l);
@@ -32,6 +38,10 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, Parameters i
   sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/distances/distances_%02d.csv", info->radius, info->lattice_length, l);
   *distances = fopen (nome_arq, "w");  
   fputs ("sim;i;dg;ds\n", *distances);
+
+  sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/ṕosition/indloc_%02d.csv", info->radius, info->lattice_length, l);
+  *position = fopen (nome_arq, "w");  
+  fputs ("sim;i;x;y;sp;gen\n", *position);
 }
 
 void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances)
@@ -39,6 +49,7 @@ void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances)
   fclose (*nspecies);
   fclose (*size);
   fclose (*distances);
+  fclose (*position);
 }
 
 void Write_Distance_Data (FILE ** distances, Population progenitors, int i, int l, Parameters info)
