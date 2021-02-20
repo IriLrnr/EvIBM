@@ -8,6 +8,7 @@ do
 		mkdir -p $dir/species
 		mkdir -p $dir/sizes
 		mkdir -p $dir/distances
+		mkdir -p $dir/position
 		echo "real;usr;sys" > $dir/performance_$l.txt
 
 		gcc -g -c main.c source/*.c -I /usr/include/gsl/
