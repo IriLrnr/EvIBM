@@ -263,8 +263,6 @@ compare.L.parameter <- function (L, n) {
   return (spp)
 }
 
-
-
 sizes.histogram <- function (L, g, c) {
   file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
   pop.info <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
@@ -337,3 +335,20 @@ equilibration.times <- function (interval) {
   colnames(equilibria.times) <- c("pop", "eq.times.mn", "eq.times.sd")
   return (equilibria.times)
 }
+
+plot.dgxds <- function(interval){
+  distance.info <- tibble()
+  for (f in interval) {
+    dist <- read.csv(paste0("./data/Completed/sizes_test_l100_varyr/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- cbind(dist[,-1], rep(f, nrow(dist)))
+    colnames(dist)[4] <- "variable"
+    distance.info <- rbind(distance.info, dist)
+  }
+  
+  plot.distances <- ggplot(distance.info) +
+                    geom_point(aes(x=ds, y=dg, color=variable)) +
+                    theme_bw() +
+                    theme.all
+  
+  return(plot.distances)
+  }

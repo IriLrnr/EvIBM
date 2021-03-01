@@ -2,6 +2,13 @@ library(gridExtra)
 
 source ("./R/func_and_def.R")
 
+# dg x ds
+
+R = c(5, 10, 15, 20, 30, 40, 50)
+dgxds <- plot.dgxds(5)
+dgxds
+
+
 # Plot species x time
 L = c(100, 120, 150, 180, 220, 200, 250, 300, 350)
 L.plot <- plot.L.parameter(create.L.tbl(L), "L")
