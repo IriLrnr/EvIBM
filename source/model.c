@@ -16,10 +16,10 @@ Parameters Set_Parameters (char *argv[])
 	info->child_population_size  = info->number_individuals;
 	info->radius                 = atof(argv[4]);
 	
-	info->genome_size            = 1500;
+	info->genome_size            = 150000;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
 	info->number_generations     = 1000;
-	info->mutation               = 0.0017;
+	info->mutation               = 0.00025;
 	info->dispersion             = 0.01;
 	info->min_neighboors         = 3;
 	info->max_increase           = 2;

@@ -46,14 +46,18 @@ int Verify_Distance (Population individuals, int i, int j, Parameters info, int 
 /* @ Calculate_Spatial_Distance */
 double Calculate_Spatial_Distance (Population individuals, int i, int j, Parameters info)
 {
-	double x, x0, y, y0, r;
-	
-	x0 = individuals[i]->x;
-	y0 = individuals[i]->y;
-	x = individuals[j]->x;
-	y = individuals[j]->y;
- 	
- 	return sqrt((x - x0) * (x - x0) + (y - y0) * (y - y0));
+	double dx, dy;
+
+	dx = fabs(individuals[i]->x - individuals[j]->x);
+	dy = fabs(individuals[i]->y - individuals[j]->y);
+
+	if (dx > info->lattice_length/2) 
+		dx = info->lattice_length - dx;
+
+	if (dy > info->lattice_width/2) 
+		dy = info->lattice_width - dy;
+
+ 	return sqrt(dx*dx + dy*dy);
 }
 /* @ end */
 
