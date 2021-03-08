@@ -37,7 +37,7 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** posi
 
   sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/distances/distances_%02d.csv", info->radius, info->lattice_length, l);
   *distances = fopen (nome_arq, "w");  
-  fputs ("sim;gen;i;spp;d\n", *distances);
+  fputs ("sim;gen;i;j;spp;d\n", *distances);
 
   sprintf (nome_arq, "./data/sizes_tests/%.f/%.f/position/indloc_%02d.csv", info->radius, info->lattice_length, l);
   *position = fopen (nome_arq, "w");  
@@ -73,15 +73,17 @@ void Write_Distance_Data (FILE ** distances, Population progenitors, int gen, in
       d = 0;
       d_dist = 0;
       spp = Find (progenitors, j);
-      for (k = 0; k != j && k < info->population_size; k++) {
-        if (Find (progenitors, k) == spp) {
-         if (Calculate_Spatial_Distance (progenitors, j, k, info) > d_dist) {
-            d = k;
-            d_dist = Calculate_Spatial_Distance (progenitors, j, k, info);
-         }  
+      for (k = 0; k < info->population_size; k++) {
+        if (k != j) {
+          if (Find (progenitors, k) == spp) {
+            if (Calculate_Spatial_Distance (progenitors, j, k, info) > d_dist) {
+              d = k;
+              d_dist = Calculate_Spatial_Distance (progenitors, j, k, info);
+            }  
+          }
         }
       }
-      fprintf(*distances, "%d;%d;%d;%d;%f\n", sim, gen, j, spp, d_dist);
+      fprintf(*distances, "%d;%d;%d;%d;%d;%f\n", sim, gen, j, d, spp, d_dist);
     }
   }
 }  

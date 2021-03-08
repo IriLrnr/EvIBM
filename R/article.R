@@ -2,8 +2,21 @@ library(gridExtra)
 
 source ("./R/func_and_def.R")
 
-# dg x ds
+# species diameter
+distance.info <- tibble()
+f = 5
+dist <- read.csv(paste0("./data/sizes_tests/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+#dist <- cbind(dist[,-1], rep(f, nrow(dist)))
+#colnames(dist)[4] <- "variable"
+distance.info <- rbind(distance.info, dist)
 
+diameter_boxplot <- ggplot(distance.info) +
+  geom_boxplot(aes(x=as.factor(spp), y=d, color=as.factor(spp))) +
+  theme_bw() +
+  theme.all +
+  theme(legend.position = "none")
+diameter_boxplot
+# dg x ds
 R = c(5, 10, 15, 20, 30, 40, 50)
 R = 5
 for (r in R) {
