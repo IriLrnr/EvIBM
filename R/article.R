@@ -5,9 +5,13 @@ source ("./R/func_and_def.R")
 # dg x ds
 
 R = c(5, 10, 15, 20, 30, 40, 50)
-dgxds <- plot.dgxds(5)
+R = 5
+for (r in R) {
+  dgxds <- plot.dgxds(r)
+  dgxds <- dgxds + ggtitle(paste("S =", r))
+  ggsave(paste0("./figs/sizes/dgxds_", r, ".png"), dgxds)
+}
 dgxds
-
 
 # Plot species x time
 L = c(100, 120, 150, 180, 220, 200, 250, 300, 350)

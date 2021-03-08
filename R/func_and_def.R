@@ -339,7 +339,7 @@ equilibration.times <- function (interval) {
 plot.dgxds <- function(interval){
   distance.info <- tibble()
   for (f in interval) {
-    dist <- read.csv(paste0("./data/Completed/sizes_test_l100_varyr/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- read.csv(paste0("./data/sizes_tests/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
     dist <- cbind(dist[,-1], rep(f, nrow(dist)))
     colnames(dist)[4] <- "variable"
     distance.info <- rbind(distance.info, dist)
