@@ -11,11 +11,14 @@ dist <- read.csv(paste0("./data/sizes_tests/", f, "/100/distances/distances_01.c
 distance.info <- rbind(distance.info, dist)
 
 diameter_boxplot <- ggplot(distance.info) +
-  geom_boxplot(aes(x=as.factor(spp), y=d, color=as.factor(spp))) +
+  geom_boxplot(aes(x=as.factor(spp), y=d, fill=as.factor(spp))) +
+  labs(x = "Species", y = "Species diameter") +
+  ggtitle(paste("S = 5 (B = 1500)")) +
   theme_bw() +
   theme.all +
   theme(legend.position = "none")
 diameter_boxplot
+ggsave("./figs/sizes/diameter_boxplot_s5.png", diameter_boxplot, width = 10)
 # dg x ds
 R = c(5, 10, 15, 20, 30, 40, 50)
 R = 5
