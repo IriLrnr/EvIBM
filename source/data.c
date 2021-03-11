@@ -68,7 +68,7 @@ void Write_Distance_Data (FILE ** distances, Population progenitors, int gen, in
   int j, k, d, spp;
   double d_dist;
 
-  if (gen == 180 || gen == 1000) {
+  if (gen == 180 || gen == info->number_generations) {
     for (j = 0; j < info->population_size; j++) {
       d = 0;
       d_dist = 0;

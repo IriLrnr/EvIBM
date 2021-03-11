@@ -33,12 +33,18 @@ int main(int argc, char* argv[])
 
   /* @ main_loop */
   printf("Sim \t Gen \t nsp\t pop\n");
+  number_species = -1;
   for(i = 0; i <= info->number_generations; i++) {
+    if (i % 25 == 0) {
+      printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
+    }
     Stablish_Distances(progenitors, info);
-    number_species = Count_Species(progenitors, info, sizes);
+    if (i == 180 || i == info->number_generations) number_species = Count_Species(progenitors, info, sizes);
     Reproduction  (progenitors, offspring, info);
-    Write_Data(&nspecies, &size, &position, sizes, number_species, i, l, progenitors, info);
-    Write_Distance_Data (&distances, progenitors, i, l, info);
+    if (i == 180 || i == info->number_generations) {
+      Write_Data(&nspecies, &size, &position, sizes, number_species, i, l, progenitors, info);
+      Write_Distance_Data (&distances, progenitors, i, l, info);
+    }
     Swap_Generations (&progenitors, &offspring);
   }
   /* @ end */
