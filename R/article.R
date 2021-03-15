@@ -3,22 +3,15 @@ library(gridExtra)
 source ("./R/func_and_def.R")
 
 # species diameter
-distance.info <- tibble()
-f = 5
-dist <- read.csv(paste0("./data/sizes_tests/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
-#dist <- cbind(dist[,-1], rep(f, nrow(dist)))
-#colnames(dist)[4] <- "variable"
-distance.info <- rbind(distance.info, dist)
+R = c(5, 10, 15, 20, 30, 40, 50)
+diameter.boxplot(R, gen)
 
-diameter_boxplot <- ggplot(distance.info) +
-  geom_boxplot(aes(x=as.factor(spp), y=d, fill=as.factor(spp))) +
-  labs(x = "Species", y = "Species diameter") +
-  ggtitle(paste("S = 5 (B = 1500)")) +
-  theme_bw() +
-  theme.all +
-  theme(legend.position = "none")
-diameter_boxplot
-ggsave("./figs/sizes/diameter_boxplot_s5.png", diameter_boxplot, width = 10)
+# d x S
+dxS.s <- diameter.vs.radius.scatter(R)
+ggsave("./figs/sizes/diameter/diameter_scatter_150k.png", dxS.s)
+dxS <- diameter.vs.radius(R)
+ggsave("./figs/sizes/diameter/diameter_150k.png", dxS)
+
 # dg x ds
 R = c(5, 10, 15, 20, 30, 40, 50)
 R = 5

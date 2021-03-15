@@ -351,4 +351,62 @@ plot.dgxds <- function(interval){
                     theme.all
   
   return(plot.distances)
+}
+
+diameter.boxplot <- function(interval, g){
+  for(f in interval){
+    distance.info <- tibble()
+    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+    #dist <- cbind(dist[,-1], rep(f, nrow(dist)))
+    #colnames(dist)[4] <- "variable"
+    distance.info <- rbind(distance.info, dist)
+    distance.info <- subset(distance.info, gen == g)
+    
+    diameter_boxplot <- ggplot(distance.info) +
+      geom_boxplot(aes(x=as.factor(spp), y=d, fill=as.factor(spp))) +
+      labs(x = "Species", y = "Species diameter") +
+      ggtitle(paste("S =", f, "(B = 150k)")) +
+      theme_bw() +
+      theme.all +
+      theme(legend.position = "none")
+    ggsave(paste0("./figs/sizes/diameter_boxplot_g", g, "_s", f, ".png"), diameter_boxplot, width = 10)
   }
+}
+
+diameter.vs.radius.scatter <- function (interval) {
+  mean.d.total <- tibble()
+  for(f in interval){
+    mean.d <- tibble()
+    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- subset(dist, gen == g)
+    mean.d <- aggregate(dist[,6], list(dist$spp), mean)
+    mean.d <- cbind(mean.d, rep(f, nrow(mean.d)))
+    colnames(mean.d) <- c("spp", "d", "S")
+    mean.d.total <- rbind(mean.d.total, mean.d)
+  }
+  mean.d.total <- subset(mean.d.total, d > 0)
+  
+  dxS <- ggplot (mean.d.total, aes(x=S, y=d)) +
+    geom_point() + theme_bw() + theme.all +
+    ggtitle("B = 150k") +
+    labs (x = "Radius", y = "Mean species diameter")
+  return(dxS)
+  }
+
+diameter.vs.radius <- function(interval){
+  diameters <- tibble()
+  for(f in interval){
+    mean.d <- vector()
+    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- subset(dist, gen == g)
+    dist <- subset(dist, d > 0)
+    mean.d <- c(mean(dist$d), f)
+    diameters <- rbind(diameters, mean.d)
+  }
+  colnames(diameters) <- c("d", "S")
+  dxS <- ggplot (diameters, aes(x=S, y=d)) +
+    geom_point() + theme_bw() + theme.all +
+    ggtitle("B = 150k") +
+    labs (x = "Radius", y = "Mean species diameter")
+  return(dxS)
+}
