@@ -373,7 +373,7 @@ diameter.boxplot <- function(interval, g){
   }
 }
 
-diameter.vs.radius.scatter <- function (interval) {
+diameter.vs.radius.scatter <- function (interval, g) {
   mean.d.total <- tibble()
   for(f in interval){
     mean.d <- tibble()
@@ -388,12 +388,12 @@ diameter.vs.radius.scatter <- function (interval) {
   
   dxS <- ggplot (mean.d.total, aes(x=S, y=d)) +
     geom_point() + theme_bw() + theme.all +
-    ggtitle("B = 150k") +
+    ggtitle(paste("gen =", g, "(B = 150k)")) +
     labs (x = "Radius", y = "Mean species diameter")
   return(dxS)
   }
 
-diameter.vs.radius <- function(interval){
+diameter.vs.radius <- function(interval, g){
   diameters <- tibble()
   for(f in interval){
     mean.d <- vector()
@@ -406,7 +406,7 @@ diameter.vs.radius <- function(interval){
   colnames(diameters) <- c("d", "S")
   dxS <- ggplot (diameters, aes(x=S, y=d)) +
     geom_point() + theme_bw() + theme.all +
-    ggtitle("B = 150k") +
+    ggtitle(paste("gen =", g, "(B = 150k)")) +
     labs (x = "Radius", y = "Mean species diameter")
   return(dxS)
 }

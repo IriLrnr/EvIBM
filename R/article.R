@@ -7,10 +7,15 @@ R = c(5, 10, 15, 20, 30, 40, 50)
 diameter.boxplot(R, gen)
 
 # d x S
-dxS.s <- diameter.vs.radius.scatter(R)
-ggsave("./figs/sizes/diameter/diameter_scatter_150k.png", dxS.s)
-dxS <- diameter.vs.radius(R)
-ggsave("./figs/sizes/diameter/diameter_150k.png", dxS)
+dxS.s <- diameter.vs.radius.scatter(R, 300)
+ggsave("./figs/sizes/diameter/diameter_scatter_300.png", dxS.s)
+dxS <- diameter.vs.radius(R, 300)
+ggsave("./figs/sizes/diameter/diameter_300.png", dxS)
+
+dxS.s <- diameter.vs.radius.scatter(R, 180)
+ggsave("./figs/sizes/diameter/diameter_scatter_180.png", dxS.s)
+dxS <- diameter.vs.radius(R, 180)
+ggsave("./figs/sizes/diameter/diameter_180.png", dxS)
 
 # dg x ds
 R = c(5, 10, 15, 20, 30, 40, 50)
