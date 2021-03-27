@@ -393,11 +393,11 @@ diameter.vs.radius.scatter <- function (interval, g) {
   return(dxS)
   }
 
-diameter.vs.radius <- function(interval, g){
+diameter.vs.radius <- function(interval, g, L){
   diameters <- tibble()
   for(f in interval){
     mean.d <- vector()
-    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/", L, "/distances/distances_01.csv"), header = T, sep = ";")
     dist <- subset(dist, gen == g)
     dist <- subset(dist, d > 0)
     mean.d <- c(mean(dist$d), f)
@@ -408,5 +408,62 @@ diameter.vs.radius <- function(interval, g){
     geom_point() + theme_bw() + theme.all +
     ggtitle(paste("gen =", g, "(B = 150k)")) +
     labs (x = "Radius", y = "Mean species diameter")
+  return(dxS)
+}
+
+diameter.vs.radius <- function(interval, g, L){
+  diameters <- tibble()
+  for(f in interval){
+    mean.d <- vector()
+    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/", L, "/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- subset(dist, gen == g)
+    dist <- subset(dist, d > 0)
+    mean.d <- c(mean(dist$d), f)
+    diameters <- rbind(diameters, mean.d)
+  }
+  colnames(diameters) <- c("d", "S")
+  dxS <- ggplot (diameters, aes(x=S, y=d)) +
+    geom_point() + theme_bw() + theme.all +
+    ggtitle(paste("gen =", g, "(B = 150k)")) +
+    labs (x = "Radius", y = "Mean species diameter")
+  return(dxS)
+}
+
+diameter.vs.radius.complete <- function(){
+  g = 300
+  diameters <- tibble()
+  R100 <- c(5, 10, 15, 20, 30, 40, 50)
+  for(f in R100){
+    mean.d <- vector()
+    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- subset(dist, gen == g)
+    dist <- subset(dist, d > 0)
+    mean.d <- c(mean(dist$d), f)
+    diameters <- rbind(diameters, mean.d)
+  }
+  diameters <- cbind (diameters, rep(100, nrow(diameters)))
+  colnames(diameters) <- c("d", "S", "L")
+  
+  diameters.50 <- tibble()
+  R50 <- c(3, 5, 7, 10, 12, 15, 20, 25)
+  for(f in R50){
+    mean.d <- vector()
+    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/50/distances/distances_01.csv"), header = T, sep = ";")
+    dist <- subset(dist, gen == g)
+    dist <- subset(dist, d > 0)
+    mean.d <- c(mean(dist$d), f)
+    diameters.50 <- rbind(diameters.50, mean.d)
+  }
+  diameters.50 <- cbind (diameters.50, rep(50, nrow(diameters.50)))
+  colnames(diameters.50) <- c("d", "S", "L")
+  
+  
+  diameters <- rbind(diameters.50, diameters)
+  
+  dxS <- ggplot (diameters, aes(x=S, y=d, color=factor(L))) +
+    geom_point() + theme_bw() + theme.all +
+    ggtitle(paste("gen =", g, "(B = 150k)")) +
+    labs (x = "Radius", y = "Mean species diameter", color = "L")
+  dxS
   return(dxS)
 }

@@ -1,8 +1,8 @@
 #!/bin/sh
 
-for r in 5 10 20 30 40 50 60 70 80 90 100
+for r in 3 7 12 25
 do
-	for l in 200
+	for l in 100
 	do
 		dir=./data/sizes_tests//$r/$l
 		mkdir -p $dir/species
@@ -17,7 +17,6 @@ do
 		for i in $(seq -f "%02g" 1)
 		do 
 			/usr/bin/time -o ./data/sizes_tests/$r/$l/performance_$l.txt -a -f "%E; %U; %S" ./out 4 $l $i $r
-			#gdb out
 		done
 	done
 done

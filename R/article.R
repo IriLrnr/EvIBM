@@ -3,7 +3,7 @@ library(gridExtra)
 source ("./R/func_and_def.R")
 
 # species diameter
-R = c(5, 10, 15, 20, 30, 40, 50)
+R <- c(5, 10, 15, 20, 30, 40, 50)
 diameter.boxplot(R, gen)
 
 # d x S
@@ -16,6 +16,10 @@ dxS.s <- diameter.vs.radius.scatter(R, 180)
 ggsave("./figs/sizes/diameter/diameter_scatter_180.png", dxS.s)
 dxS <- diameter.vs.radius(R, 180)
 ggsave("./figs/sizes/diameter/diameter_180.png", dxS)
+
+#with other values
+dxS <- diameter.vs.radius.complete()
+ggsave("./figs/sizes/diameter/diameter.png", dxS)
 
 # dg x ds
 R = c(5, 10, 15, 20, 30, 40, 50)
