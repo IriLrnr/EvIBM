@@ -1,8 +1,8 @@
 #!/bin/sh
 
-for r in 3 7 12 25
+for r in 3 7 12 25 60 70 80 90 100
 do
-	for l in 100
+	for l in 200
 	do
 		dir=./data/sizes_tests//$r/$l
 		mkdir -p $dir/species
