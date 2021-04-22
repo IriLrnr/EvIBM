@@ -411,54 +411,37 @@ diameter.vs.radius <- function(interval, g, L){
   return(dxS)
 }
 
-diameter.vs.radius <- function(interval, g, L){
-  diameters <- tibble()
-  for(f in interval){
-    mean.d <- vector()
-    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/", L, "/distances/distances_01.csv"), header = T, sep = ";")
-    dist <- subset(dist, gen == g)
-    dist <- subset(dist, d > 0)
-    mean.d <- c(mean(dist$d), f)
-    diameters <- rbind(diameters, mean.d)
-  }
-  colnames(diameters) <- c("d", "S")
-  dxS <- ggplot (diameters, aes(x=S, y=d)) +
-    geom_point() + theme_bw() + theme.all +
-    ggtitle(paste("gen =", g, "(B = 150k)")) +
-    labs (x = "Radius", y = "Mean species diameter")
-  return(dxS)
-}
-
 diameter.vs.radius.complete <- function(){
   g = 300
   diameters <- tibble()
-  R100 <- c(5, 10, 15, 20, 30, 40, 50)
-  for(f in R100){
-    mean.d <- vector()
-    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
-    dist <- subset(dist, gen == g)
-    dist <- subset(dist, d > 0)
-    mean.d <- c(mean(dist$d), f)
-    diameters <- rbind(diameters, mean.d)
+  L = c(50, 75, 100, 125, 150, 175, 200)
+  R <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50)
+  for (l in L) {
+    if (l == 75 || l == 125 || l == 150) {
+      R <- c(3, 5, 7, 12)
+    }
+    if (l == 175) {
+      R <- c(3, 5, 7)
+    }
+    if (l == 50) {
+      R <- c(3, 5, 7, 10, 12, 15, 20, 25)
+    }
+    if (l == 200) {
+      R <- c(3, 5, 10, 20, 30, 40, 50)
+    }
+    diameters.temp <- tibble()
+    for(r in R){
+      mean.d <- vector()
+      dist <- read.csv(paste0("./data/Completed/diameter/", r, "/", l, "/distances/distances_01.csv"), header = T, sep = ";")
+      dist <- subset(dist, gen == g)
+      dist <- subset(dist, d > 0)
+      mean.d <- c(mean(dist$d), r)
+      diameters.temp <- rbind(diameters.temp, mean.d)
+    }
+    diameters.temp <- cbind (diameters.temp, rep(l, nrow(diameters.temp)))
+    colnames(diameters.temp) <- c("d", "S", "L")
+    diameters <- rbind(diameters, diameters.temp)
   }
-  diameters <- cbind (diameters, rep(100, nrow(diameters)))
-  colnames(diameters) <- c("d", "S", "L")
-  
-  diameters.50 <- tibble()
-  R50 <- c(3, 5, 7, 10, 12, 15, 20, 25)
-  for(f in R50){
-    mean.d <- vector()
-    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/50/distances/distances_01.csv"), header = T, sep = ";")
-    dist <- subset(dist, gen == g)
-    dist <- subset(dist, d > 0)
-    mean.d <- c(mean(dist$d), f)
-    diameters.50 <- rbind(diameters.50, mean.d)
-  }
-  diameters.50 <- cbind (diameters.50, rep(50, nrow(diameters.50)))
-  colnames(diameters.50) <- c("d", "S", "L")
-  
-  
-  diameters <- rbind(diameters.50, diameters)
   
   dxS <- ggplot (diameters, aes(x=S, y=d, color=factor(L))) +
     geom_point() + theme_bw() + theme.all +
@@ -467,3 +450,42 @@ diameter.vs.radius.complete <- function(){
   dxS
   return(dxS)
 }
+
+sp.vs.radius.complete <- function(){
+  g = 300
+  spp <- tibble()
+  L = c(50, 75, 100, 125, 150, 175, 200)
+  R <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50)
+  for (l in L) {
+    if (l == 75 || l == 125 || l == 150) {
+      R <- c(3, 5, 7, 12)
+    }
+    if (l == 175) {
+      R <- c(3, 5, 7)
+    }
+    if (l == 50) {
+      R <- c(3, 5, 7, 10, 12, 15, 20, 25)
+    }
+    if (l == 200) {
+      R <- c(3, 5, 10, 20, 30, 40, 50)
+    }
+    spp.temp <- tibble()
+    for(r in R){
+      numsp <- read.csv(paste0("./data/Completed/diameter/", r, "/", l, "/species/numsp_01.csv"), header = T, sep = ";")
+      numsp <- subset(numsp, gen == g)
+      numsp.insert <- c(numsp$sp, r)
+      spp.temp <- rbind(spp.temp, numsp.insert)
+    }
+    spp.temp <- cbind (spp.temp, rep(l, nrow(spp.temp)))
+    colnames(spp.temp) <- c("sp", "S", "L")
+    spp <- rbind(spp, spp.temp)
+  }
+  
+  spxS <- ggplot (spp, aes(x=S, y=sp, color=factor(L))) +
+    geom_point() + theme_bw() + theme.all +
+    ggtitle(paste("gen =", g, "(B = 150k)")) +
+    labs (x = "Radius", y = "Number spp", color = "L")
+  spxS
+  return(spxS)
+}
+

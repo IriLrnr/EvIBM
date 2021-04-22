@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for r in 3 5 7 12 15 20 25 50
+for r in 10
 do
 	for l in 75 125 150 175
 	do

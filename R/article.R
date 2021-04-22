@@ -2,6 +2,16 @@ library(gridExtra)
 
 source ("./R/func_and_def.R")
 
+#with other values
+dxS <- diameter.vs.radius.complete()
+dxS
+ggsave("./figs/sizes/diameter/diameter_cpmplete_180.png", dxS)
+
+# spp x S
+spxS <- sp.vs.radius.complete()
+spxS
+ggsave("./figs/sizes/diameter/spp_complete.png", spxS)
+
 # species diameter
 R <- c(5, 10, 15, 20, 30, 40, 50)
 diameter.boxplot(R, gen)
@@ -16,10 +26,6 @@ dxS.s <- diameter.vs.radius.scatter(R, 180)
 ggsave("./figs/sizes/diameter/diameter_scatter_180.png", dxS.s)
 dxS <- diameter.vs.radius(R, 180)
 ggsave("./figs/sizes/diameter/diameter_180.png", dxS)
-
-#with other values
-dxS <- diameter.vs.radius.complete()
-ggsave("./figs/sizes/diameter/diameter.png", dxS)
 
 # dg x ds
 R = c(5, 10, 15, 20, 30, 40, 50)
@@ -60,7 +66,7 @@ for (i in 1:n) {
   ggsave(paste0("./figs/sizes/hist_ln_", g[i], ".png"), hist, height = 6)
 }
 
-# Grouping analysis - see if 4 times N=1000 is equivalent to one 4000
+  # Grouping analysis - see if 4 times N=1000 is equivalent to one 4000
 
 # between 4 * 1000 and 4000
 
