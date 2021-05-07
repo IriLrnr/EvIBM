@@ -4,17 +4,27 @@ library(RColorBrewer)
 library(reshape2)
 library(viridis)
 library(MASS)
+library(gridExtra)
+library(readr)
+library(stringr)
+library(data.table)
 
-theme.all <- theme(text = element_text(size=10, family="Helvetica"),
+
+# A theme for all plots to look alike
+theme.all <- theme(text             = element_text(size=10, family="Helvetica"),
+                   title            = element_text(size = 9),
+                   legend.text      = element_text(size=9),
+                   legend.margin    = margin(-1, 1, -1, -1),
                    panel.grid.minor = element_blank(),
                    panel.grid.major = element_blank(),
-                   title = element_text(size = 9),
-                   legend.text=element_text(size=9),
-                   legend.margin = margin(-1, 1, -1, -1),
-                   plot.margin = unit(c(0.1,0.5,0.1,0.1), "cm"))
+                   plot.margin      = unit(c(0.1,0.5,0.1,0.1), "cm"))
 
+# definitions used
 versions <- c("V0", "V1", "V2")
-genomes <- c(150, 1500, 15000, 150000)
+genomes  <- c(150, 1500, 15000, 150000)
+L        <- c(50, 75, 100, 125, 150, 175, 200)
+R        <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50) 
+
 
 create.tbl <- function (interval, type) {
   spp.tbl <- tibble()
@@ -336,23 +346,6 @@ equilibration.times <- function (interval) {
   return (equilibria.times)
 }
 
-plot.dgxds <- function(interval){
-  distance.info <- tibble()
-  for (f in interval) {
-    dist <- read.csv(paste0("./data/sizes_tests/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
-    dist <- cbind(dist[,-1], rep(f, nrow(dist)))
-    colnames(dist)[4] <- "variable"
-    distance.info <- rbind(distance.info, dist)
-  }
-  
-  plot.distances <- ggplot(distance.info) +
-                    geom_point(aes(x=ds, y=dg, color=variable)) +
-                    theme_bw() +
-                    theme.all
-  
-  return(plot.distances)
-}
-
 diameter.boxplot <- function(interval, g){
   for(f in interval){
     distance.info <- tibble()
@@ -362,6 +355,9 @@ diameter.boxplot <- function(interval, g){
     distance.info <- rbind(distance.info, dist)
     distance.info <- subset(distance.info, gen == g)
     
+    #spp <- seq(1, nrow(distance.info), 1)
+    #distance.info <- cbind(distance.info[,-5], spp)
+    
     diameter_boxplot <- ggplot(distance.info) +
       geom_boxplot(aes(x=as.factor(spp), y=d, fill=as.factor(spp))) +
       labs(x = "Species", y = "Species diameter") +
@@ -369,96 +365,108 @@ diameter.boxplot <- function(interval, g){
       theme_bw() +
       theme.all +
       theme(legend.position = "none")
-    ggsave(paste0("./figs/sizes/diameter_boxplot_g", g, "_s", f, ".png"), diameter_boxplot, width = 10)
+    plot(diameter_boxplot)
+    #ggsave(paste0("./figs/sizes/diameter_boxplot_g", g, "_s", f, ".png"), diameter_boxplot, width = 10)
   }
 }
 
-diameter.vs.radius.scatter <- function (interval, g) {
-  mean.d.total <- tibble()
-  for(f in interval){
-    mean.d <- tibble()
-    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
-    dist <- subset(dist, gen == g)
-    mean.d <- aggregate(dist[,6], list(dist$spp), mean)
-    mean.d <- cbind(mean.d, rep(f, nrow(mean.d)))
-    colnames(mean.d) <- c("spp", "d", "S")
-    mean.d.total <- rbind(mean.d.total, mean.d)
-  }
-  mean.d.total <- subset(mean.d.total, d > 0)
-  
-  dxS <- ggplot (mean.d.total, aes(x=S, y=d)) +
-    geom_point() + theme_bw() + theme.all +
-    ggtitle(paste("gen =", g, "(B = 150k)")) +
-    labs (x = "Radius", y = "Mean species diameter")
-  return(dxS)
-  }
+get.variables <- function (files, begin, end) {
+  variables           <- lapply(files, str_replace, begin, "")
+  variables           <- lapply(variables, str_replace, end, "")
+  variables           <- lapply(variables, str_replace, "/", ", ")
+  names(variables)    <- files
+  variable.list       <- lapply(variables, function(x){
+      return (transpose(as.data.frame(as.numeric(strsplit(x, split = ", ", fixed = TRUE)[[1]]))))
+    })
+  return (variable.list)
+} #ok
 
-diameter.vs.radius <- function(interval, g, L){
-  diameters <- tibble()
-  for(f in interval){
-    mean.d <- vector()
-    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/", L, "/distances/distances_01.csv"), header = T, sep = ";")
-    dist <- subset(dist, gen == g)
-    dist <- subset(dist, d > 0)
-    mean.d <- c(mean(dist$d), f)
-    diameters <- rbind(diameters, mean.d)
-  }
-  colnames(diameters) <- c("d", "S")
-  dxS <- ggplot (diameters, aes(x=S, y=d)) +
-    geom_point() + theme_bw() + theme.all +
-    ggtitle(paste("gen =", g, "(B = 150k)")) +
-    labs (x = "Radius", y = "Mean species diameter")
-  return(dxS)
-}
-
-diameter.vs.radius.complete <- function(){
-  g = 300
-  diameters <- tibble()
-  L = c(50, 75, 100, 125, 150, 175, 200)
-  R <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50)
-  for (l in L) {
-    if (l == 75 || l == 125 || l == 150) {
-      R <- c(3, 5, 7, 12)
-    }
-    if (l == 175) {
-      R <- c(3, 5, 7)
-    }
-    if (l == 50) {
-      R <- c(3, 5, 7, 10, 12, 15, 20, 25)
-    }
-    if (l == 200) {
-      R <- c(3, 5, 10, 20, 30, 40, 50)
-    }
-    diameters.temp <- tibble()
-    for(r in R){
-      mean.d <- vector()
-      dist <- read.csv(paste0("./data/Completed/diameter/", r, "/", l, "/distances/distances_01.csv"), header = T, sep = ";")
-      dist <- subset(dist, gen == g)
-      dist <- subset(dist, d > 0)
-      mean.d <- c(mean(dist$d), r)
-      diameters.temp <- rbind(diameters.temp, mean.d)
-    }
-    diameters.temp <- cbind (diameters.temp, rep(l, nrow(diameters.temp)))
-    colnames(diameters.temp) <- c("d", "S", "L")
-    diameters <- rbind(diameters, diameters.temp)
-  }
-  
+plot.dxS <- function (diameters) {
   dxS <- ggplot (diameters, aes(x=S, y=d, color=factor(L))) +
+    stat_smooth(data = subset(diameters, (S/L < 0.1)), method='lm', formula = y~x, color="black", size=0.5, se = F, fullrange = T) +
     geom_point() + theme_bw() + theme.all +
+    geom_errorbar(aes(ymin=d-sd, ymax=d+sd), width=.2) +
+    ylim(0,max(diameters$d+diameters$sd))+
     ggtitle(paste("gen =", g, "(B = 150k)")) +
+    scale_color_viridis_d() +
     labs (x = "Radius", y = "Mean species diameter", color = "L")
-  dxS
-  return(dxS)
-}
+} #ok
+
+diameter.vs.radius.complete <- function(g){
+  # read all files used in plot
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()distances_01.csv$",     # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+                      
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/distances/distances_01.csv")
+  
+  # read all files
+  diameters.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(diameters.list) <- files
+
+  # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
+  diameters.g <- lapply(diameters.list, subset, gen == g & d > 0, 6)
+  diameters.g <- lapply (diameters.g, sapply, as.numeric)
+  
+  # Take mean and sd from each table
+  mean.sd.d <- lapply(diameters.list, function(x) {
+                  out <- subset(x, gen == g & d > 0, 6)
+                  out <- sapply (out, as.numeric)
+                return (transpose(as.data.frame(c(mean(out), sd(out)))))})
+  
+  # unify values and variables 
+  diameters <- do.call(rbind, Map(data.frame, mean=mean.sd.d, R=variables))
+  colnames(diameters) <- c("d", "sd", "S", "L")
+  
+  # plot the graph and return
+  return(plot.dxS(diameters))
+} #ok
 
 sp.vs.radius.complete <- function(){
+  # read all files used in plot
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()numsp_01.csv$",         # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+  
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/species/numsp_01.csv")
+  
+  Y<-grep(".*()numsp_01.csv$", files, value = TRUE)
+  # read all files
+  numsp.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(numsp.list) <- files
+  
+  # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
+  diameters.g <- lapply(diameters.list, subset, (gen == g & d > 0), 6)
+  diameters.g <- lapply (diameters.g, sapply, as.numeric)
+  
+  # Take mean and sd from each table
+  mean.sd.d <- lapply(diameters.list, function(x) {
+    out <- subset(x, gen == g & d > 0, 6)
+    out <- sapply (out, as.numeric)
+    return (transpose(as.data.frame(c(mean(out), sd(out)))))})
+  
+  # unify values and variables 
+  diameters <- do.call(rbind, Map(data.frame, mean=mean.sd.d, R=variables))
+  colnames(diameters) <- c("d", "sd", "S", "L")
+  
+  # plot the graph and return
+  return(plot.dxS(diameters))
+  
+  
   g = 300
   spp <- tibble()
   L = c(50, 75, 100, 125, 150, 175, 200)
   R <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50)
+  
   for (l in L) {
     if (l == 75 || l == 125 || l == 150) {
-      R <- c(3, 5, 7, 12)
+      R <- c(3, 5, 7, 10, 12, 15)
     }
     if (l == 175) {
       R <- c(3, 5, 7)

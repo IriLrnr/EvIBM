@@ -1,41 +1,19 @@
-library(gridExtra)
-
-source ("./R/func_and_def.R")
+source ("./R/functions.R")
 
 #with other values
-dxS <- diameter.vs.radius.complete()
+g   <- 180
+dxS <- diameter.vs.radius.complete(g)
 dxS
-ggsave("./figs/sizes/diameter/diameter_cpmplete_180.png", dxS)
+ggsave(paste0("./figs/sizes/diameter/diameter_complete_", g, ".png"), dxS)
 
 # spp x S
 spxS <- sp.vs.radius.complete()
 spxS
-ggsave("./figs/sizes/diameter/spp_complete.png", spxS)
+ggsave("./figs/sizes/diameter/diameter_complete_", g, ".png"), spxS)
 
 # species diameter
 R <- c(5, 10, 15, 20, 30, 40, 50)
 diameter.boxplot(R, gen)
-
-# d x S
-dxS.s <- diameter.vs.radius.scatter(R, 300)
-ggsave("./figs/sizes/diameter/diameter_scatter_300.png", dxS.s)
-dxS <- diameter.vs.radius(R, 300)
-ggsave("./figs/sizes/diameter/diameter_300.png", dxS)
-
-dxS.s <- diameter.vs.radius.scatter(R, 180)
-ggsave("./figs/sizes/diameter/diameter_scatter_180.png", dxS.s)
-dxS <- diameter.vs.radius(R, 180)
-ggsave("./figs/sizes/diameter/diameter_180.png", dxS)
-
-# dg x ds
-R = c(5, 10, 15, 20, 30, 40, 50)
-R = 5
-for (r in R) {
-  dgxds <- plot.dgxds(r)
-  dgxds <- dgxds + ggtitle(paste("S =", r))
-  ggsave(paste0("./figs/sizes/dgxds_", r, ".png"), dgxds)
-}
-dgxds
 
 # Plot species x time
 L = c(100, 120, 150, 180, 220, 200, 250, 300, 350)
