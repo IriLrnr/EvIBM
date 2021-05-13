@@ -12,6 +12,11 @@ spxS <- sp.vs.radius.complete()
 spxS
 ggsave(paste0("./figs/sizes/diameter/spp_s25_", g, ".png"), spxS)
 
+#regression
+reg <- regression.S(g)
+reg
+ggsave(paste0("./figs/sizes/diameter/regression_", g, ".png"), reg)
+
 # estamos organizados até aqui!
 
 # species diameter

@@ -22,9 +22,6 @@ theme.all <- theme(text             = element_text(size=10, family="Helvetica"),
 # definitions used
 versions <- c("V0", "V1", "V2")
 genomes  <- c(150, 1500, 15000, 150000)
-L        <- c(50, 75, 100, 125, 150, 175, 200)
-R        <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50) 
-
 
 create.tbl <- function (interval, type) {
   spp.tbl <- tibble()
@@ -416,7 +413,7 @@ diameter.data <- function () {
   
   return(do.call(rbind, Map(data.frame, diameters.list, variables.column)))
   
-}
+} # ok
 
 regression.L <- function(data) {
   Smax <- sort(unique(data$S))
@@ -432,15 +429,26 @@ regression.L <- function(data) {
   }
   colnames(regressions) <- c("intercept", "slope", "adjusted.R.squared", "Smax", "L")
   return (regressions)
-}
+} # not ok
 
-regression.S <- function () {
+regression.S <- function (g) {
   data <- diameter.data()
+  data <- subset(data, gen == g)
   by.L <- split (data, data$L)
   
   all.regs <- lapply (by.L, regression.L)
-  all.regs.all.L <- regression.L(data) 
-  all.regs.all.L <- all.regs.all.L[,-5]  
+  reg.data <- do.call(rbind, all.regs)
+  
+  regression.plot <- ggplot(reg.data, aes(Smax, adjusted.R.squared, color = as.factor(L))) +
+                     geom_point(size=3, alpha = 0.7) + theme_bw() + theme.all +
+                     ggtitle("Smax") +
+                     scale_y_continuous(breaks = seq(0, 0.85, 0.1)) +
+                     scale_x_continuous(breaks = unique(reg.data$Smax)) +
+                     scale_color_viridis_d() +
+                     labs (x = "Smax", y = "R²", color = "L")
+  regression.plot
+  #all.regs.all.L <- regression.L(data) #regs for all L
+  #all.regs.all.L <- all.regs.all.L[,-5]  
 }
 
 plot.dxS <- function (diameters) {
@@ -450,7 +458,6 @@ plot.dxS <- function (diameters) {
     geom_errorbar(aes(ymin=d-sd, ymax=d+sd), width=.2) +
     scale_x_continuous(breaks = seq(0,25,5)) +
     scale_y_continuous(breaks = seq(0, 200, 25), limits = c(0, max(diameters$d+diameters$sd))) +
-    ggtitle(paste("gen =", g, "(B = 150k)")) +
     scale_color_viridis_d() +
     labs (x = "Radius", y = "Mean species diameter", color = "L")
 } #ok
@@ -507,8 +514,7 @@ sp.vs.radius.complete <- function(){
   spxS <- ggplot (species, aes(x=S, y=sp, color=factor(L))) +
     geom_point() + theme_bw() + theme.all +
     scale_color_viridis_d() +
-    ggtitle(paste("gen =", g, "(B = 150k)")) +
-    labs (x = "Radius", y = "Number spp", color = "L")
+    labs (x = "S", y = "Number of Species", color = "L")
   spxS
   return(spxS)
 } # quase ok
