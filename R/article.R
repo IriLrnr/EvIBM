@@ -1,19 +1,22 @@
 source ("./R/functions.R")
 
-#with other values
-g   <- 180
+g <- 300
+
+# Diameters x S
 dxS <- diameter.vs.radius.complete(g)
 dxS
-ggsave(paste0("./figs/sizes/diameter/diameter_complete_", g, ".png"), dxS)
+ggsave(paste0("./figs/sizes/diameter/diameter_s25_", g, ".png"), dxS)
 
 # spp x S
 spxS <- sp.vs.radius.complete()
 spxS
-ggsave("./figs/sizes/diameter/diameter_complete_", g, ".png"), spxS)
+ggsave(paste0("./figs/sizes/diameter/spp_s25_", g, ".png"), spxS)
+
+# estamos organizados até aqui!
 
 # species diameter
 R <- c(5, 10, 15, 20, 30, 40, 50)
-diameter.boxplot(R, gen)
+diameter.boxplot(R, g) # automatizar o diametro em uma lista de ggplots?
 
 # Plot species x time
 L = c(100, 120, 150, 180, 220, 200, 250, 300, 350)
@@ -74,4 +77,19 @@ for (i in 1:n) {
 }
 compared.Lplot_1x12 <- compare.L.parameter(c(100, 350), c(12,1))
 ggsave("./figs/sizes/compared/nspp_compared_1x12.png", compared.Lplot_1x12)
+
+
+
+######### temp #############
+
+# Example:
+x=rep(seq(1,20),10)
+y=rnorm(length(x),x, rep(2,length(x)))
+plot(y~x)
+lin.reg = lm(y~x) #linear regression
+sum.lin.reg=summary(lin.reg)
+
+sum.lin.reg$coefficients[1] # intercept
+sum.lin.reg$coefficients[2] # slope
+sum.lin.reg$adj.r.squared   #adjusted R-squared
 

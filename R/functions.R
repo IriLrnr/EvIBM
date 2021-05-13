@@ -30,7 +30,7 @@ create.tbl <- function (interval, type) {
   spp.tbl <- tibble()
   sumario <- tibble()
   for(f in interval) {
-    file.names <- paste0("./data/test_cp/", type, "/", f, "/species/", dir(paste0("./data/test_cp/", type, "/", f, "/species/"))[])
+    file.names <- paste0("./data/Completed/test_cp/", type, "/", f, "/species/", dir(paste0("./data/test_cp/", type, "/", f, "/species/"))[])
     number.spp <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
     
     # Read data
@@ -346,30 +346,41 @@ equilibration.times <- function (interval) {
   return (equilibria.times)
 }
 
-diameter.boxplot <- function(interval, g){
-  for(f in interval){
-    distance.info <- tibble()
-    dist <- read.csv(paste0("./data/Completed/diameter/", f, "/100/distances/distances_01.csv"), header = T, sep = ";")
-    #dist <- cbind(dist[,-1], rep(f, nrow(dist)))
-    #colnames(dist)[4] <- "variable"
-    distance.info <- rbind(distance.info, dist)
-    distance.info <- subset(distance.info, gen == g)
-    
-    #spp <- seq(1, nrow(distance.info), 1)
-    #distance.info <- cbind(distance.info[,-5], spp)
-    
-    diameter_boxplot <- ggplot(distance.info) +
-      geom_boxplot(aes(x=as.factor(spp), y=d, fill=as.factor(spp))) +
-      labs(x = "Species", y = "Species diameter") +
-      ggtitle(paste("S =", f, "(B = 150k)")) +
-      theme_bw() +
-      theme.all +
-      theme(legend.position = "none")
-    plot(diameter_boxplot)
-    #ggsave(paste0("./figs/sizes/diameter_boxplot_g", g, "_s", f, ".png"), diameter_boxplot, width = 10)
-  }
+plot.boxplot <- function (diameters) {
+  p <- ggplot(diameters) +
+    geom_boxplot(aes(x=as.factor(spp), y=d, fill=as.factor(spp))) +
+    labs(x = "Species", y = "Species diameter") +
+    ggtitle(paste("oi", "(B = 150k)")) +
+    theme_bw() +
+    theme.all +
+    theme(legend.position = "none")
+  return (p)
 }
 
+diameter.boxplot <- function (interval, g){
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()distances_01.csv$",     # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/distances/distances_01.csv")
+  
+  diameters.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(diameters.list) <- files
+  
+  rep (variables[[i]][1], 3)
+  
+  for (i in names(diameters.list)) {
+    diameters.list[[i]] <- cbind(diameters.list[[i]], rep(variables[[i]][1], nrow(diameters.list[[i]])), rep(variables[[i]][2], nrow(diameters.list[[i]]))) 
+  }
+  
+  diameters.list <- lapply (diameters.list, apply )
+  
+  plots <- lapply(diameters.list, plot.boxplot)
+}
+
+# Modified and better functions
 get.variables <- function (files, begin, end) {
   variables           <- lapply(files, str_replace, begin, "")
   variables           <- lapply(variables, str_replace, end, "")
@@ -381,24 +392,12 @@ get.variables <- function (files, begin, end) {
   return (variable.list)
 } #ok
 
-plot.dxS <- function (diameters) {
-  dxS <- ggplot (diameters, aes(x=S, y=d, color=factor(L))) +
-    stat_smooth(data = subset(diameters, (S/L < 0.1)), method='lm', formula = y~x, color="black", size=0.5, se = F, fullrange = T) +
-    geom_point() + theme_bw() + theme.all +
-    geom_errorbar(aes(ymin=d-sd, ymax=d+sd), width=.2) +
-    ylim(0,max(diameters$d+diameters$sd))+
-    ggtitle(paste("gen =", g, "(B = 150k)")) +
-    scale_color_viridis_d() +
-    labs (x = "Radius", y = "Mean species diameter", color = "L")
-} #ok
-
-diameter.vs.radius.complete <- function(g){
+diameter.data <- function () {
   # read all files used in plot
   files <- list.files(path       = "./data/Completed/diameter", # directory to search within
                       pattern    = ".*()distances_01.csv$",     # regex pattern
                       recursive  = TRUE,                        # search subdirectories
                       full.names = TRUE)                        # return the full path
-                      
   
   # extracts S and L and store in list
   variables <- get.variables(files, "./data/Completed/diameter/", "/distances/distances_01.csv")
@@ -406,14 +405,72 @@ diameter.vs.radius.complete <- function(g){
   # read all files
   diameters.list <- lapply(files, read.csv, header = T, sep = ";")
   names(diameters.list) <- files
-
-  # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
-  diameters.g <- lapply(diameters.list, subset, gen == g & d > 0, 6)
-  diameters.g <- lapply (diameters.g, sapply, as.numeric)
   
+  # Exclude unused variables and 
+  var.size <- mapply(c, variables, lapply(diameters.list, nrow), SIMPLIFY=FALSE)
+  variables.column <- lapply(var.size, function(x){
+    out <- data.frame(cbind(rep(x[[1]], x[[3]]), rep(x[[2]], x[[3]])))
+    colnames(out) <- c("S", "L")
+    return (out)
+  })
+  
+  return(do.call(rbind, Map(data.frame, diameters.list, variables.column)))
+  
+}
+
+regression.L <- function(data) {
+  Smax <- sort(unique(data$S))
+  regressions <- tibble()
+  for(s in Smax) {
+    temp <- subset(data, data$S <= s, c("gen", "d", "S", "L"))
+    lin.reg <- summary(lm(temp$d~temp$S))
+    regressions <- rbind(regressions, c(lin.reg$coefficients[1],
+                                        lin.reg$coefficients[2],
+                                        lin.reg$adj.r.squared, 
+                                        s, temp[1,4]))
+    
+  }
+  colnames(regressions) <- c("intercept", "slope", "adjusted.R.squared", "Smax", "L")
+  return (regressions)
+}
+
+regression.S <- function () {
+  data <- diameter.data()
+  by.L <- split (data, data$L)
+  
+  all.regs <- lapply (by.L, regression.L)
+  all.regs.all.L <- regression.L(data) 
+  all.regs.all.L <- all.regs.all.L[,-5]  
+}
+
+plot.dxS <- function (diameters) {
+  dxS <- ggplot (diameters, aes(x=S, y=d, color=factor(L))) +
+    stat_smooth(data = subset(diameters, (S/L < 0.1)), method='lm', formula = y~x, color="black", size=0.5, se = F, fullrange = T) +
+    geom_point() + theme_bw() + theme.all +
+    geom_errorbar(aes(ymin=d-sd, ymax=d+sd), width=.2) +
+    scale_x_continuous(breaks = seq(0,25,5)) +
+    scale_y_continuous(breaks = seq(0, 200, 25), limits = c(0, max(diameters$d+diameters$sd))) +
+    ggtitle(paste("gen =", g, "(B = 150k)")) +
+    scale_color_viridis_d() +
+    labs (x = "Radius", y = "Mean species diameter", color = "L")
+} #ok
+
+diameter.vs.radius.complete <- function(g){
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()distances_01.csv$",     # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/distances/distances_01.csv")
+  
+  # read all files
+  diameters.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(diameters.list) <- files
+    
   # Take mean and sd from each table
   mean.sd.d <- lapply(diameters.list, function(x) {
-                  out <- subset(x, gen == g & d > 0, 6)
+                  out <- subset(x, (gen == g & d > 0), 6)
                   out <- sapply (out, as.numeric)
                 return (transpose(as.data.frame(c(mean(out), sd(out)))))})
   
@@ -432,68 +489,27 @@ sp.vs.radius.complete <- function(){
                       recursive  = TRUE,                        # search subdirectories
                       full.names = TRUE)                        # return the full path
   
-  
   # extracts S and L and store in list
   variables <- get.variables(files, "./data/Completed/diameter/", "/species/numsp_01.csv")
   
-  Y<-grep(".*()numsp_01.csv$", files, value = TRUE)
   # read all files
   numsp.list <- lapply(files, read.csv, header = T, sep = ";")
   names(numsp.list) <- files
   
   # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
-  diameters.g <- lapply(diameters.list, subset, (gen == g & d > 0), 6)
-  diameters.g <- lapply (diameters.g, sapply, as.numeric)
-  
-  # Take mean and sd from each table
-  mean.sd.d <- lapply(diameters.list, function(x) {
-    out <- subset(x, gen == g & d > 0, 6)
-    out <- sapply (out, as.numeric)
-    return (transpose(as.data.frame(c(mean(out), sd(out)))))})
+  numsp.g <- lapply(numsp.list, subset, (gen == g), 2)
+  numsp.g <- lapply (numsp.g, as.numeric)
   
   # unify values and variables 
-  diameters <- do.call(rbind, Map(data.frame, mean=mean.sd.d, R=variables))
-  colnames(diameters) <- c("d", "sd", "S", "L")
+  species <- do.call(rbind, Map(data.frame, sp = numsp.g, V = variables))
+  colnames(species) <- c("sp", "S", "L")
   
-  # plot the graph and return
-  return(plot.dxS(diameters))
-  
-  
-  g = 300
-  spp <- tibble()
-  L = c(50, 75, 100, 125, 150, 175, 200)
-  R <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50)
-  
-  for (l in L) {
-    if (l == 75 || l == 125 || l == 150) {
-      R <- c(3, 5, 7, 10, 12, 15)
-    }
-    if (l == 175) {
-      R <- c(3, 5, 7)
-    }
-    if (l == 50) {
-      R <- c(3, 5, 7, 10, 12, 15, 20, 25)
-    }
-    if (l == 200) {
-      R <- c(3, 5, 10, 20, 30, 40, 50)
-    }
-    spp.temp <- tibble()
-    for(r in R){
-      numsp <- read.csv(paste0("./data/Completed/diameter/", r, "/", l, "/species/numsp_01.csv"), header = T, sep = ";")
-      numsp <- subset(numsp, gen == g)
-      numsp.insert <- c(numsp$sp, r)
-      spp.temp <- rbind(spp.temp, numsp.insert)
-    }
-    spp.temp <- cbind (spp.temp, rep(l, nrow(spp.temp)))
-    colnames(spp.temp) <- c("sp", "S", "L")
-    spp <- rbind(spp, spp.temp)
-  }
-  
-  spxS <- ggplot (spp, aes(x=S, y=sp, color=factor(L))) +
+  spxS <- ggplot (species, aes(x=S, y=sp, color=factor(L))) +
     geom_point() + theme_bw() + theme.all +
+    scale_color_viridis_d() +
     ggtitle(paste("gen =", g, "(B = 150k)")) +
     labs (x = "Radius", y = "Number spp", color = "L")
   spxS
   return(spxS)
-}
+} # quase ok
 
