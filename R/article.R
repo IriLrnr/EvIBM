@@ -5,17 +5,31 @@ g <- 300
 # Diameters x S
 dxS <- diameter.vs.radius.complete(g)
 dxS
-ggsave(paste0("./figs/sizes/diameter/diameter_s25_", g, ".png"), dxS)
+ggsave(paste0("./figs/sizes/diameter/diameter_", g, ".png"), dxS)
 
 # spp x S
 spxS <- sp.vs.radius.complete()
 spxS
-ggsave(paste0("./figs/sizes/diameter/spp_s25_", g, ".png"), spxS)
+ggsave(paste0("./figs/sizes/diameter/spp_", g, ".png"), spxS)
 
 #regression
-reg <- regression.S(g)
+  ## adjusted R²
+reg <- regression.Smax.plot (g)
 reg
-ggsave(paste0("./figs/sizes/diameter/regression_", g, ".png"), reg)
+ggsave(paste0("./figs/sizes/diameter/regression_Smax_", g, ".png"), reg)
+
+  ## Slope + erro / Smax
+slope <- slope.Smax.plot (g)
+slope
+ggsave(paste0("./figs/sizes/diameter/slope_S_", g, ".png"), slope)
+
+  ## Slope / L - slope do melhor ajuste
+slope.L <- slope.L.plot (g)
+slope.L
+ggsave(paste0("./figs/sizes/diameter/slope_L_assintotico", g, ".png"), slope.L)
+
+  ## Interpolation
+interpolaiton.plot <- interpolaiton.plot (g)
 
 # estamos organizados até aqui!
 

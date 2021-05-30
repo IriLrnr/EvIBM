@@ -415,34 +415,58 @@ diameter.data <- function () {
   
 } # ok
 
-regression.L <- function(data) {
+# nomes confusos e você precisa comentar seu código
+regression.L.S <- function (data) {
+  S <- sort(unique(data$S))
+  regressions <- tibble()
+  intercept.y = mean(subset(data, S == 3)$d)
+  intercept.x = 3
+    
+  for(s in S[-1]) {
+    temp <- subset(data, data$S == s, c("gen", "d", "S", "L"))
+    lin.reg <- summary(lm( I(temp$d-intercept.y) ~ I(temp$S-intercept.x) + 0))
+    regressions <- rbind(regressions, c(lin.reg$coefficients[1],
+                                        lin.reg$coefficients[2],
+                                        lin.reg$coefficients[3],
+                                        lin.reg$adj.r.squared, 
+                                        s, temp[1,4]))
+    print(lin.reg$regressions)
+    
+  }
+  colnames(regressions) <- c("intercept", "slope","error", "adjusted.R.squared", "S", "L")
+  return (regressions)
+}
+
+regression.L.Smax <- function(data) {
   Smax <- sort(unique(data$S))
   regressions <- tibble()
-  for(s in Smax) {
+  for(s in Smax[-1]) {
     temp <- subset(data, data$S <= s, c("gen", "d", "S", "L"))
     lin.reg <- summary(lm(temp$d~temp$S))
     regressions <- rbind(regressions, c(lin.reg$coefficients[1],
                                         lin.reg$coefficients[2],
+                                        lin.reg$coefficients[3],
                                         lin.reg$adj.r.squared, 
                                         s, temp[1,4]))
     
   }
-  colnames(regressions) <- c("intercept", "slope", "adjusted.R.squared", "Smax", "L")
+  colnames(regressions) <- c("intercept", "slope", "error", "adjusted.R.squared", "Smax", "L")
   return (regressions)
-} # not ok
+}
 
-regression.S <- function (g) {
+regression.Smax.plot <- function (g) {
   data <- diameter.data()
   data <- subset(data, gen == g)
   by.L <- split (data, data$L)
   
-  all.regs <- lapply (by.L, regression.L)
+  all.regs <- lapply (by.L, regression.L.Smax)
   reg.data <- do.call(rbind, all.regs)
   
   regression.plot <- ggplot(reg.data, aes(Smax, adjusted.R.squared, color = as.factor(L))) +
-                     geom_point(size=3, alpha = 0.7) + theme_bw() + theme.all +
+                     geom_point(size=1.5, alpha = 0.7) + theme_bw() + theme.all +
+                     geom_errorbar(aes(ymin=adjusted.R.squared-error, ymax=adjusted.R.squared+error), width=.2) +
                      ggtitle("Smax") +
-                     scale_y_continuous(breaks = seq(0, 0.85, 0.1)) +
+                     #scale_y_continuous(breaks = seq(0, 0.85, 0.1)) +
                      scale_x_continuous(breaks = unique(reg.data$Smax)) +
                      scale_color_viridis_d() +
                      labs (x = "Smax", y = "R²", color = "L")
@@ -453,14 +477,14 @@ regression.S <- function (g) {
 
 plot.dxS <- function (diameters) {
   dxS <- ggplot (diameters, aes(x=S, y=d, color=factor(L))) +
-    stat_smooth(data = subset(diameters, (S/L < 0.1)), method='lm', formula = y~x, color="black", size=0.5, se = F, fullrange = T) +
+    #stat_smooth(data = subset(diameters, (S/L < 0.1)), method='lm', formula = y~x, color="black", size=0.5, se = F, fullrange = T) +
     geom_point() + theme_bw() + theme.all +
     geom_errorbar(aes(ymin=d-sd, ymax=d+sd), width=.2) +
     scale_x_continuous(breaks = seq(0,25,5)) +
     scale_y_continuous(breaks = seq(0, 200, 25), limits = c(0, max(diameters$d+diameters$sd))) +
     scale_color_viridis_d() +
     labs (x = "Radius", y = "Mean species diameter", color = "L")
-} #ok
+}
 
 diameter.vs.radius.complete <- function(g){
   files <- list.files(path       = "./data/Completed/diameter", # directory to search within
@@ -487,7 +511,7 @@ diameter.vs.radius.complete <- function(g){
   
   # plot the graph and return
   return(plot.dxS(diameters))
-} #ok
+}
 
 sp.vs.radius.complete <- function(){
   # read all files used in plot
@@ -517,5 +541,68 @@ sp.vs.radius.complete <- function(){
     labs (x = "S", y = "Number of Species", color = "L")
   spxS
   return(spxS)
-} # quase ok
+}
+
+slope.Smax.plot <- function (g) {
+  #get data an split in tables by L
+  data <- diameter.data()
+  data <- subset(data, gen == g)
+  by.L <- split (data, data$L)
+  
+  all.regs <- lapply (by.L, regression.L.Smax)
+  reg.data <- do.call(rbind, all.regs)
+  
+  slope.plot <- ggplot(reg.data, aes(Smax, slope, color = as.factor(L))) +
+    geom_point(size=1.2, alpha = 0.8) + theme_bw() + theme.all + geom_line(size=0.7) +
+    geom_errorbar(aes(ymin=slope-error, ymax=slope+error), width=.2) +
+    #scale_y_continuous(breaks = seq(0, 0.85, 0.1)) +
+    scale_x_continuous(breaks = unique(reg.data$Smax)) +
+    scale_color_viridis_d() +
+    labs (x = "Smax", y = "Slope", color = "L")
+  slope.plot
+  #all.regs.all.L <- regression.L(data) #regs for all L
+  #all.regs.all.L <- all.regs.all.L[,-5]  
+}
+
+slope.L.plot <- function (g) {
+  #get data an split in tables by L
+  data <- diameter.data()
+  data <- subset(data, gen == g)
+  by.L <- split (data, data$L)
+  
+  all.regs <- lapply (by.L, regression.L.Smax)
+  max.regs <- lapply (all.regs, function(x) {
+    return (subset(x, adjusted.R.squared == max(x$adjusted.R.squared)))
+    })
+  reg.data <- do.call(rbind, max.regs)
+
+  slope.plot <- ggplot(reg.data, aes(L, slope, color = as.factor(Smax))) +
+    geom_point(size=3, alpha = 0.8) + theme_bw() + theme.all +
+    geom_errorbar(aes(ymin=slope-error, ymax=slope+error), width=.2) +
+    #scale_y_continuous(breaks = seq(0, 0.85, 0.1)) +
+    scale_x_continuous(breaks = unique(reg.data$L)) +
+    scale_color_viridis_d() +
+    labs (x = "L", y = "Slope", color = "Smax")
+  slope.plot
+}
+
+interpolation.plot <- function (g) {
+  data <- diameter.data()
+  data <- subset(data, gen == g)
+  by.L <- split (data, data$L)
+  
+  all.regs <- lapply (by.L, regression.L.S)
+  reg.data <- do.call(rbind, all.regs)
+  
+  slope.plot <- ggplot(reg.data, aes(S, slope, color = as.factor(L))) +
+    geom_point(size=1.2, alpha = 0.8) + theme_bw() + theme.all + geom_line(size=0.7) +
+    geom_errorbar(aes(ymin=slope, ymax=slope), width=.2) +
+    #scale_y_continuous(breaks = seq(0, 0.85, 0.1)) +
+    scale_x_continuous(breaks = unique(reg.data$S)) +
+    scale_color_viridis_d() +
+    labs (x = "S", y = "Slope", color = "L")
+  slope.plot
+  #all.regs.all.L <- regression.L(data) #regs for all L
+  #all.regs.all.L <- all.regs.all.L[,-5]  
+}
 
