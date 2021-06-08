@@ -1,6 +1,6 @@
 library(gridExtra)
 
-source ("./R/func_and_def.R")
+source ("./R/functions.R")
 
 ## Compare stabilization time ##
 stabfig <- StabTimePlot (create.stab.tbl(10))+
@@ -10,12 +10,16 @@ ggsave("./figs/relat/TempoEquilib_R.png", stabfig, width = 6, height = 4)
 ## Species comparison ##
 comp.150 <- plot.B.parameter(create.B.tbl(150))
 comp.150 <- comp.150 + ggtitle("(A) B = 150") + theme(legend.position = "none", axis.title.x = element_blank())
+ggsave("./figs/relat/comp150.png", comp.150)
 comp.1500 <- plot.B.parameter(create.B.tbl(1500))
 comp.1500 <- comp.1500 + ggtitle("(B) B = 1500") + theme(legend.position = "none", axis.title.y = element_blank(), axis.title.x = element_blank())
+ggsave("./figs/relat/comp1500.png", comp.1500)
 comp.15000 <- plot.B.parameter(create.B.tbl(15000))
 comp.15000 <- comp.15000 + ggtitle("(C) B = 15000") + theme(legend.position = "none")
+ggsave("./figs/relat/comp15000.png", comp.15000)
 comp.150000 <- plot.B.parameter(create.B.tbl(150000))
 comp.150000 <- comp.150000 + ggtitle("(D) B = 150000") + theme(axis.title.y = element_blank())
+ggsave("./figs/relat/comp150000.png", comp.150000)
 series.comp <- grid.arrange(comp.150, comp.1500, comp.15000, comp.150000, ncol = 2)
 ggsave("./figs/relat/series_comp.png", series.comp)
 
@@ -26,21 +30,27 @@ ggsave ("./figs/relat/performance_J.png", comp.boxplot)
 
 ##### G ######
 spp.g <- plot.parameter (create.tbl ((1:10), "g"), "g", "g (%)") 
-spp.g <- spp.g + ggtitle("B")
+spp.g <- spp.g + ggtitle("Genetic distance")
 spp.g
+ggsave("./figs/relat/tests_G.png", spp.g)
 #g.fig <- weird.plot (spp.g.tbl, "g", "Distância genética")
 ##### MU ######
 spp.mu <- plot.parameter (create.tbl ((1:10), "mu"), "mu", expression(paste(mu, "*1000")))
-spp.mu <- spp.mu + ggtitle("A")
+spp.mu <- spp.mu + ggtitle("Mutation")
 spp.mu
+ggsave("./figs/relat/tests_mu.png", spp.mu)
 #mu.fig <- weird.plot (spp.mu.tbl, "mu", "Taxa de mutação")
 ##### RHO ######
 spp.rho <- plot.parameter (create.tbl ((7:15), "rho"), "rho", "pop/100")
-spp.rho <- spp.rho + coord_cartesian(ylim = c(0,30)) + ggtitle("C")
+spp.rho <- spp.rho + coord_cartesian(ylim = c(0,30)) + ggtitle("Population density")
+spp.rho
+ggsave("./figs/relat/tests_rho.png", spp.rho)
 #rho.fig <- weird.plot (spp.rho.tbl, "rho", "Tamanho da população")
 ##### B  ######
 spp.b <- plot.parameter (create.tbl (c(150, 1500, 15000), "B"), "B", "B")
-spp.b <- spp.b + coord_cartesian(ylim = c(0,32)) + ggtitle("D")
+spp.b <- spp.b + coord_cartesian(ylim = c(0,32)) + ggtitle("Genome size")
+spp.b
+ggsave("./figs/relat/tests_B.png", spp.b)
 #b.fig <- weird.plot (spp.b.tbl, "B", "Tamanho do genoma")
 tests <- grid.arrange(spp.mu, spp.g, spp.rho, spp.b)
 ggsave("./figs/relat/tests.png", tests, width = 8, height = 6)

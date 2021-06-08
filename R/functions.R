@@ -8,6 +8,7 @@ library(gridExtra)
 library(readr)
 library(stringr)
 library(data.table)
+library(drc)
 
 
 # A theme for all plots to look alike
@@ -27,7 +28,7 @@ create.tbl <- function (interval, type) {
   spp.tbl <- tibble()
   sumario <- tibble()
   for(f in interval) {
-    file.names <- paste0("./data/Completed/test_cp/", type, "/", f, "/species/", dir(paste0("./data/test_cp/", type, "/", f, "/species/"))[])
+    file.names <- paste0("./data/Completed/test_cp/", type, "/", f, "/species/", dir(paste0("./data/Completed/test_cp/", type, "/", f, "/species/"))[])
     number.spp <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
     
     # Read data
@@ -48,7 +49,7 @@ plot.parameter <- function (spp.info, type, legend) {
     scale_alpha(guide = 'none') +
     scale_color_viridis_d() +
     scale_fill_viridis_d() +
-    labs (x = "Geração", y = "Número de espécies", color = legend) +
+    labs (x = "Generation", y = "Number of species", color = legend) +
     theme_bw() +
     #theme (legend.title = element_text(legend)) +
     theme.all
