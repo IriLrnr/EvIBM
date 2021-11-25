@@ -9,7 +9,8 @@ ggsave("./figs/relat/TempoEquilib_R.png", stabfig, width = 6, height = 4)
 
 ## Species comparison ##
 comp.150 <- plot.B.parameter(create.B.tbl(150))
-comp.150 <- comp.150 + ggtitle("(A) B = 150") + theme(legend.position = "none", axis.title.x = element_blank())
+comp.150 <- comp.150 + ggtitle("B = 150")
+comp.150
 ggsave("./figs/relat/comp150.png", comp.150)
 comp.1500 <- plot.B.parameter(create.B.tbl(1500))
 comp.1500 <- comp.1500 + ggtitle("(B) B = 1500") + theme(legend.position = "none", axis.title.y = element_blank(), axis.title.x = element_blank())

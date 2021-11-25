@@ -9,7 +9,8 @@ library(readr)
 library(stringr)
 library(data.table)
 library(drc)
-
+library(GeneralizedHyperbolic)
+library(splines)
 
 # A theme for all plots to look alike
 theme.all <- theme(text             = element_text(size=10, family="Helvetica"),
@@ -96,7 +97,7 @@ plot.B.parameter <- function (spp.info) {
     ylim(0,35)+
     scale_color_brewer(palette = "Dark2") +
     scale_fill_brewer(palette = "Dark2") +
-    labs (x = "Geração", y = "Número de espécies", color = "Versão") +
+    labs (x = "Generation", y = "Number of species", color = "VersionAh eu vou so  pra garantir que vo formar") +
     theme_bw() +
     #theme (legend.title = element_text(legend)) +
     theme.all
@@ -241,8 +242,9 @@ plot.L.parameter <- function (spp.info, legend) {
 compare.L.parameter <- function (L, n) {
   spp.info <- tibble()
   sumario <- tibble()
+  
   for(f in 1:length(L)) {
-    file.names <- paste0("./data/Completed/sizes_tests/", L[f], "/species/", dir(paste0("./data/Completed/sizes_tests/", L[f], "/species/"))[])
+    file.names <- paste0("./data/Completed/sizes_tests/5/", L[f], "/species/", dir(paste0("./data/Completed/sizes_tests/5/", L[f], "/species/"))[])
     number.spp <- do.call(rbind, lapply(file.names[1:n[f]], FUN = read.csv, head = T, sep=";"))
     number.spp <- number.spp
     # Read data
@@ -260,19 +262,19 @@ compare.L.parameter <- function (L, n) {
     #geom_ribbon(aes(x = gen, ymin=(sp.mn-sp.sd[]), ymax=sp.mn+sp.sd, group=variable, fill=variable), alpha = 0.25, show.legend=F) +
     geom_line (aes(x=gen, y=sp, group=variable, colour=variable)) +
     #scale_alpha(guide = 'none') +
-    scale_color_viridis_d() +
-    scale_fill_viridis_d() +
+    scale_color_manual(values = c("purple", "red")) +
     ylim (0, max.spp) +
     labs (x = "Geração", y = "Número de espécies", color = "L") +
     theme_bw() +
     #theme (legend.title = element_text(legend)) +
     theme.all
+  spp
   #ggsave(paste0("./figs/report/spp_", type, ".png"), spp)
   return (spp)
 }
 
 sizes.histogram <- function (L, g, c) {
-  file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
+  file.names <- paste0("./data/Completed/sizes_tests/5/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/5/", L, "/sizes/"))[])
   pop.info <- do.call(rbind, lapply(file.names, FUN = read.csv, head = T, sep=";"))
   breaks <- seq(1, 1000, 1)
   pop.info <- subset(pop.info, gen == g)
@@ -287,14 +289,20 @@ sizes.histogram <- function (L, g, c) {
     theme_bw()+
     theme.all + theme(legend.position = "none")
 
+  sizes.hist
   return (sizes.hist)
 }
 
 sizes.histogram.compare <- function (L, g, c, n) {
-  file.names <- paste0("./data/Completed/sizes_tests/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/", L, "/sizes/"))[])
-  pop.info <- do.call(rbind, lapply(file.names[1:n], FUN = read.csv, head = T, sep=";"))
+  file.names <- paste0("./data/Completed/sizes_tests/15/", L, "/sizes/", dir(paste0("./data/Completed/sizes_tests/15/", L, "/sizes/"))[])
+  pop.info <- do.call(rbind, lapply(file.names[1:1], FUN = read.csv, head = T, sep=";"))
   breaks <- seq(1, 1000, 1)
   pop.info <- subset(pop.info, gen == g)
+  histo <- cbind(hist(pop.info$size, breaks = breaks, freq = T)$breaks, hist(pop.info$size, breaks = breaks, freq = T)$counts)
+  colnames(histo) <- c("size", "counts")
+  write.csv(histo, paste0("../size_hist_S15_L", L, ".csv"))                       
+  
+  
   fit <- fitdistr(pop.info$size, "lognormal")
   sizes.hist <- ggplot(pop.info, aes(x = size)) +
     geom_histogram(aes(y=..density..), breaks = breaks, position = "identity", fill = c) +
@@ -305,8 +313,7 @@ sizes.histogram.compare <- function (L, g, c, n) {
     ggtitle(paste("N =", L^2*0.1)) +
     theme_bw()+
     theme.all + theme(legend.position = "none")
-  
-  return (sizes.hist)
+    return (sizes.hist)
 }
 
 get.legend<-function(myggplot){
@@ -481,7 +488,7 @@ plot.dxS <- function (diameters) {
     #stat_smooth(data = subset(diameters, (S/L < 0.1)), method='lm', formula = y~x, color="black", size=0.5, se = F, fullrange = T) +
     geom_point() + theme_bw() + theme.all +
     geom_errorbar(aes(ymin=d-sd, ymax=d+sd), width=.2) +
-    scale_x_continuous(breaks = seq(0,25,5)) +
+    scale_x_continuous(breaks = diameters$S) +
     scale_y_continuous(breaks = seq(0, 200, 25), limits = c(0, max(diameters$d+diameters$sd))) +
     scale_color_viridis_d() +
     labs (x = "Radius", y = "Mean species diameter", color = "L")
@@ -587,23 +594,12 @@ slope.L.plot <- function (g) {
   slope.plot
 }
 
-interpolation.plot <- function (g) {
+HipFit <- function(g){
   data <- diameter.data()
   data <- subset(data, gen == g)
   by.L <- split (data, data$L)
   
-  all.regs <- lapply (by.L, regression.L.S)
-  reg.data <- do.call(rbind, all.regs)
-  
-  slope.plot <- ggplot(reg.data, aes(S, slope, color = as.factor(L))) +
-    geom_point(size=1.2, alpha = 0.8) + theme_bw() + theme.all + geom_line(size=0.7) +
-    geom_errorbar(aes(ymin=slope, ymax=slope), width=.2) +
-    #scale_y_continuous(breaks = seq(0, 0.85, 0.1)) +
-    scale_x_continuous(breaks = unique(reg.data$S)) +
-    scale_color_viridis_d() +
-    labs (x = "S", y = "Slope", color = "L")
-  slope.plot
-  #all.regs.all.L <- regression.L(data) #regs for all L
-  #all.regs.all.L <- all.regs.all.L[,-5]  
+  plot.list <- lapply(MMs, function(x){return(plot(x, log = '', pch = 17))})
+  return (MMs)
 }
 

@@ -1,7 +1,8 @@
 source ("./R/functions.R")
 
 g <- 300
-
+S <- c(3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50)
+L <- c(50, 75, 100, 125, 150,175, 200)
 # Diameters x S
 dxS <- diameter.vs.radius.complete(g)
 dxS
@@ -27,9 +28,6 @@ ggsave(paste0("./figs/sizes/diameter/slope_S_", g, ".png"), slope)
 slope.L <- slope.L.plot (g)
 slope.L
 ggsave(paste0("./figs/sizes/diameter/slope_L_assintotico", g, ".png"), slope.L)
-
-  ## Interpolation
-interpolaiton.plot <- interpolaiton.plot (g)
 
 # estamos organizados até aqui!
 
@@ -74,7 +72,7 @@ for (i in 1:n) {
   hist <- grid.arrange(sizes.histogram.compare(100, g[i], c[i], 4) + ylim(0,0.1),
                        sizes.histogram.compare(200, g[i], c[i], 1) + ylim(0,0.1),
                        ncol = 2, top=(paste("generation", g[i])))
-  ggsave(paste0("./figs/sizes/compared/hist_compare_1x4_", g[i], ".png"), hist, height = 3.5)
+  #ggsave(paste0("./figs/sizes/compared/hist_compare_1x4_", g[i], ".png"), hist, height = 3.5)
 }
 compared.Lplot_1x4 <- compare.L.parameter(c(100, 200), c(4,1))
 ggsave("./figs/sizes/compared/nspp_compared_1x4.png", compared.Lplot_1x4)
@@ -94,21 +92,11 @@ for (i in 1:n) {
                        ncol = 2, top=(paste("generation", g[i])))
   ggsave(paste0("./figs/sizes/compared/hist_compare_1x12_", g[i], ".png"), hist, height = 3.5)
 }
-compared.Lplot_1x12 <- compare.L.parameter(c(100, 350), c(12,1))
-ggsave("./figs/sizes/compared/nspp_compared_1x12.png", compared.Lplot_1x12)
+compared.Lplot <- compare.L.parameter(c(100, 200), c(4,1))
+compared.Lplot
+aggsave("./figs/sizes/compared/nspp_compared_1x4_s15.png", compared.Lplot)
 
 
 
 ######### temp #############
-
-# Example:
-x=rep(seq(1,20),10)
-y=rnorm(length(x),x, rep(2,length(x)))
-plot(y~x)
-lin.reg = lm(y~x) #linear regression
-sum.lin.reg=summary(lin.reg)
-
-sum.lin.reg$coefficients[1] # intercept
-sum.lin.reg$coefficients[2] # slope
-sum.lin.reg$adj.r.squared   #adjusted R-squared
 
