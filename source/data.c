@@ -4,14 +4,14 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE ** position, int sizes[], 
 {
   int j;
 
-  if (l == 1 && i % 100 == 0) {
+  if (i % 100 == 0) {
     for (j = 0; j < info->population_size; j++) {
       fprintf(*position, "%d;%d;%f;%f;%d;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
     }
   }
 
   fprintf (*nspecies, "%d;%d;%d;%d\n", i, number_species, info->population_size, l);
-  if (i % 20 == 0) {  
+  if (i % 10 == 0) {  
     for (j = 0; j < number_species; ++j) {
       fprintf (*size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], info->population_size);
     }
