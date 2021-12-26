@@ -196,7 +196,7 @@ int Choose_Mate (Population progenitors, int focal, Parameters info)
 /* @ Choose_Other */
 int Choose_Other (Population progenitors, int focal, Parameters info)
 {
-	int j, i, all, compatible_neighbors, radius_increase, other, n, focal_neighbors;
+	int all, compatible_neighbors, radius_increase, other, n, focal_neighbors;
 
 	other = focal;
 	radius_increase = 0;

@@ -67,19 +67,18 @@ void Mutation (Population offspring, int baby, Parameters info)
 /* @ Offspring_Genome */
 void Offspring_Genome (Population progenitors, Population offspring, int baby, int other, int mate, Parameters info)
 {
-	int i;
 	List p, q;
 
 	RestartList (&offspring[baby]->genome);
 
 	for (p = progenitors[other]->genome->next, q = progenitors[mate]->genome->next; p != NULL || q != NULL;) {
 		if (p == NULL) {
-			for (q; q != NULL; q = q->next) {
+			for (; q != NULL; q = q->next) {
 				if (rand()%2 == 1) AlterList (&offspring[baby]->genome, q->info);
 			}
 		}
 		else if (q == NULL) {
-			for (p; p != NULL; p = p->next) {
+			for (; p != NULL; p = p->next) {
 				if (rand()%2 == 1) AlterList (&offspring[baby]->genome, p->info);
 			}
 		}

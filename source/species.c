@@ -23,7 +23,7 @@ void Find_Species (Population individuals, Parameters info)
 /* @ Stablish_Distances */
 void Stablish_Distances (Population progenitors, Parameters info) 
 {
-	int i, j, i_compatible, increase;
+	int i, j, increase;
 
 	info->population_size = info->child_population_size;
 

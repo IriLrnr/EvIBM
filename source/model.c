@@ -4,7 +4,7 @@
 Parameters Set_Parameters (char *argv[]) 
 {
 	Parameters info;
-	double rho, epslon = 0.74;
+	/* double rho, epslon = 0.74; */
 
 	info = (Parameters) malloc (sizeof (parameters));
 
@@ -54,7 +54,7 @@ void Create_Offspring (Population progenitors, Population offspring, int baby, i
 /* @ Reproduction */
 void Reproduction (Population progenitors, Population offspring, Parameters info)
 {
-	int focal, mate, other, baby, other_neighborhood, all, compatible_neighborhood, increase, n, expand, density;
+	int focal, mate, other, baby, other_neighborhood, all, compatible_neighborhood, increase, n, density;
 	double occupation;
 
 	occupation = ((double) info->population_size) / ((double) info->number_individuals);
