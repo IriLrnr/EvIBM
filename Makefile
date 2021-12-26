@@ -1,5 +1,4 @@
-# TODO: update gcc-9 version
-CC = gcc-9
+CC = gcc
 CFLAGS = -g -ansi -pedantic -Wall
 LDFLAGS = -lgsl -lgslcblas -lm
 

@@ -1,5 +1,7 @@
 #include "genome.h"
 
+extern gsl_rng *GLOBAL_RNG;
+
 /* @ Compare_Genomes */
 int Compare_Genomes (Population individuals, int i, int j, Parameters info)
 {
