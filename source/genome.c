@@ -1,4 +1,4 @@
-#include "../include/genome.h"
+#include "genome.h"
 
 /* @ Compare_Genomes */
 int Compare_Genomes (Population individuals, int i, int j, Parameters info)

@@ -1,4 +1,4 @@
-#include "../include/model.h"
+#include "model.h"
 
 /* @ Set_Parameters */
 Parameters Set_Parameters (char *argv[]) 
@@ -26,10 +26,16 @@ Parameters Set_Parameters (char *argv[])
 	
 	/* We need to know if the density around an individual is less than sufficient for reproduction, Here is the number os
 	individuals that mark the density limit (60% of the original density) */
-	//rho = 0.83*((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
-	//info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - epslon);
+	/* rho = 0.83*((double) info->number_individuals)/((double) */
+	/* 						(info->lattice_length * */
+	/* 						 info->lattice_width)); */
+	/* info->density = (int) ceil(3.1416*rho*info->radius*info->radius * 0.6 - */
+	/* 			   epslon); */
 
-	//info->density = ((double) info->number_individuals)/((double) (info->lattice_length * info->lattice_width));
+	/* info->density = ((double) info->number_individuals)/((double) */
+	/* 						     (info->lattice_length */
+	/* 						      * */
+	/* 						      info->lattice_width)); */
 
 	return info;
 }
@@ -60,7 +66,7 @@ void Reproduction (Population progenitors, Population offspring, Parameters info
 		progenitors[focal]->radius_increase = 0;
 		compatible_neighborhood = Find_Compatible_Neighborhood (progenitors, focal, info);
 		all = Find_Neighborhood (progenitors, focal, info);
-		//printf("local_density = %d\n", progenitors[focal]->local_density);
+		/* printf("local_density = %d\n", progenitors[focal]->local_density); */
 		if (info->population_size < info->number_individuals && progenitors[focal]->local_density < density) {
 			if (compatible_neighborhood >= info->min_neighboors) {
 				mate = Choose_Mate (progenitors, focal, info);

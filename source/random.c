@@ -1,4 +1,4 @@
-#include "../include/random.h"
+#include "random.h"
 
 /* @ rand_1ton */
 int rand_1to (int n)

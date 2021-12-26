@@ -1,4 +1,4 @@
-#include "../include/data.h"
+#include "data.h"
 
 void Write_Data (FILE ** nspecies, FILE ** size, FILE ** position, int sizes[], int number_species, int i, int l, Population progenitors, Parameters info) 
 {

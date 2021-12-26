@@ -1,4 +1,4 @@
-#include "../include/space.h"
+#include "space.h"
 
 /* @ Set_Initial_Position */
 void Set_Initial_Position (Population individuals, Parameters info)
@@ -187,7 +187,7 @@ int Choose_Mate (Population progenitors, int focal, Parameters info)
 	}
 	else mate = -1;
 
-	//printf("mate = %d\n", mate);
+	/* printf("mate = %d\n", mate); */
 
 	return mate;
 }
