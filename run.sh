@@ -11,8 +11,8 @@ do
 		mkdir -p $dir/position
 		echo "real;usr;sys" > $dir/performance_$l.txt
 
-		gcc -g -c main.c source/*.c -I /usr/include/gsl/
-		gcc -ansi -pedantic -Wall *.o -lgsl -lgslcblas -lm -o out
+		gcc-9 -g -c main.c source/*.c -I /usr/include/gsl/
+		gcc-9 -ansi -pedantic -Wall *.o -lgsl -lgslcblas -lm -o out
 
 		for i in $(seq -f "%02g" 1)
 		do 

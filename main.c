@@ -1,6 +1,6 @@
 #include "include/model.h"
 
-//extern gsl_rng *GLOBAL_RNG;
+extern gsl_rng *GLOBAL_RNG;
 
 int main(int argc, char* argv[])
 {
