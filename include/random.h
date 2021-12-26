@@ -2,8 +2,6 @@
 #include <gsl_randist.h>
 #include <gsl_rng.h>
 
-#ifndef RNG_DEF
-#define RNG_DEF
 /* 
 	State-keeper of the random number generator
 */
@@ -23,5 +21,3 @@ int rand_upto (int);
 	returns a random integer from 1 to n
 */
 int rand_1to (int);
-
-#endif
