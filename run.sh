@@ -1,8 +1,11 @@
 #!/bin/sh
 
-for r in 50
+gcc-9 -g -c main.c source/*.c -I /usr/include/gsl/
+gcc-9 -ansi -pedantic -Wall ./*.o -lgsl -lgslcblas -lm -o out
+
+for r in $(seq 50)
 do
-	for l in 200
+	for l in $(seq 200)
 	do
 		dir=./data/article//$r/$l
 		mkdir -p $dir/species
@@ -11,8 +14,6 @@ do
 		mkdir -p $dir/position
 		echo "real;usr;sys" > $dir/performance_$l.txt
 
-		gcc-9 -g -c main.c source/*.c -I /usr/include/gsl/
-		gcc-9 -ansi -pedantic -Wall *.o -lgsl -lgslcblas -lm -o out
 
 		for i in $(seq -f "%02g" 1)
 		do 
