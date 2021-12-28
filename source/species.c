@@ -1,4 +1,4 @@
-#include "../include/species.h"
+#include "species.h"
 
 /* @ Find_Species */
 void Find_Species (Population individuals, Parameters info) 
@@ -16,14 +16,14 @@ void Find_Species (Population individuals, Parameters info)
 			}
 		}		
 	}
-	//printf("%d genomes compared\n", count);
+	/* printf("%d genomes compared\n", count); */
 }
 /* @ end */
 
 /* @ Stablish_Distances */
 void Stablish_Distances (Population progenitors, Parameters info) 
 {
-	int i, j, i_compatible, increase;
+	int i, j, increase;
 
 	info->population_size = info->child_population_size;
 
@@ -71,7 +71,7 @@ int Count_Species (Population individuals, Parameters info, int sizes[])
 {
 	int count, i;
 
-	//FindSpecies (individuals, info);
+	/* FindSpecies (individuals, info); */
 
 	for (count = 0, i = 0; i < info->population_size; i++) {
 		if (individuals[i]->species == i && individuals[i]->species_size > 1) {

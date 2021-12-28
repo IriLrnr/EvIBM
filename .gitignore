@@ -26,4 +26,4 @@ figs/tests/
 .Rproj.user
 .Rproj.user/
 out*
-run
+build

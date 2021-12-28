@@ -1,4 +1,4 @@
-#include "../include/structures.h"
+#include "structures.h"
 
 /* @ Alloc_Population*/
 Population Alloc_Population (Parameters info)

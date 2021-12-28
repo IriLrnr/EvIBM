@@ -1,4 +1,4 @@
-#include "include/model.h"
+#include "model.h"
 
 extern gsl_rng *GLOBAL_RNG;
 

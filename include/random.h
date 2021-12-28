@@ -1,11 +1,6 @@
 #include <stdio.h>
-#include <gsl_randist.h>
-#include <gsl_rng.h>
-
-/* 
-	State-keeper of the random number generator
-*/
-gsl_rng *GLOBAL_RNG;
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_rng.h>
 
 /*
 	Returns a random number between 0 and 1

@@ -1,4 +1,9 @@
-#include "../include/random.h"
+#include "random.h"
+
+/*
+	State-keeper of the random number generator
+*/
+gsl_rng *GLOBAL_RNG;
 
 /* @ rand_1ton */
 int rand_1to (int n)
