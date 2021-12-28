@@ -7,9 +7,9 @@ signal_handler() {
     exit
 }
 
-for r in $(seq 50)
+for r in 50
 do
-	for l in $(seq 200)
+	for l in 200
 	do
 		dir="./data/article/$r/$l"
 		mkdir -p "$dir/{species,sizes,distances,position}"
