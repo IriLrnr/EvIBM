@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 trap signal_handler INT
 signal_handler() {
@@ -12,7 +12,7 @@ do
 	for l in 200
 	do
 		dir="./data/article/$r/$l"
-		mkdir -p "$dir/{species,sizes,distances,position}"
+		mkdir -p "$dir/"{species,sizes,distances,position}
 
 		echo "real;usr;sys" > "$dir/performance_$l.txt"
 
