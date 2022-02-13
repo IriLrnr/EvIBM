@@ -45,6 +45,9 @@ The program works perfectly for G >= 1500, but it still lacks interface.
 
 Currently, I am updating the documentation. Some functions are missing and the function's descriptions are poor.
 
+In this branch I'm trying to keep changes when the simulation is in the middle so it wont be time wasted if the simulation is incomplete.
+It is lacking the parts where I specify if it's from the beginning or the middle, and I need to save the parameters separatedly, so I can review it and take it to start the simulation again
+
 ## References
 
 DE AGUIAR, Marcus Aloizo Martinez et al. Global patterns of speciation and diversity. **Nature**, v. 460, n. 7253, p. 384-387, 2009.
