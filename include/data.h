@@ -2,7 +2,7 @@
 
 void Write_Data (FILE **, FILE **, FILE**, FILE **, int*, int, int, int, Population, Parameters); 
 
-void Open_Files (FILE **, FILE **, FILE **, FILE **, Parameters, int);
+void Open_Files (FILE **, FILE **, FILE **, FILE **, FILE **, Parameters, int);
 
 void Reopen_Files (FILE **, FILE **, FILE **, FILE **, Parameters, int);
 

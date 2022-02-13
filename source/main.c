@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
   time_t t;
   Population progenitors, offspring;
   Parameters info;
-  FILE *nspecies, *distances, *size, *status;
+  FILE *nspecies, *distances, *size, *status, *parms;
 
   /* @ main_rand */
   srand(time(&t));
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
   HEADER(ctime(&t), info->genome_size, info->number_individuals, info->lattice_length, info->radius); /*Code in structures.h*/
 
-  Open_Files (&nspecies, &size, &distances, &status, info, l);
+  Open_Files (&nspecies, &size, &distances, &status, &parms, info, l);
 
   /* @ main_alloc */
   progenitors = Alloc_Population(info);

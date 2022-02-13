@@ -22,7 +22,7 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE** distances, FILE ** statu
   Close_Files (nspecies, size, distances, status); 
 }
 
-void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** status, Parameters info, int l)
+void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** status, FILE ** parms, Parameters info, int l)
 {
   char nome_arq[100] = "";
 
@@ -41,6 +41,14 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** stat
   sprintf (nome_arq, "./data/article/%.f/%.f/status/status_%02d.csv", info->radius, info->lattice_length, l);
   *status = fopen (nome_arq, "w");  
   fputs ("sim;i;x;y;sp;genome;gen\n", *status);
+
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/parameters_%02d.csv", info->radius, info->lattice_length, l);
+  *parms = fopen (nome_arq, "w");  
+  fputs ("pop;L;R;ngen\n", *parms);
+  fprintf (*parms, "%d;%f;%f;%d\n", info->population_size, info->lattice_length, info->radius, info->number_generations);
+  fclose (*parms);
+
+
 }
 
 void Reopen_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** status, Parameters info, int l)
