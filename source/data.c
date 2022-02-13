@@ -5,7 +5,7 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE** distances, FILE ** statu
   int j;
   char g[1500];
 
-  if (i > 0)Reopen_Files (nspecies, size, distances, status, info, l);
+  if (i > 0) Reopen_Files (nspecies, size, distances, status, info, l);
 
   for (j = 0; j < info->population_size; j++) {
     sprintf(g, " ");
@@ -14,6 +14,7 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE** distances, FILE ** statu
   }
 
   fprintf (*nspecies, "%d;%d;%d;%d\n", i, number_species, info->population_size, l);
+
   for (j = 0; j < number_species; ++j) {
     fprintf (*size, "%d;%d;%d;%d;%d\n", l, i, j, sizes[j], info->population_size);
   }
@@ -42,13 +43,11 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** stat
   *status = fopen (nome_arq, "w");  
   fputs ("sim;i;x;y;sp;genome;gen\n", *status);
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/status/parameters_%02d.csv", info->radius, info->lattice_length, l);
+  sprintf (nome_arq, "./data/article/%.f/%.f/parameters.csv", info->radius, info->lattice_length);
   *parms = fopen (nome_arq, "w");  
   fputs ("pop;L;R;ngen\n", *parms);
   fprintf (*parms, "%d;%f;%f;%d\n", info->population_size, info->lattice_length, info->radius, info->number_generations);
   fclose (*parms);
-
-
 }
 
 void Reopen_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** status, Parameters info, int l)
@@ -76,17 +75,6 @@ void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** sta
   fclose (*distances);
   fclose (*status);
 }
-
-/*void Write_Distance_Data (FILE ** distances, Population progenitors, int i, int l, Parameters info)
-{
-  int j, k;
-
-  if (i == 180 || i == 1000) {
-    for (j = 0; j < info->population_size; j++) {
-      fprintf(*distances, "%d;%d;%d;%d;%f\n", l, i, j, Calculate_Genetic_Distance (progenitors, 0, j, info), Calculate_Spatial_Distance (progenitors, 0, j, info));
-    }
-  }
-}*/
 
 void Write_Distance_Data (FILE ** distances, Population progenitors, int gen, int sim, Parameters info)
 {
