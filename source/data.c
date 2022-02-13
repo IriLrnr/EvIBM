@@ -1,12 +1,15 @@
 #include "data.h"
 
-void Write_Data (FILE ** nspecies, FILE ** size, FILE ** position, int sizes[], int number_species, int i, int l, Population progenitors, Parameters info) 
+void Write_Data (FILE ** nspecies, FILE ** size, FILE ** status, int sizes[], int number_species, int i, int l, Population progenitors, Parameters info) 
 {
   int j;
+  char g[1500];
 
-  if (i % 100 == 0) {
+  if (i % 25 == 0) {
     for (j = 0; j < info->population_size; j++) {
-      fprintf(*position, "%d;%d;%f;%f;%d;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, i); 
+      sprintf(g, " ");
+      PrintGenome(progenitors, j, g);
+      fprintf(*status, "%d;%d;%f;%f;%d;%s;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, g, i); 
     }
   }
 
@@ -18,7 +21,7 @@ void Write_Data (FILE ** nspecies, FILE ** size, FILE ** position, int sizes[], 
   } 
 }
 
-void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** position, Parameters info, int l)
+void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** status, Parameters info, int l)
 {
   char nome_arq[100] = "";
 
@@ -34,17 +37,17 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** posi
   *distances = fopen (nome_arq, "w");  
   fputs ("sim;gen;i;j;spp;d\n", *distances);
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/position/indloc_%02d.csv", info->radius, info->lattice_length, l);
-  *position = fopen (nome_arq, "w");  
-  fputs ("sim;i;x;y;sp;gen\n", *position);
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status_%02d.csv", info->radius, info->lattice_length, l);
+  *status = fopen (nome_arq, "w");  
+  fputs ("sim;i;x;y;sp;genome;gen\n", *status);
 }
 
-void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** position)
+void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** status)
 {
   fclose (*nspecies);
   fclose (*size);
   fclose (*distances);
-  fclose (*position);
+  fclose (*status);
 }
 
 /*void Write_Distance_Data (FILE ** distances, Population progenitors, int i, int l, Parameters info)

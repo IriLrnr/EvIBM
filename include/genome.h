@@ -19,3 +19,5 @@ void Mutation (Population, int, Parameters);
 	each loci, 50% chance of coming from either of his parents 
 */
 void Offspring_Genome (Population, Population, int, int, int, Parameters);
+
+void PrintGenome (Population, int, char*);

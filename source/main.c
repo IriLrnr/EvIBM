@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
   time_t t;
   Population progenitors, offspring;
   Parameters info;
-  FILE *nspecies, *distances, *size, *position;
+  FILE *nspecies, *distances, *size, *status;
 
   /* @ main_rand */
   srand(time(&t));
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
   HEADER(ctime(&t), info->genome_size, info->number_individuals, info->lattice_length, info->radius); /*Code in structures.h*/
 
-  Open_Files (&nspecies, &size, &distances, &position, info, l);
+  Open_Files (&nspecies, &size, &distances, &status, info, l);
 
   /* @ main_alloc */
   progenitors = Alloc_Population(info);
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
   /* @ main_loop */
   printf("Sim \t Gen \t nsp\t pop\n");
-  number_species = -1;
+  number_species = 1;
   for(i = 0; i <= info->number_generations; i++) {
     if (i % 10 == 0) {
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     if (i % 10 == 0) number_species = Count_Species(progenitors, info, sizes);
     Reproduction  (progenitors, offspring, info);
     if (i % 10 == 0) {
-      Write_Data(&nspecies, &size, &position, sizes, number_species, i, l, progenitors, info);
+      Write_Data(&nspecies, &size, &status, sizes, number_species, i, l, progenitors, info);
       Write_Distance_Data (&distances, progenitors, i, l, info);
     }
     Swap_Generations (&progenitors, &offspring);
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
   gsl_rng_free (GLOBAL_RNG);
   free (info);
 
-  Close_Files (&nspecies, &size, &distances, &position);
+  Close_Files (&nspecies, &size, &distances, &status);
   /* @ end */
 
   return 0;

@@ -2,6 +2,7 @@
 #include <math.h>
 #include "linkedlist.h"
 #include "random.h"
+#include <string.h>
 
 #define HEADER(time, B, M, L, S) printf("*************BEG**************\n%sB = %d, M = %d, L = %.f, S = %.f\n******************************\n", time, B, M, L, S)
 

@@ -7,12 +7,12 @@ signal_handler() {
     exit
 }
 
-for r in 50
+for r in 5
 do
-	for l in 200
+	for l in 100
 	do
 		dir="./data/article/$r/$l"
-		mkdir -p "$dir/"{species,sizes,distances,position}
+		mkdir -p "$dir/"{species,sizes,distances,status}
 
 		echo "real;usr;sys" > "$dir/performance_$l.txt"
 
