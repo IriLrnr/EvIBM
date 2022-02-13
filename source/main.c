@@ -42,8 +42,7 @@ int main(int argc, char* argv[])
     if (i % 10 == 0) number_species = Count_Species(progenitors, info, sizes);
     Reproduction  (progenitors, offspring, info);
     if (i % 10 == 0) {
-      Write_Data(&nspecies, &size, &status, sizes, number_species, i, l, progenitors, info);
-      Write_Distance_Data (&distances, progenitors, i, l, info);
+      Write_Data(&nspecies, &size, &distances, &status, sizes, number_species, i, l, progenitors, info);
     }
     Swap_Generations (&progenitors, &offspring);
   }
@@ -54,8 +53,6 @@ int main(int argc, char* argv[])
   Free_Population (offspring, info);
   gsl_rng_free (GLOBAL_RNG);
   free (info);
-
-  Close_Files (&nspecies, &size, &distances, &status);
   /* @ end */
 
   return 0;

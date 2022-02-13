@@ -107,7 +107,7 @@ void PrintGenome (Population progenitors, int i, char* genome) {
 	List p;
 	char locus[10] = "";
 
-	for (p = progenitors[i]->genome->next; p != NULL; p = p->next) {
+	for (p = progenitors[i]->genome; p != NULL; p = p->next) {
 		sprintf(locus, "%d ", p->info);
 		strcat(genome, locus);
 	}

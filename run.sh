@@ -23,5 +23,3 @@ do
 		done
 	done
 done
-
-rm ./*.o out
