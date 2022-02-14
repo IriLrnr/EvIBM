@@ -39,7 +39,7 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** stat
   *distances = fopen (nome_arq, "w");  
   fputs ("sim;gen;i;j;spp;d\n", *distances);
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/status/status_%02d.csv", info->radius, info->lattice_length, l);
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
   *status = fopen (nome_arq, "w");  
   fputs ("sim;i;x;y;sp;genome;gen\n", *status);
 
@@ -63,7 +63,7 @@ void Reopen_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** st
   sprintf (nome_arq, "./data/article/%.f/%.f/distances/distances_%02d.csv", info->radius, info->lattice_length, l);
   *distances = fopen (nome_arq, "a");  
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/status/status_%02d.csv", info->radius, info->lattice_length, l);
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
   *status = fopen (nome_arq, "w");  
   fputs ("sim;i;x;y;sp;genome;gen\n", *status);
 }
@@ -97,4 +97,33 @@ void Write_Distance_Data (FILE ** distances, Population progenitors, int gen, in
     }
     fprintf(*distances, "%d;%d;%d;%d;%d;%f\n", sim, gen, j, d, spp, d_dist);
   }
-}  
+} 
+
+void Read_Data (FILE ** parms, FILE ** status, Population progenitors, Parameters info) 
+{
+  char line[300] = "";
+  char *token, *help;
+  char nome_arq[100] = "";
+  int i;
+
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
+  *status = fopen (nome_arq, "r");  
+
+  fgets (line, sizeof (line), *status);
+
+  for (i = 0; fgets (line, sizeof (line), *status); i++) {
+    printf("%s\n", line);
+    token = strtok (line, ";");
+    token = strtok (NULL, ";");
+    token = strtok (NULL, ";");
+    progenitors[i]->x = atof (token);
+    printf("%f\n", progenitors[i]->x );
+    token = strtok (NULL, ";");
+    progenitors[i]->y = atof (token);
+    token = strtok (NULL, ";");
+    progenitors[i]->species = atoi (token);
+    printf("oi\n");
+  }
+
+  fclose(*status);
+}

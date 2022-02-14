@@ -10,3 +10,4 @@ void Close_Files (FILE **, FILE **, FILE **, FILE **);
 
 void Write_Distance_Data (FILE **, Population, int, int, Parameters);
 
+void Read_Data (FILE **, FILE **, Population, Parameters);

@@ -47,6 +47,8 @@ int main(int argc, char* argv[])
     Swap_Generations (&progenitors, &offspring);
   }
   /* @ end */
+
+  Read_Data (&parms, &status, progenitors, info);
   
   /* @ main_free */
   Free_Population (progenitors, info);
