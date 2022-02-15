@@ -101,28 +101,45 @@ void Write_Distance_Data (FILE ** distances, Population progenitors, int gen, in
 
 void Read_Data (FILE ** parms, FILE ** status, Population progenitors, Parameters info) 
 {
-  char line[300] = "";
-  char *token, *help;
+  char line[300];
+  char *token, *saved, *genome, *locus;
   char nome_arq[100] = "";
   int i;
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status_a.csv", info->radius, info->lattice_length);
   *status = fopen (nome_arq, "r");  
 
   fgets (line, sizeof (line), *status);
 
   for (i = 0; fgets (line, sizeof (line), *status); i++) {
-    printf("%s\n", line);
-    token = strtok (line, ";");
-    token = strtok (NULL, ";");
-    token = strtok (NULL, ";");
+ 
+    printf("%s", line);
+
+    token = strtok_r (line, ";", &saved);
+    token = strtok_r(NULL, ";", &saved);
+
+    token = strtok_r (NULL, ";", &saved);
     progenitors[i]->x = atof (token);
-    printf("%f\n", progenitors[i]->x );
-    token = strtok (NULL, ";");
+
+    token = strtok_r (NULL, ";", &saved);
     progenitors[i]->y = atof (token);
-    token = strtok (NULL, ";");
+
+    token = strtok_r (NULL, ";", &saved);
     progenitors[i]->species = atoi (token);
-    printf("oi\n");
+
+    token = strtok_r (NULL, ";", &saved);
+    printf("genome: %s\n", token);
+
+    locus = strtok_r (token, " ", &genome);
+    printf("Head: %s, int: %d\n", locus, atoi(locus));
+
+    locus = strtok_r (NULL, " ", &genome);
+    while (locus != NULL) {
+      printf("%s\n", locus);
+      AddCellInOrder (&(progenitors[i]->genome), atoi(locus));
+      locus = strtok_r (NULL, " ", &genome);
+    }
+    PrintList((progenitors[i]->genome));
   }
 
   fclose(*status);

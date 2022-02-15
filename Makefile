@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -ansi -pedantic -Wall
+CFLAGS = -g -ansi -pedantic -Wall -std=gnu99
 LDFLAGS = -lgsl -lgslcblas -lm
 
 TARGET_EXEC := EvIBM

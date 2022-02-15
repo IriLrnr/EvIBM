@@ -28,6 +28,9 @@ int main(int argc, char* argv[])
   /* @ main_alloc */
   progenitors = Alloc_Population(info);
   offspring = Alloc_Population(info);  
+
+  /*Read_Data (&parms, &status, progenitors, info);*/
+
   Set_Initial_Position(progenitors, info);
   /* @ end */
 
@@ -48,7 +51,7 @@ int main(int argc, char* argv[])
   }
   /* @ end */
 
-  Read_Data (&parms, &status, progenitors, info);
+
   
   /* @ main_free */
   Free_Population (progenitors, info);
