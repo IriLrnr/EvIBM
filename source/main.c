@@ -4,7 +4,7 @@ extern gsl_rng *GLOBAL_RNG;
 
 int main(int argc, char* argv[])
 {
-  int i, l,  number_species;
+  int i, l,  number_species = 1;
   int sizes[1000];
   time_t t;
   Population progenitors, offspring;
@@ -30,28 +30,28 @@ int main(int argc, char* argv[])
   Open_Files (&nspecies, &size, &distances, &status, &parms, info, l);
   Set_Initial_Position(progenitors, info);
 
+  /*preciso fazer algo para identificar se o arquivo existe*/
   Read_Data (&parms, &status, progenitors, info);
-  number_species = Count_Species(progenitors, info, sizes);
-
   /* @ end */
 
   /* @ main_loop */
   printf("Sim \t Gen \t nsp\t pop\n");
-  number_species = 1;
   for(i = 0; i <= info->number_generations; i++) {
+
     Stablish_Distances(progenitors, info);
     if (i % 10 == 0) number_species = Count_Species(progenitors, info, sizes);
+
     Reproduction  (progenitors, offspring, info);
+
     if (i % 10 == 0) {
       Write_Data(&nspecies, &size, &distances, &status, sizes, number_species, i, l, progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }
+    
     Swap_Generations (&progenitors, &offspring);
   }
   /* @ end */
 
-
-  
   /* @ main_free */
   Free_Population (progenitors, info);
   Free_Population (offspring, info);
