@@ -3,14 +3,14 @@
 void Write_Data (FILE ** nspecies, FILE ** size, FILE** distances, FILE ** status, int sizes[], int number_species, int i, int l, Population progenitors, Parameters info) 
 {
   int j;
-  char g[1500];
+  char g[150000];
 
   if (i > 0) Reopen_Files (nspecies, size, distances, status, info, l);
 
   for (j = 0; j < info->population_size; j++) {
     sprintf(g, " ");
     PrintGenome(progenitors, j, g);
-    fprintf(*status, "%d;%d;%f;%f;%d;%s;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, g, i); 
+    fprintf(*status, "%d;%d;%f;%f;%d;%d;%s;%d\n", l, j, progenitors[j]->x, progenitors[j]->y, progenitors[j]->species, progenitors[j]->species_size, g, i); 
   }
 
   fprintf (*nspecies, "%d;%d;%d;%d\n", i, number_species, info->population_size, l);
@@ -41,7 +41,7 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** stat
 
   sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
   *status = fopen (nome_arq, "w");  
-  fputs ("sim;i;x;y;sp;genome;gen\n", *status);
+  fputs ("sim;i;x;y;sp;spsize;genome;gen\n", *status);
 
   sprintf (nome_arq, "./data/article/%.f/%.f/parameters.csv", info->radius, info->lattice_length);
   *parms = fopen (nome_arq, "w");  
@@ -65,7 +65,7 @@ void Reopen_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** st
 
   sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
   *status = fopen (nome_arq, "w");  
-  fputs ("sim;i;x;y;sp;genome;gen\n", *status);
+  fputs ("sim;i;x;y;sp;spsize;genome;gen\n", *status);
 }
 
 void Close_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** status)
@@ -101,10 +101,10 @@ void Write_Distance_Data (FILE ** distances, Population progenitors, int gen, in
 
 void Read_Data (FILE ** parms, FILE ** status, Population progenitors, Parameters info) 
 {
-  char line[300];
   char *token, *saved, *genome, *locus;
   char nome_arq[100] = "";
   int i;
+  char line[300000] = "";
 
   sprintf (nome_arq, "./data/article/%.f/%.f/status/status_a.csv", info->radius, info->lattice_length);
   *status = fopen (nome_arq, "r");  
@@ -112,9 +112,6 @@ void Read_Data (FILE ** parms, FILE ** status, Population progenitors, Parameter
   fgets (line, sizeof (line), *status);
 
   for (i = 0; fgets (line, sizeof (line), *status); i++) {
- 
-    printf("%s", line);
-
     token = strtok_r (line, ";", &saved);
     token = strtok_r(NULL, ";", &saved);
 
@@ -128,19 +125,19 @@ void Read_Data (FILE ** parms, FILE ** status, Population progenitors, Parameter
     progenitors[i]->species = atoi (token);
 
     token = strtok_r (NULL, ";", &saved);
-    printf("genome: %s\n", token);
+    progenitors[i]->species_size = atoi (token);
+
+    token = strtok_r (NULL, ";", &saved);
 
     locus = strtok_r (token, " ", &genome);
-    printf("Head: %s, int: %d\n", locus, atoi(locus));
 
     locus = strtok_r (NULL, " ", &genome);
     while (locus != NULL) {
-      printf("%s\n", locus);
       AddCellInOrder (&(progenitors[i]->genome), atoi(locus));
       locus = strtok_r (NULL, " ", &genome);
     }
-    PrintList((progenitors[i]->genome));
   }
+  info->population_size = i;
 
   fclose(*status);
 }
