@@ -13,6 +13,22 @@ spxS <- sp.vs.radius.complete()
 spxS
 ggsave(paste0("./figs/sizes/diameter/spp_", g, ".png"), spxS)
 
+# d x S/L
+dxSL <- diameter.vs.ratios.complete(g)
+dxSL
+
+# d x pi*S^2/L^2
+dxA <-diameter.vs.ratios2.complete(g)
+dxA
+
+# sp x s
+spxR1 <- sp.vs.ratios.complete()
+spxR1
+
+# spp x pi*S²/L² 
+spxR2 <- sp.vs.ratios2.complete()
+spxR2
+
 #regression
   ## adjusted R²
 reg <- regression.Smax.plot (g)

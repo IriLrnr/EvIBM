@@ -5,7 +5,7 @@ extern gsl_rng *GLOBAL_RNG;
 int main(int argc, char* argv[])
 {
   int i, l,  number_species = 1;
-  int sizes[1000];
+  int sizes[10000];
   time_t t;
   Population progenitors, offspring;
   Parameters info;
@@ -39,11 +39,11 @@ int main(int argc, char* argv[])
   for(i = 0; i <= info->number_generations; i++) {
 
     Stablish_Distances(progenitors, info);
-    if (i % 10 == 0) number_species = Count_Species(progenitors, info, sizes);
+    if (i % 25 == 0) number_species = Count_Species(progenitors, info, sizes);
 
     Reproduction  (progenitors, offspring, info);
 
-    if (i % 10 == 0) {
+    if (i % 25 == 0) {
       Write_Data(&nspecies, &size, &distances, &status, sizes, number_species, i, l, progenitors, info);
       printf(" %d \t %d \t  %d \t %d\n", l, i, number_species, info->population_size);
     }

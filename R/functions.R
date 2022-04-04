@@ -8,7 +8,6 @@ library(gridExtra)
 library(readr)
 library(stringr)
 library(data.table)
-library(drc)
 library(GeneralizedHyperbolic)
 library(splines)
 
@@ -519,6 +518,134 @@ diameter.vs.radius.complete <- function(g){
   
   # plot the graph and return
   return(plot.dxS(diameters))
+}
+
+plot.dxSL <- function (diametersR) {
+  dxSL <- ggplot (diametersR, aes(x=R, y=d, color=factor(L))) +
+    #stat_smooth(data = subset(diameters, (S/L < 0.1)), method='lm', formula = y~x, color="black", size=0.5, se = F, fullrange = T) +
+    geom_point() + theme_bw() + theme.all +
+    #geom_errorbar(aes(ymin=d-sd, ymax=d+sd), width=.2) +
+    scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+    scale_y_continuous(breaks = seq(0, 200, 25), limits = c(0, max(diametersR$d+diametersR$sd))) +
+    scale_color_viridis_d() +
+    labs (x = "Ratio", y = "Mean species diameter", color = "L")
+  #dxSL
+}
+
+diameter.vs.ratios.complete <- function(g){
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()distances_01.csv$",     # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/distances/distances_01.csv")
+  ratios <- lapply(variables, function(x) { return (2*x[1,1]/x[1,2]) } )
+  
+  # read all files
+  diameters.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(diameters.list) <- files
+  
+  # Take mean and sd from each table
+  mean.sd.d <- lapply(diameters.list, function(x) {
+    out <- subset(x, (gen == g & d > 0), 6)
+    out <- sapply (out, as.numeric)
+    return (transpose(as.data.frame(c(mean(out), sd(out)))))})
+  
+  # unify values and variables 
+  diametersR <- do.call(rbind, Map(data.frame, mean=mean.sd.d, rat = ratios, R=variables))
+  colnames(diametersR) <- c("d", "sd", "R", "S", "L")
+  
+  # plot the graph and return
+  return(plot.dxSL(diametersR))
+}
+
+diameter.vs.ratios2.complete <- function(g){
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()distances_01.csv$",     # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/distances/distances_01.csv")
+  ratios <- lapply(variables, function(x) { return (pi*x[1,1]*x[1,1]/(x[1,2]*x[1,2])) } )
+  
+  # read all files
+  diameters.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(diameters.list) <- files
+  
+  # Take mean and sd from each table
+  mean.sd.d <- lapply(diameters.list, function(x) {
+    out <- subset(x, (gen == g & d > 0), 6)
+    out <- sapply (out, as.numeric)
+    return (transpose(as.data.frame(c(mean(out), sd(out)))))})
+  
+  # unify values and variables 
+  diametersR <- do.call(rbind, Map(data.frame, mean=mean.sd.d, rat = ratios, R=variables))
+  colnames(diametersR) <- c("d", "sd", "R", "S", "L")
+  
+  # plot the graph and return
+  return(plot.dxSL(diametersR))
+}
+
+sp.vs.ratios.complete <- function(){
+  # read all files used in plot
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()numsp_01.csv$",         # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/species/numsp_01.csv")
+  ratios <- lapply(variables, function(x) { return (2*x[1,1]/x[1,2]) } )
+  
+  # read all files
+  numsp.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(numsp.list) <- files
+  
+  # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
+  numsp.g <- lapply(numsp.list, subset, (gen == g), 2)
+  numsp.g <- lapply (numsp.g, as.numeric)
+  
+  # unify values and variables 
+  species <- do.call(rbind, Map(data.frame, sp = numsp.g, R = ratios, V = variables))
+  colnames(species) <- c("sp", "R", "S", "L")
+  
+  spxR <- ggplot (species, aes(x=R, y=sp, color=factor(L))) +
+    geom_point() + theme_bw() + theme.all +
+    scale_color_viridis_d() +
+    labs (x = "R", y = "Number of Species", color = "L")
+  return(spxR)
+}
+
+sp.vs.ratios2.complete <- function(){
+  # read all files used in plot
+  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
+                      pattern    = ".*()numsp_01.csv$",         # regex pattern
+                      recursive  = TRUE,                        # search subdirectories
+                      full.names = TRUE)                        # return the full path
+  
+  # extracts S and L and store in list
+  variables <- get.variables(files, "./data/Completed/diameter/", "/species/numsp_01.csv")
+  ratios <- lapply(variables, function(x) { return (pi*x[1,1]*x[1,1]/(x[1,2]*x[1,2])) } )
+  
+  # read all files
+  numsp.list <- lapply(files, read.csv, header = T, sep = ";")
+  names(numsp.list) <- files
+  
+  # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
+  numsp.g <- lapply(numsp.list, subset, (gen == g), 2)
+  numsp.g <- lapply (numsp.g, as.numeric)
+  
+  # unify values and variables 
+  species <- do.call(rbind, Map(data.frame, sp = numsp.g, R = ratios, V = variables))
+  colnames(species) <- c("sp", "R", "S", "L")
+  
+  spxR <- ggplot (species, aes(x=R, y=sp, color=factor(L))) +
+    geom_point() + theme_bw() + theme.all +
+    scale_color_viridis_d() +
+    labs (x = "R", y = "Number of Species", color = "L")
+  return(spxR)
 }
 
 sp.vs.radius.complete <- function(){

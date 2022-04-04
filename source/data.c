@@ -106,7 +106,7 @@ void Read_Data (FILE ** parms, FILE ** status, Population progenitors, Parameter
   int i;
   char line[300000] = "";
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/status/status_a.csv", info->radius, info->lattice_length);
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
   *status = fopen (nome_arq, "r");  
 
   fgets (line, sizeof (line), *status);

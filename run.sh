@@ -7,7 +7,7 @@ signal_handler() {
     exit
 }
 
-for r in 5
+for r in 15
 do
 	for l in 100
 	do
@@ -16,7 +16,7 @@ do
 
 		echo "real;usr;sys" > "$dir/performance_$l.txt"
 
-		for i in $(seq -f "%02g" 1)
+		for i in $(seq -f "%02g" 20)
 		do 
 			$(which time) -o "$dir/performance_$l.txt" \
 			    -a -f "%E; %U; %S" ./build/EvIBM 4 "$l" "$i" "$r"
