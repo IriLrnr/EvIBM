@@ -644,7 +644,8 @@ sp.vs.ratios2.complete <- function(){
   spxR <- ggplot (species, aes(x=R, y=sp, color=factor(L))) +
     geom_point() + theme_bw() + theme.all +
     scale_color_viridis_d() +
-    labs (x = "R", y = "Number of Species", color = "L")
+    labs (x = "R", y = "Number of Species", color = "L")+
+    xlim(0, 0.02)
   return(spxR)
 }
 
