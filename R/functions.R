@@ -493,7 +493,7 @@ plot.dxS <- function (diameters) {
     labs (x = "Radius", y = "Mean species diameter", color = "L")
 }
 
-diameter.vs.radius.complete <- function(g){
+diameter.vs.radius <- function(g){
   files <- list.files(path       = "./data/Completed/diameter", # directory to search within
                       pattern    = ".*()distances_01.csv$",     # regex pattern
                       recursive  = TRUE,                        # search subdirectories
@@ -540,7 +540,7 @@ diameter.vs.ratios.complete <- function(g){
   
   # extracts S and L and store in list
   variables <- get.variables(files, "./data/Completed/diameter/", "/distances/distances_01.csv")
-  ratios <- lapply(variables, function(x) { return (2*x[1,1]/x[1,2]) } )
+  ratios <- lapply(variables, function(x) { return (x[1,1]/x[1,2]) } )
   
   # read all files
   diameters.list <- lapply(files, read.csv, header = T, sep = ";")
@@ -588,67 +588,6 @@ diameter.vs.ratios2.complete <- function(g){
   return(plot.dxSL(diametersR))
 }
 
-sp.vs.ratios.complete <- function(){
-  # read all files used in plot
-  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
-                      pattern    = ".*()numsp_01.csv$",         # regex pattern
-                      recursive  = TRUE,                        # search subdirectories
-                      full.names = TRUE)                        # return the full path
-  
-  # extracts S and L and store in list
-  variables <- get.variables(files, "./data/Completed/diameter/", "/species/numsp_01.csv")
-  ratios <- lapply(variables, function(x) { return (2*x[1,1]/x[1,2]) } )
-  
-  # read all files
-  numsp.list <- lapply(files, read.csv, header = T, sep = ";")
-  names(numsp.list) <- files
-  
-  # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
-  numsp.g <- lapply(numsp.list, subset, (gen == g), 2)
-  numsp.g <- lapply (numsp.g, as.numeric)
-  
-  # unify values and variables 
-  species <- do.call(rbind, Map(data.frame, sp = numsp.g, R = ratios, V = variables))
-  colnames(species) <- c("sp", "R", "S", "L")
-  
-  spxR <- ggplot (species, aes(x=R, y=sp, color=factor(L))) +
-    geom_point() + theme_bw() + theme.all +
-    scale_color_viridis_d() +
-    labs (x = "R", y = "Number of Species", color = "L")
-  return(spxR)
-}
-
-sp.vs.ratios2.complete <- function(){
-  # read all files used in plot
-  files <- list.files(path       = "./data/Completed/diameter", # directory to search within
-                      pattern    = ".*()numsp_01.csv$",         # regex pattern
-                      recursive  = TRUE,                        # search subdirectories
-                      full.names = TRUE)                        # return the full path
-  
-  # extracts S and L and store in list
-  variables <- get.variables(files, "./data/Completed/diameter/", "/species/numsp_01.csv")
-  ratios <- lapply(variables, function(x) { return (pi*x[1,1]*x[1,1]/(x[1,2]*x[1,2])) } )
-  
-  # read all files
-  numsp.list <- lapply(files, read.csv, header = T, sep = ";")
-  names(numsp.list) <- files
-  
-  # take diameters from desired generation. Exclude diameters = 0. Transform in numeric
-  numsp.g <- lapply(numsp.list, subset, (gen == g), 2)
-  numsp.g <- lapply (numsp.g, as.numeric)
-  
-  # unify values and variables 
-  species <- do.call(rbind, Map(data.frame, sp = numsp.g, R = ratios, V = variables))
-  colnames(species) <- c("sp", "R", "S", "L")
-  
-  spxR <- ggplot (species, aes(x=R, y=sp, color=factor(L))) +
-    geom_point() + theme_bw() + theme.all +
-    scale_color_viridis_d() +
-    labs (x = "R", y = "Number of Species", color = "L")+
-    xlim(0, 0.02)
-  return(spxR)
-}
-
 sp.vs.radius.complete <- function(){
   # read all files used in plot
   files <- list.files(path       = "./data/Completed/diameter", # directory to search within
@@ -674,7 +613,7 @@ sp.vs.radius.complete <- function(){
   spxS <- ggplot (species, aes(x=S, y=sp, color=factor(L))) +
     geom_point() + theme_bw() + theme.all +
     scale_color_viridis_d() +
-    labs (x = "S", y = "Number of Species", color = "L")
+    labs (x = "S", y = "Number of species", color = "L")
   spxS
   return(spxS)
 }
