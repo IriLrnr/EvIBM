@@ -39,7 +39,7 @@ void Open_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** stat
   *distances = fopen (nome_arq, "w");  
   fputs ("sim;gen;i;j;spp;d\n", *distances);
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status_%02d.csv", info->radius, info->lattice_length, l);
   *status = fopen (nome_arq, "w");  
   fputs ("sim;i;x;y;sp;spsize;genome;gen\n", *status);
 
@@ -63,7 +63,7 @@ void Reopen_Files (FILE ** nspecies, FILE ** size, FILE ** distances, FILE ** st
   sprintf (nome_arq, "./data/article/%.f/%.f/distances/distances_%02d.csv", info->radius, info->lattice_length, l);
   *distances = fopen (nome_arq, "a");  
 
-  sprintf (nome_arq, "./data/article/%.f/%.f/status/status.csv", info->radius, info->lattice_length);
+  sprintf (nome_arq, "./data/article/%.f/%.f/status/status_%02d.csv", info->radius, info->lattice_length, l);
   *status = fopen (nome_arq, "w");  
   fputs ("sim;i;x;y;sp;spsize;genome;gen\n", *status);
 }

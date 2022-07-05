@@ -18,7 +18,7 @@ Parameters Set_Parameters (char *argv[])
 	
 	info->genome_size            = 150000;
 	info->reproductive_distance  = (int) floor(0.05*info->genome_size);
-	info->number_generations     = 500;
+	info->number_generations     = 1000;
 	info->mutation               = 0.00025;
 	info->dispersion             = 0.01;
 	info->min_neighboors         = 3;
