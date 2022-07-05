@@ -18,6 +18,10 @@ int main(int argc, char* argv[])
   /* @ end */
 
   info = Set_Parameters(argv);
+  if (info->radius > info->lattice_length/2) {
+    free (info);
+    return 0;
+  }
 
   l = atoi(argv[3]);
 
