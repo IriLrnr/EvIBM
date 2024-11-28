@@ -1,6 +1,6 @@
 # Model and Code Documentation for V2
 
-This is a computational model for evolution and speciation. Firt, the model is described, and following is the code. The order is not as it appear in the files, but as is used when compiling.
+This is a computational model for evolution and speciation. Firt, the model is described, and the code follows.
 
 ## Table of Contents
 - [The model](#model)
@@ -34,9 +34,11 @@ This is a computational model for evolution and speciation. Firt, the model is d
 
 ## The model <a name="model"></a>
 
-This is an evolutionary model, based on the individual. It uses individual characteristics, such as genome and position in space to simulate speciation in a population. Modeling evolution is a hard task because it is a sequential problem, and it depends on variables such as genome size, number of individuals and space size. The bigger those variables, the slower the simulation. So this implementantion is an effort to optimize the implementation of the model so it can simulate in a wider range of values of the variables mentioned. 
+This is an individual evolutionary based model (IBM). It uses individual characteristics, such as genome and position, to simulate sexual reproduction over many genetarions, leading to speciation. Modeling evolution is difficult because of it's sequential nature. It depends on variables that can be large: genome size, number of individuals and space. As the variable sizes increase, the simulation time increase even faster. While a model is always a representation, larger simulations can capture more realistic dynamics of speciation, since in reality those variables are large. This implementantion is an effort to optimize the implementation of an Evolutionary IBM (Aguiar et al. 2009) so runtime is improved and larger simulations are possible.
 
-For the model, we define that reproduction between individuals is only possible if they have less than G differences between their genomes. In the model, each individual is represented by a vertix of a graph, and an edge between two vertices exist if their corresponding individuals are genetically compatible. This creates a *Genetic Flow* graph. The species then is a maximal connected component in the graph, where we say there is genetic flow. When genetic flow between two parts of a population stop, as the time passes, they reproduce only within their range. They accumulate mutations until the point where the genetic pool is so far apart, no one in one population can reproduce with anyone from the other, disconecting the components in the graph, and creating species.
+The original implementation characteristics were maintained: th
+
+In the model, reproduction between two individuals are onlu possible if they have less than G differences between their genomes. In the model, each individual is represented by a vertix of a graph, and an edge between two vertices exist if their corresponding individuals are genetically compatible. This creates a *Genetic Flow* graph. The species then is a maximal connected component in the graph, where we say there is genetic flow. When genetic flow between two parts of a population stop, as the time passes, they reproduce only within their range. They accumulate mutations until the point where the genetic pool is so far apart, no one in one population can reproduce with anyone from the other, disconecting the components in the graph, and creating species.
 
 There are a lot of questions still waiting for an answer, that an evolutionary model can help. For example, how long does this process takes in different scenarios? Can two species become one again? Can speciation occurs without putting geographic barriers to stop genetic flow? How does the size of the genome affects the speciation? And many, many others.
 
